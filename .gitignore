@@ -11,7 +11,7 @@ model/bert/new_data_tmp
 logs/phone/*
 logs/text/*
 **/__pycache__
-.DS_Store
+**/DS_Store
 
 
 # User-specific stuff
