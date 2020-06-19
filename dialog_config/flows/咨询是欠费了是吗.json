@@ -1,0 +1,20 @@
+{
+ "name": "咨询是欠费了是吗",
+ "intent": "咨询是欠费了是吗",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "是的，您的房子电费已经欠费。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "return"
+  }
+ },
+ "version": "0.1"
+}

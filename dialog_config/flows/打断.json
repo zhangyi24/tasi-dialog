@@ -1,0 +1,20 @@
+{
+ "name": "打断",
+ "intent": "打断",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "好的，您请说。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "return"
+  }
+ },
+ "version": "0.1"
+}

@@ -1,0 +1,20 @@
+{
+ "name": "查询地址",
+ "intent": "查询地址",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "您的地址是在[%global.address%]。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "return"
+  }
+ },
+ "version": "0.1"
+}

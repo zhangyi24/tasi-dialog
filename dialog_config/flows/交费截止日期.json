@@ -1,0 +1,20 @@
+{
+ "name": "交费截止日期",
+ "intent": "交费截止日期",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "建议您尽可能的在两天之内交清，后续也会有社区经理核实您的情况的。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "return"
+  }
+ },
+ "version": "0.1"
+}

@@ -1,0 +1,21 @@
+{
+ "name": "在开车",
+ "intent": "在开车",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "建议您这边尽快交费，逾期将会产生违约金，同时也会影响您的个人征信，您小心开车，打扰您了，再见。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "exit",
+   "todo": "hangup"
+  }
+ },
+ "version": "0.1"
+}

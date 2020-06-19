@@ -1,0 +1,20 @@
+{
+ "name": "咨询电量价格",
+ "intent": "咨询电量价格",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "我给您做个登记，稍后让我们社区经理联系您解答您的这些问题，请您稍后留意下电话。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "return"
+  }
+ },
+ "version": "0.1"
+}

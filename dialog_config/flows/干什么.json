@@ -1,0 +1,20 @@
+{
+ "name": "干什么",
+ "intent": "干什么",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "我是萧山区供电公司的催费员，您的电费已经欠费，请您这边尽快交费。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "return"
+  }
+ },
+ "version": "0.1"
+}

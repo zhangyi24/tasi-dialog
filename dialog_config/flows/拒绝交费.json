@@ -1,0 +1,21 @@
+{
+ "name": "拒绝交费",
+ "intent": "拒绝交费",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "如果您这边不能及时交费，逾期将会产生违约金，会影响您的个人征信，请您尽快交清，感谢您的接听，再见。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "exit",
+   "todo": "hangup"
+  }
+ },
+ "version": "0.1"
+}

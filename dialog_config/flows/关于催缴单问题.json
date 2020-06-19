@@ -1,0 +1,20 @@
+{
+ "name": "关于催缴单问题",
+ "intent": "关于催缴单问题",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "是这样的，我们的催缴单都已经发出，请您留意下信报箱、单元门等地方。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "return"
+  }
+ },
+ "version": "0.1"
+}

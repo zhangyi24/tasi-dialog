@@ -1,0 +1,21 @@
+{
+ "name": "换人沟通",
+ "intent": "换人沟通",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "好的，那我稍后让我们社区经理联系您，打扰您了，祝您生活愉快，再见！",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "exit",
+   "todo": "fwd"
+  }
+ },
+ "version": "0.1"
+}

@@ -1,0 +1,20 @@
+{
+ "name": "客户问AI是否听得到",
+ "intent": "客户问AI是否听得到",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "在听的，您接着说。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "return"
+  }
+ },
+ "version": "0.1"
+}

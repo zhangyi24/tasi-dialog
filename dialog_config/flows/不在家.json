@@ -1,0 +1,20 @@
+{
+ "name": "不在家",
+ "intent": "不在家",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "您可以通过电e宝，微信，支付宝线上交费，或者去就近的营业厅或者银行进行交费。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "return"
+  }
+ },
+ "version": "0.1"
+}

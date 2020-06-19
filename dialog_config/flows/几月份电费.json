@@ -1,0 +1,20 @@
+{
+ "name": "几月份电费",
+ "intent": "几月份电费",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "是这样的，您产生的电费是上个月的。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "return"
+  }
+ },
+ "version": "0.1"
+}

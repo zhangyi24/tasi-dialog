@@ -1,0 +1,21 @@
+{
+ "name": "用户说提供号码",
+ "intent": "用户说提供号码",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "好的，那后续会有社区经理再跟您确认一下，更新实时联系信息，打扰您了，感谢您的接听，再见。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "exit",
+   "todo": "hangup"
+  }
+ },
+ "version": "0.1"
+}

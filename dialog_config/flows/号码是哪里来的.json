@@ -1,0 +1,20 @@
+{
+ "name": "号码是哪里来的",
+ "intent": "号码是哪里来的",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "号码是原先您在电力供电公司注册或信息普查时提供的，给您来电是提醒您尽快交清电费。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "return"
+  }
+ },
+ "version": "0.1"
+}

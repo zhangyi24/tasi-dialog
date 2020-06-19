@@ -1,0 +1,20 @@
+{
+ "name": "调戏AI",
+ "intent": "调戏AI",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "不好意思，跟工作不相关的问题上班时间我们是不允许聊的，给您来电是提醒您尽快交清电费。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "return"
+  }
+ },
+ "version": "0.1"
+}

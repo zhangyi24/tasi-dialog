@@ -1,0 +1,21 @@
+{
+ "name": "生病",
+ "intent": "生病",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "请您保重身体，好好休息，最后还是建议您这边尽快交费，逾期将会产生违约金，也会影响您的个人征信，打扰您了，再见。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "exit",
+   "todo": "hangup"
+  }
+ },
+ "version": "0.1"
+}

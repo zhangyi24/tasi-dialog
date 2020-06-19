@@ -1,0 +1,21 @@
+{
+ "name": "代扣",
+ "intent": "代扣",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "那有可能是还款渠道存在某些问题，后续让您的社区经理在给您核实一下情况，打扰您了，再见。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "exit",
+   "todo": "hangup"
+  }
+ },
+ "version": "0.1"
+}

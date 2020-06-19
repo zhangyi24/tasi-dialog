@@ -1,0 +1,47 @@
+port: 59999
+mysql:
+  host: "221.238.40.153"
+  port: "7100"
+  user: "web"
+  passwd: "Fzgj@1234"
+  database: "visualization"
+postgresql:
+  host: "47.93.120.246"
+  port: "5432"
+  user: "postgres"
+  password: "305Cm@TFg3u70N8Q"
+  dbname: "visualization"
+  client_encoding: "utf-8"
+  connect_timeout: 5
+bot:
+  result_save_url: "http://39.99.186.66:8001/api/robot/resultSave"
+asr:
+  record_dir: 'https://tasi-callcenter-audio-record.oss-cn-beijing.aliyuncs.com/ASR/'
+logging:
+  version: 1
+  disable_existing_loggers: False
+  formatters:
+    simpleFormater:
+      format: '%(asctime)s.%(msecs)03d - %(levelname)7s: %(name)10s: %(message)s'
+      datefmt: '%Y-%m-%d %H:%M:%S'
+  handlers:
+    console:
+      class: logging.StreamHandler
+      formatter: simpleFormater
+      level: INFO
+
+    log_file_handler:
+      class: logging.handlers.TimedRotatingFileHandler
+      level: INFO
+      formatter: simpleFormater
+      filename: logs/phone/master.log
+      when: 'd'
+      interval: 1
+      backupCount: 5
+      encoding: "utf8"
+  root:
+    level: INFO
+    handlers: [console, log_file_handler]
+
+
+

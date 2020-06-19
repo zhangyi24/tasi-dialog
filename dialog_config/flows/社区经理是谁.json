@@ -1,0 +1,20 @@
+{
+ "name": "社区经理是谁",
+ "intent": "社区经理是谁",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "嗯，社区经理就是负责您家所在片区的抄表师傅。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "return"
+  }
+ },
+ "version": "0.1"
+}

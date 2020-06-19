@@ -1,0 +1,20 @@
+{
+ "name": "逾期后果",
+ "intent": "逾期后果",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "逾期将会产生违约金，同时会影响您的个人征信，建议您这边尽快交费。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "return"
+  }
+ },
+ "version": "0.1"
+}

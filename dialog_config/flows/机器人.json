@@ -1,0 +1,20 @@
+{
+ "name": "机器人",
+ "intent": "机器人",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "我是机器人小知，因为您的电费已经逾期，小知这边提醒您尽快交费。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "return"
+  }
+ },
+ "version": "0.1"
+}

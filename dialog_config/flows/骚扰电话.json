@@ -1,0 +1,21 @@
+{
+ "name": "骚扰电话",
+ "intent": "骚扰电话",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "我是萧山供电公司的催费员，给您来电是提醒您这边尽快交清电费，谢谢您的配合，再见。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "exit",
+   "todo": "hangup"
+  }
+ },
+ "version": "0.1"
+}

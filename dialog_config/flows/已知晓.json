@@ -1,0 +1,21 @@
+{
+ "name": "已知晓",
+ "intent": "已知晓",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "感谢您的接听，祝您生活愉快，再见。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "exit",
+   "todo": "hangup"
+  }
+ },
+ "version": "0.1"
+}

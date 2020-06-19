@@ -1,0 +1,20 @@
+{
+ "name": "骗人",
+ "intent": "骗人",
+ "nodes": {
+  "0": {
+   "type": "response",
+   "response": "我是萧山区供电公司的催费员，若有疑问可以致电51228052进行核实。",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "return"
+  }
+ },
+ "version": "0.1"
+}
