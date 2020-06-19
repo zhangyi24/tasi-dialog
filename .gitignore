@@ -10,6 +10,8 @@ model/bert/chinese_L-12_H-768_A-12
 model/bert/new_data_tmp
 logs/phone/*
 logs/text/*
+**/__pycache__
+.DS_Store
 
 
 # User-specific stuff
