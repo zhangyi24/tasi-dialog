@@ -5,6 +5,9 @@ import glob
 import os
 import copy
 import time
+import logging
+import collections
+
 from nlu.nlu import NLUManager
 from dm import cond_judge
 from nlg import response_process
@@ -38,7 +41,9 @@ class Bot(object):
             self.entities['user'] = json.load(f)
         # global_vars
         with open('dialog_config/global_vars.json', 'r', encoding='utf-8') as f:
-            self.global_vars = json.load(f)
+            g_vars_cfg = json.load(f)
+            self.g_vars = g_vars_cfg['g_vars']
+            self.g_vars_need_init = g_vars_cfg['g_vars_need_init']  # 需要初始值来初始化的全局变量。实例化一个机器人时需要传入这些变量的初始值
 
         # functions
         from dialog_config import functions
@@ -46,12 +51,17 @@ class Bot(object):
         # templates
         with open('dialog_config/corpus/templates.json', 'r', encoding='utf-8') as f:
             self.templates = json.load(f)
-        # service language
-        with open('dialog_config/service_language.json', 'r', encoding='utf-8') as f:
-            self.service_language = json.load(f)
         # stop_words
         with open('dialog_config/stop_words.txt', 'r', encoding='utf-8') as f:
             self.stop_words = f.read().strip().split()
+        # service language
+        with open('dialog_config/service_language.json', 'r', encoding='utf-8') as f:
+            self.service_language = json.load(f)
+        # results of calls for analysis
+        with open('dialog_config/results.json', 'r', encoding='utf-8') as f:
+            results = json.load(f)
+            self.results_code = results['results_code']
+            self.init_results = results['init_results']
 
         # init nlu_manager
         self.nlu_manager = NLUManager(self.templates, self.intents, self.entities, self.stop_words)
@@ -61,31 +71,36 @@ class Bot(object):
 
     def init(self, user_id, user_info, call_info):
         self.users[user_id] = {
-            "g_var": copy.deepcopy(self.global_vars),
+            "user_id": user_id,
+            "g_vars": copy.deepcopy(self.g_vars),
             "node_stack": [],
             "call_info": call_info,
             "call_status": 'on',
-            "history": []
+            "history": [],
+            "results": [],
+            "task_id": call_info['strategy_params'].split('#')[0]
         }
-        self.users[user_id]['g_var']['intent'] = None
-        for key in user_info:
-            if key in self.users[user_id]['g_var']:
-                self.users[user_id]['g_var'][key] = user_info[key]
-        resp = {'content': response_process(self.service_language['greeting'], self.users[user_id]['g_var']),
+        self.users[user_id]['g_vars']['intent'] = None
+        if len(self.g_vars_need_init) != len(user_info):
+            logging.error("The length of 'g_vars_need_init' must be equal to the length of 'user_info': %s != %s",
+                          len(self.g_vars_need_init), len(user_info))
+        else:
+            self.users[user_id]['g_vars'].update(dict(zip(self.g_vars_need_init, user_info)))
+        resp = {'content': response_process(self.service_language['greeting'], self.users[user_id]['g_vars']),
                 'allow_interrupt': self.interact_mode == '2', 'input_channel': '10'}
         return resp
 
     def response(self, user_id, user_utter):
         user = self.users[user_id]
         resp = {'content': None, 'allow_interrupt': self.interact_mode == '2', 'input_channel': '10'}
-        g_vars = self.users[user_id]['g_var']
+        g_vars = self.users[user_id]['g_vars']
         node_stack = self.users[user_id]['node_stack']
         intent = self.nlu_manager.intent_recognition(user_utter)
         g_vars['intent'] = intent
         if intent is not None:
             if not node_stack or (
-                    intent in self.intent_flow_mapping and self.intent_flow_mapping[intent] !=
-                    node_stack[0]['flow_name']):
+                    intent in self.intent_flow_mapping and self.intent_flow_mapping[intent] != node_stack[0][
+                'flow_name']):
                 node_stack.clear()
                 node_stack.append({'flow_name': self.intent_flow_mapping[intent], 'node_id': '0'})
 
@@ -96,13 +111,15 @@ class Bot(object):
             # print(g_vars, node_stack)
             current_flow = self.flows[node_stack[-1]['flow_name']]
             current_node = current_flow['nodes'][node_stack[-1]['node_id']]
+            # todo: 每经过一个节点就把该节点的结果追加到results后，有没有更合理的记录对话结果的方法
+            user['results'].extend(current_node.get('results', []))
 
             if current_node['type'] == 'branch':
                 pass
 
             elif current_node['type'] == 'assignment':
                 for item in current_node['assignments']:
-                    g_vars[item['g_var']] = item['value']
+                    g_vars[item['g_vars']] = item['value']
 
             elif current_node['type'] == 'response':
                 resp['content'] = response_process(current_node['response'], g_vars)
@@ -149,3 +166,9 @@ class Bot(object):
                         resp['content'] = response_process(case['response'], g_vars)
                     break
         return resp, user['call_status']
+
+    def convert_results_to_code(self, user):
+        if not user['results']:
+            user['results'] = self.init_results
+        user['results'] = [self.results_code[res] for res in user['results']]
+        return user['results']

@@ -1,4 +1,3 @@
-
 # This is a Python implementation of the following jsonLogic JS library:
 # https://github.com/jwadhams/json-logic-js
 from __future__ import unicode_literals

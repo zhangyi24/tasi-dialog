@@ -95,7 +95,6 @@ class MainHandler(tornado.web.RequestHandler):
 
     async def prepare(self):
         logging.info('[dialog] req_headers: %s' % dict(self.request.headers))
-        req_body = self.request.body
         self.req_body = json.loads(self.request.body) if self.request.body else {}
         logging.info('[dialog] req_body: %s' % self.req_body)
         self.set_header(name='Content-Type', value='application/json; charset=UTF-8')
@@ -105,19 +104,10 @@ class MainHandler(tornado.web.RequestHandler):
 
     async def post(self):
         resp_body = None
-        task_id = ''
         if self.req_body['inaction'] == 8:
-
             # 处理扩展字段
-            extend = self.req_body['inparams']['extend'].split('#')
-
-            # 获取task_id
-            task_id = self.req_body['inparams']['strategy_params'].split('#')[0]
-
-            # TODO 这个地方硬解析生成字典，一旦extend数目不等于3，必然出错
-            user_info = dict(zip(('consumer_number', 'address', 'owe'), extend))
-
-            # 开始NLP，并生成添加一些必要参数
+            user_info = self.req_body['inparams']['extend'].split('#')[1:]
+            # 初始化一个机器人，返回开场白
             bot_resp = self.bot.init(user_id=self.req_body['userid'], user_info=user_info,
                                      call_info=self.req_body['inparams'])
             user = self.bot.users[self.req_body['userid']]
@@ -135,8 +125,6 @@ class MainHandler(tornado.web.RequestHandler):
                 user['resp_queue'].append(self.generate_resp_body_listen(user))
 
         elif self.req_body['inaction'] == 9:
-            # # 获取task_id
-            # task_id = self.req_body['inparams']['strategy_params'].split('#')[0]
             if self.req_body['userid'] not in self.bot.users:
                 logging.info('[dialog] there is no user whose user_id is \'%s\'.' % self.req_body['userid'])
                 return
@@ -160,7 +148,7 @@ class MainHandler(tornado.web.RequestHandler):
                     user_input, asr_record_path = self.parse_asr_result(self.req_body['inparams']['input'])
                 if user_input:
                     self.db.add_msg(user=user['call_info'].get('call_sor_id', ''),
-                                    receipt='bot', msg=user_input, task_id=task_id, asr_record_path=asr_record_path)
+                                    receipt='bot', msg=user_input, task_id=user['task_id'], asr_record_path=asr_record_path)
                     user['history'].append('用户：' + user_input)
                 bot_resp, user['call_status'] = self.bot.response(self.req_body['userid'], user_input)
 
@@ -187,13 +175,13 @@ class MainHandler(tornado.web.RequestHandler):
                         resp_body = self.generate_resp_body_speak(user, '正在为您转接至人工')
                         user['resp_queue'].append(self.generate_resp_body_fwd(user))
 
-        # 用户拒接
+        # 判断呼叫转移是否成功
         elif self.req_body['inaction'] == 11:
             user = self.bot.users[self.req_body['userid']]
             trans_success = self.req_body['inparams']['trans_result'] == '1'
-            resp_body = self.generate_resp_body_hangup(user)
+            resp_body = self.generate_resp_body_hangup(user)    # 无论是否转移成功，这通电话已经结束。
 
-        # 暂时没用到的转人工
+        # 判断呼叫转移队列是否锁定成功
         elif self.req_body['inaction'] == 0:
             user = self.bot.users[self.req_body['userid']]
             queue_locked = self.req_body['inparams']['att_status'] == '1'
@@ -216,7 +204,7 @@ class MainHandler(tornado.web.RequestHandler):
             user['history'].append('机器人：' + resp_body['outparams']['prompt_text'])
             self.db.add_msg(user='bot',
                             receipt=user['call_info'].get('call_sor_id', ''), msg=resp_body['outparams']['prompt_text'],
-                            task_id=task_id)
+                            task_id=user['task_id'])
         user['last_resp_body'] = resp_body
         logging.info('[dialog] resp_headers: %s' % dict(self._headers))
         logging.info('[dialog] resp_body: %s' % resp_body)
@@ -238,11 +226,13 @@ class MainHandler(tornado.web.RequestHandler):
             "comcode": "",
             "isToacd": ""
         }
+        self.bot.convert_results_to_code(user)
         req_body.update({
             "callid": user["call_info"].get('call_id', ''),
             "entranceId": user["call_info"].get('entranceId', ''),
             "content": '#'.join(user['history']),
-            "isToacd": '0' if user['call_status'] == 'fwd' else '1'
+            "isToacd": '0' if user['call_status'] == 'fwd' else '1',
+            "callResult": '#'.join(user['results'])
         })
         req_body.update(dict(zip(("eventId", "custId", "listId"), user['call_info']['strategy_params'].split('#'))))
         extend = user['call_info'].get('extend', '').split('#')
