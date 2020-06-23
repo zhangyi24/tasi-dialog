@@ -83,13 +83,14 @@ class Bert_Classifier(object):
             self.sess = tf.Session()
             self.sess.run(tf.global_variables_initializer())
             saver = tf.train.Saver()
-            ckpt_dirs = []
+            ckpt_dirs = {}
             for file in os.listdir(self.model_dir):
                 if file.startswith('model.ckpt-') and file.endswith('meta'):
-                    ckpt_dirs.append(file[:-5])
+                    idx = int(file[:-5].split('-')[-1])
+                    ckpt_dirs[idx] = file[:-5]
             if not ckpt_dirs:
                 print('No model found.')
-            self.ckpt = os.path.join(self.model_dir, max(ckpt_dirs))
+            self.ckpt = os.path.join(self.model_dir, ckpt_dirs[max(ckpt_dirs.keys())])
             saver.restore(self.sess, self.ckpt)
 
     def predict(self, texts):
@@ -122,5 +123,5 @@ class Bert_Classifier(object):
         results = []
         for prob in probabilities:
             label_id = np.argmax(prob)
-            results.append([self.label_list[label_id], label_id, prob])
+            results.append([self.label_list[label_id], prob[label_id]])
         return results

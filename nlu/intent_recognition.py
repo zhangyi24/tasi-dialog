@@ -35,7 +35,12 @@ class NLU_Model_bert(NLU_Model):
 		self.model = Bert_Classifier(data_dir=data_dir)
 
 	def intent_recognition(self, user_utter):
-		intent_name = self.model.predict([user_utter])[0][0] if user_utter else 'others'
+		if not user_utter:
+			intent_name, confidence = 'others', 1.0
+		else:
+			intent_name, confidence = self.model.predict([user_utter])[0]
+			logging.info('intent recognition result(BERT): ("%s", %s, %s)' % (user_utter, intent_name, confidence))
+			if confidence < 0.93:
+				intent_name = 'others'
 		intent_name = intent_name if intent_name != 'others' else None
-		logging.info('intent recognition result(BERT): ("%s", %s)' % (user_utter, intent_name))
 		return intent_name
