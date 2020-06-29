@@ -6,6 +6,7 @@ import logging
 import logging.config
 import copy
 import collections
+import os
 
 import yaml
 import tornado.ioloop
@@ -55,7 +56,7 @@ class MainHandler(tornado.web.RequestHandler):
 	
 	def post(self):
 		if self.req_body['inaction'] == 8:
-			user_info = self.req_body['inparams']['user_info']
+			user_info = self.req_body['inparams']['user_info'].split('#')[1:]
 			bot_resp = self.bot.init(user_id=self.req_body['userid'], user_info=user_info,
 			                         call_info=self.req_body['inparams'])
 			user = self.bot.users[self.req_body['userid']]
@@ -131,6 +132,8 @@ if __name__ == "__main__":
 	with open("config_text.yml") as f:
 		conf = yaml.safe_load(f)
 	if "logging" in conf:
+		filename = conf['logging']['handlers']['log_file_handler']['filename']
+		os.makedirs(os.path.dirname(filename), exist_ok=True)
 		logging.config.dictConfig(conf["logging"])
 	
 	# bot

@@ -13,6 +13,16 @@ from dm import cond_judge
 from nlg import response_process
 from dialog_config import functions
 
+class ResultsTracker(object):
+    def __init__(self, results_code, init_results):
+        self.results_code = results_code
+        self.init_results = init_results
+
+    def convert_results_to_codes(self, results):
+        codes = [self.results_code[res] for res in results]
+        return codes
+
+
 
 class Bot(object):
     def __init__(self, interact_mode='1'):
@@ -58,10 +68,12 @@ class Bot(object):
         with open('dialog_config/service_language.json', 'r', encoding='utf-8') as f:
             self.service_language = json.load(f)
         # results of calls for analysis
-        with open('dialog_config/results.json', 'r', encoding='utf-8') as f:
-            results = json.load(f)
-            self.results_code = results['results_code']
-            self.init_results = results['init_results']
+        self.results_tracker = None
+        results_tracker_config_file = 'dialog_config/results.json'
+        if os.path.exists(results_tracker_config_file):
+            with open(results_tracker_config_file, 'r', encoding='utf-8') as f:
+                results = json.load(f)
+                self.results_tracker = ResultsTracker(results['results_code'], results['init_results'])
 
         # init nlu_manager
         self.nlu_manager = NLUManager(self.templates, self.intents, self.entities, self.stop_words)
@@ -69,7 +81,7 @@ class Bot(object):
 
         self.users = {}
 
-    def init(self, user_id, user_info, call_info):
+    def init(self, user_id, user_info, call_info, task_id=-1):
         self.users[user_id] = {
             "user_id": user_id,
             "g_vars": copy.deepcopy(self.g_vars),
@@ -77,8 +89,8 @@ class Bot(object):
             "call_info": call_info,
             "call_status": 'on',
             "history": [],
-            "results": [],
-            "task_id": call_info['strategy_params'].split('#')[0]
+            "results": self.results_tracker.init_results if self.results_tracker else [],
+            "task_id": task_id
         }
         self.users[user_id]['g_vars']['intent'] = None
         if len(self.g_vars_need_init) != len(user_info):
@@ -167,8 +179,6 @@ class Bot(object):
                     break
         return resp, user['call_status']
 
-    def convert_results_to_code(self, user):
-        if not user['results']:
-            user['results'] = self.init_results
-        user['results'] = [self.results_code[res] for res in user['results']]
+    def convert_results_to_codes(self, user):
+        user['results'] = self.results_tracker.convert_results_to_codes(user['results'])
         return user['results']

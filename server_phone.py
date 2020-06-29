@@ -109,7 +109,8 @@ class MainHandler(tornado.web.RequestHandler):
             user_info = self.req_body['inparams']['extend'].split('#')[1:]
             # 初始化一个机器人，返回开场白
             bot_resp = self.bot.init(user_id=self.req_body['userid'], user_info=user_info,
-                                     call_info=self.req_body['inparams'])
+                                     call_info=self.req_body['inparams'],
+                                     task_id=self.req_body['inparams']['strategy_params'].split('#')[0])
             user = self.bot.users[self.req_body['userid']]
             user['inter_idx'] = '1'
             user['resp_queue'] = collections.deque()
@@ -227,7 +228,7 @@ class MainHandler(tornado.web.RequestHandler):
             "comcode": "",
             "isToacd": ""
         }
-        self.bot.convert_results_to_code(user)
+        self.bot.convert_results_to_codes(user)
         req_body.update({
             "callid": user["call_info"].get('call_id', ''),
             "entranceId": user["call_info"].get('entranceId', ''),
@@ -359,6 +360,8 @@ if __name__ == "__main__":
     with open("config_phone.yml") as f:
         conf = yaml.safe_load(f)
     if "logging" in conf:
+        filename = conf['logging']['handlers']['log_file_handler']['filename']
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         logging.config.dictConfig(conf["logging"])
     bot_conf = conf['bot']
     bot_conf.update({'lock_before_fwd': args.lock})

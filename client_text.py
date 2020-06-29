@@ -87,7 +87,7 @@ if __name__ == '__main__':
 	url = local_server_url
 	call_id = '123'
 	call_sor_id = '130****1234'
-	user_info = {}
+	user_info = 'dummy#杭州#60'
 	while True:
 		req_body = get_req_body_init(call_id, call_sor_id, user_info)
 		resp = requests.post(url=url, json=req_body)
