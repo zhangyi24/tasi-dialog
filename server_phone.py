@@ -148,7 +148,8 @@ class MainHandler(tornado.web.RequestHandler):
                     user_input, asr_record_path = self.parse_asr_result(self.req_body['inparams']['input'])
                 if user_input:
                     self.db.add_msg(user=user['call_info'].get('call_sor_id', ''),
-                                    receipt='bot', msg=user_input, task_id=user['task_id'], asr_record_path=asr_record_path)
+                                    receipt='bot', msg=user_input, task_id=user['task_id'],
+                                    asr_record_path=asr_record_path)
                     user['history'].append('用户：' + user_input)
                 bot_resp, user['call_status'] = self.bot.response(self.req_body['userid'], user_input)
 
@@ -179,7 +180,7 @@ class MainHandler(tornado.web.RequestHandler):
         elif self.req_body['inaction'] == 11:
             user = self.bot.users[self.req_body['userid']]
             trans_success = self.req_body['inparams']['trans_result'] == '1'
-            resp_body = self.generate_resp_body_hangup(user)    # 无论是否转移成功，这通电话已经结束。
+            resp_body = self.generate_resp_body_hangup(user)  # 无论是否转移成功，这通电话已经结束。
 
         # 判断呼叫转移队列是否锁定成功
         elif self.req_body['inaction'] == 0:
