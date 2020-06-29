@@ -12,7 +12,7 @@ sys.path.append('..')
 MAX_REQUEST_NUM = 2
 
 
-def slots_status_init(slots, user_utter, intents, entities, g_vars):
+def slots_status_init(slots, user_utter, intents, lexicons, g_vars):
 	slots_status = {
 		'slots': [],
 		'curr_slot_id': 0
@@ -22,7 +22,7 @@ def slots_status_init(slots, user_utter, intents, entities, g_vars):
 		slot['intent'], slot['name'] = slot['name'].split('.')
 		slot['num_requested'] = 0
 		slot['value'] = None
-		slot_filling_once(slot, user_utter, intents, entities)
+		slot_filling_once(slot, user_utter, intents, lexicons)
 		if slot['value'] is not None and "global_variable" in slot:
 			g_vars[slot['global_variable']] = slot['value']
 		if 'response' in slot:
@@ -31,10 +31,10 @@ def slots_status_init(slots, user_utter, intents, entities, g_vars):
 	return slots_status
 
 
-def slots_filling(slots_status, user_utter, intents, entities, g_vars):
+def slots_filling(slots_status, user_utter, intents, lexicons, g_vars):
 	resp, finish = None, True
 	slot = slots_status['slots'][slots_status['curr_slot_id']]
-	slot_filling_once(slot, user_utter, intents, entities)
+	slot_filling_once(slot, user_utter, intents, lexicons)
 	while slots_status['curr_slot_id'] < len(slots_status['slots']):
 		if slot['value'] is not None:
 			if "global_variable" in slot:
@@ -53,28 +53,28 @@ def slots_filling(slots_status, user_utter, intents, entities, g_vars):
 	return resp, finish
 
 
-def slot_filling_once(slot, user_utter, intents, entities):
-	# 获得entity
-	entity = intents[slot['intent']]['slots'][slot['name']]['entity']
-	entity_from, entity_name = entity.split('.')
-	entity = entities[entity_from][entity_name]
+def slot_filling_once(slot, user_utter, intents, lexicons):
+	# 获得lexicon
+	lexicon = intents[slot['intent']]['slots'][slot['name']]['lexicon']
+	lexicon_from, lexicon_name = lexicon.split('.')
+	lexicon = lexicons[lexicon_from][lexicon_name]
 	# 填槽（字符串匹配）
-	if entity['type'] == 'dict':
-		for standard_name, aliases in entity['dict'].items():
+	if lexicon['type'] == 'dict':
+		for standard_name, aliases in lexicon['dict'].items():
 			for alias in aliases:
 				if alias in user_utter:
 					slot['value'] = standard_name
 					break
 			if slot['value'] is not None:
 				break
-	elif entity['type'] == 'regex':
-		search_obj = entity['regex'].search(user_utter)
+	elif lexicon['type'] == 'regex':
+		search_obj = lexicon['regex'].search(user_utter)
 		if search_obj:
 			span = search_obj.span()
 			slot['value'] = user_utter[span[0]: span[1] + 1]
-	elif entity['type'] == 'bool':
+	elif lexicon['type'] == 'bool':
 		slot_filling_bool(slot, user_utter)
-	elif entity['type'] == 'month':
+	elif lexicon['type'] == 'month':
 		slot_filling_month(slot, user_utter)
 
 

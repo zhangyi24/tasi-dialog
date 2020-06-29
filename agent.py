@@ -43,12 +43,14 @@ class Bot(object):
         # intents
         with open('dialog_config/intents.json', 'r', encoding='utf-8') as f:
             self.intents = json.load(f)
-        # entities
-        self.entities = {}
-        with open('dialog_config/builtin_entities.json', 'r', encoding='utf-8') as f:
-            self.entities['builtin'] = json.load(f)
-        with open('dialog_config/user_entities.json', 'r', encoding='utf-8') as f:
-            self.entities['user'] = json.load(f)
+        # lexicons
+        self.lexicons = {}
+        with open('dialog_config/builtin_lexicons.json', 'r', encoding='utf-8') as f:
+            self.lexicons['builtin'] = json.load(f)
+        with open('dialog_config/user_lexicons.json', 'r', encoding='utf-8') as f:
+            self.lexicons['user'] = json.load(f)
+        # builtin_vars
+        self.builtin_vars = {'intent': None, 'func_return': None}
         # global_vars
         with open('dialog_config/global_vars.json', 'r', encoding='utf-8') as f:
             g_vars_cfg = json.load(f)
@@ -76,7 +78,7 @@ class Bot(object):
                 self.results_tracker = ResultsTracker(results['results_code'], results['init_results'])
 
         # init nlu_manager
-        self.nlu_manager = NLUManager(self.templates, self.intents, self.entities, self.stop_words)
+        self.nlu_manager = NLUManager(self.templates, self.intents, self.lexicons, self.stop_words)
         self.nlu_manager.intent_recognition('%%初始化%%')  # 第一次识别会比较慢，所以先识别一次。
 
         self.users = {}
@@ -85,6 +87,7 @@ class Bot(object):
         self.users[user_id] = {
             "user_id": user_id,
             "g_vars": copy.deepcopy(self.g_vars),
+            "builtin_vars": copy.deepcopy(self.builtin_vars),
             "node_stack": [],
             "call_info": call_info,
             "call_status": 'on',
@@ -98,7 +101,7 @@ class Bot(object):
                           len(self.g_vars_need_init), len(user_info))
         else:
             self.users[user_id]['g_vars'].update(dict(zip(self.g_vars_need_init, user_info)))
-        resp = {'content': response_process(self.service_language['greeting'], self.users[user_id]['g_vars']),
+        resp = {'content': response_process(self.service_language['greeting'], self.users[user_id]['g_vars'], self.users[user_id]['builtin_vars']),
                 'allow_interrupt': self.interact_mode == '2', 'input_channel': '10'}
         return resp
 
@@ -106,6 +109,7 @@ class Bot(object):
         user = self.users[user_id]
         resp = {'content': None, 'allow_interrupt': self.interact_mode == '2', 'input_channel': '10'}
         g_vars = self.users[user_id]['g_vars']
+        builtin_vars = self.users[user_id]['builtin_vars']
         node_stack = self.users[user_id]['node_stack']
         intent = self.nlu_manager.intent_recognition(user_utter)
         g_vars['intent'] = intent
@@ -118,7 +122,7 @@ class Bot(object):
 
         while not resp['content']:
             if not node_stack:
-                resp['content'] = response_process(self.service_language['pardon'], g_vars)
+                resp['content'] = response_process(self.service_language['pardon'], g_vars, builtin_vars)
                 break
             # print(g_vars, node_stack)
             current_flow = self.flows[node_stack[-1]['flow_name']]
@@ -134,7 +138,7 @@ class Bot(object):
                     g_vars[item['g_vars']] = item['value']
 
             elif current_node['type'] == 'response':
-                resp['content'] = response_process(current_node['response'], g_vars)
+                resp['content'] = response_process(current_node['response'], g_vars, builtin_vars)
 
             elif current_node['type'] == 'flow':
                 if 'return' not in node_stack[-1]:
@@ -156,13 +160,13 @@ class Bot(object):
                     del node_stack[-1]['slots_status']
 
             elif current_node['type'] == 'function':
-                exec('g_vars["func_return"] = ' + 'functions.' + current_node['funcName'] + '(user_utter, g_vars)')
+                exec('builtin_vars["func_return"] = ' + 'functions.' + current_node['funcName'] + '(user_utter, g_vars)')
 
             # dm
             assert 'dm' in current_node
             for case in current_node['dm']:
                 cond = case['cond']
-                cond_is_true = True if cond is True else cond_judge(cond, data={"global": g_vars})
+                cond_is_true = True if cond is True else cond_judge(cond, data={"global": g_vars, "builtin": builtin_vars})
                 if cond_is_true or cond == 'else':
                     node_stack[-1]['node_id'] = case['nextNode']
                     next_node = current_flow['nodes'][case['nextNode']]
@@ -175,7 +179,7 @@ class Bot(object):
                             user['call_status'] = 'fwd'
                         node_stack.clear()
                     if 'response' in case:
-                        resp['content'] = response_process(case['response'], g_vars)
+                        resp['content'] = response_process(case['response'], g_vars, builtin_vars)
                     break
         return resp, user['call_status']
 
