@@ -5,7 +5,7 @@ import re
 import logging
 
 sys.path.append('..')
-from model.bert.predict import Bert_Classifier
+from models.bert.predict import Bert_Classifier
 
 
 class NLU_Model(object):
@@ -30,8 +30,7 @@ class NLU_Model_template(NLU_Model):
 
 class NLU_Model_bert(NLU_Model):
     def __init__(self):
-        data_dir = os.path.dirname(__file__)
-        data_dir = os.path.join(data_dir, '../datasets/intent_recognition')
+        data_dir = 'datasets/intent'
         self.model = Bert_Classifier(data_dir=data_dir)
 
     def intent_recognition(self, user_utter):

@@ -6,12 +6,14 @@ import os
 import copy
 import time
 import logging
+import sys
 import collections
 
-from nlu.nlu import NLUManager
+from nlu import NLUManager
 from dm import cond_judge
 from nlg import response_process
-from dialog_config import functions
+sys.path.append(".")
+from dialog_config import functions # todo: 怎么import场景目录下的function.py
 
 class ResultsTracker(object):
     def __init__(self, results_code, init_results):
@@ -45,7 +47,8 @@ class Bot(object):
             self.intents = json.load(f)
         # lexicons
         self.lexicons = {}
-        with open('dialog_config/builtin_lexicons.json', 'r', encoding='utf-8') as f:
+        builtin_lexicons_file_path = os.path.join(os.path.dirname(__file__), 'builtin_lexicons.json')
+        with open(builtin_lexicons_file_path, 'r', encoding='utf-8') as f:
             self.lexicons['builtin'] = json.load(f)
         with open('dialog_config/user_lexicons.json', 'r', encoding='utf-8') as f:
             self.lexicons['user'] = json.load(f)

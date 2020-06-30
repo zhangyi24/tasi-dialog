@@ -1,8 +1,8 @@
 import collections
 import re
 
-from .slot_filling import slots_filling, slots_status_init
-from .intent_recognition import NLU_Model_bert, NLU_Model_template
+from slot_filling import slots_filling, slots_status_init
+from intent_recognition import NLU_Model_bert, NLU_Model_template
 
 
 class NLUManager(object):

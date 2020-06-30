@@ -1,12 +1,16 @@
 # coding=utf-8
 import json
 import random
+import os
+
+datasets_dir = 'datasets/intent'
+os.makedirs(datasets_dir, exist_ok=True)
 
 random.seed(12345)
-with open('../../dialog_config/corpus/samples.json', 'r', encoding='utf-8') as f:
+with open('dialog_config/corpus/samples.json', 'r', encoding='utf-8') as f:
     samples = json.load(f)
 
-with open('labels.txt', 'w', encoding='utf-8') as f:
+with open(os.path.join(datasets_dir, 'labels.txt'), 'w', encoding='utf-8') as f:
     intents = samples.keys()
     print('\n'.join(intents), file=f)
 
@@ -22,7 +26,7 @@ for intent in samples:
 
 
 def save_dataset(dataset, set_type):
-    with open('%s.tsv' % set_type, 'w', encoding='utf-8') as f:
+    with open(os.path.join(datasets_dir, '%s.tsv' % set_type), 'w', encoding='utf-8') as f:
         print('\t'.join(['label', 'sample']), file=f)
         for intent, samples in dataset.items():
             for sample in samples:

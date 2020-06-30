@@ -127,10 +127,19 @@ if __name__ == "__main__":
 	# parse sys.argv
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-p', '--port', default=59998, type=int)
+	parser.add_argument('-c', '--config', default="config_text.yml", type=str)
 	args = parser.parse_args()
+
+	# config
 	conf = {}
-	with open("config_text.yml") as f:
-		conf = yaml.safe_load(f)
+	if os.path.exists(args.config):
+		with open(args.config) as f:
+			conf = yaml.safe_load(f)
+
+	# port
+	port = conf.get("port", args.port)
+
+	# logging
 	if "logging" in conf:
 		filename = conf['logging']['handlers']['log_file_handler']['filename']
 		os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -145,5 +154,5 @@ if __name__ == "__main__":
 		(r"/", MainHandler, dict(bot=bot)),
 	])
 	application.listen(args.port)
-	logging.info('listening on 127.0.0.1:%s...' % args.port)
+	logging.info('listening on 127.0.0.1:%s...' % port)
 	tornado.ioloop.IOLoop.current().start()

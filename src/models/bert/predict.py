@@ -40,7 +40,7 @@ class Bert_Classifier(object):
         self.bert_config_file = os.path.join(dir_name, 'chinese_L-12_H-768_A-12/bert_config.json')
         self.vocab_file = os.path.join(dir_name, 'chinese_L-12_H-768_A-12/vocab.txt')
         self.init_checkpoint = os.path.join(dir_name, 'chinese_L-12_H-768_A-12/bert_model.ckpt')
-        self.model_dir = os.path.join(dir_name, 'checkpoints/intent')
+        self.model_dir = 'checkpoints/intent'
         self.do_lower_case = True
         self.max_seq_length = 64
         self.predict_batch_size = 8

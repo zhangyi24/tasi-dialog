@@ -1,7 +1,9 @@
 # coding=utf-8
 import datetime
-
 import requests
+import argparse
+import os
+import yaml
 
 req_body_init = {
 	'userid': '',
@@ -82,15 +84,34 @@ def get_req_body_tts_asr(call_id, inter_idx, input, inter_no=''):
 	
 
 if __name__ == '__main__':
-	local_server_url = 'http://127.0.0.1:59998'
-	remote_server_url = 'http://101.6.68.40:59998'
-	url = local_server_url
+	# parse sys.argv
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-i', '--ip', default='127.0.0.1', type=str)
+	parser.add_argument('-p', '--port', default=59998, type=int)
+	parser.add_argument('-c', '--config', default="config_text.yml", type=str)
+	args = parser.parse_args()
+
+	# config
+	conf = {}
+	if os.path.exists(args.config):
+		with open(args.config) as f:
+			conf = yaml.safe_load(f)
+
+	# port
+	port = conf.get("port", args.port)
+
+	# url
+	server_url = 'http://%s:%s' % (args.ip, args.port)
+
+	# call_info and user_info
 	call_id = '123'
 	call_sor_id = '130****1234'
 	user_info = 'dummy#杭州#60'
+
+	# run
 	while True:
 		req_body = get_req_body_init(call_id, call_sor_id, user_info)
-		resp = requests.post(url=url, json=req_body)
+		resp = requests.post(url=server_url, json=req_body)
 		resp_body = resp.json() if resp.content else {}
 		while resp_body['outaction'] != '10':
 			assert resp_body['outaction'] == '9'
@@ -102,7 +123,7 @@ if __name__ == '__main__':
 				                     input('user:\t'))
 			if resp_body['outparams']['model_type'] == '10':
 				req_body = get_req_body_tts(call_id, resp_body['outparams']['inter_idx'])
-			resp = requests.post(url=url, json=req_body)
+			resp = requests.post(url=server_url, json=req_body)
 			resp_body = resp.json() if resp.content else {}
 		if input('continue? (Y?n)').lower() == 'n':
 			break
