@@ -2674,5 +2674,15 @@
         "昆玉市"
       ]
     }
+  },
+  "yes_or_no": {
+    "name": "yes_or_no",
+    "chineseName": "是或否",
+    "type": "bool"
+  },
+  "month": {
+    "name": "month",
+    "chineseName": "月份",
+    "type": "month"
   }
 }

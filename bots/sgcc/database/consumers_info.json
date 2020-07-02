@@ -1,0 +1,176 @@
+{
+  "0123456789": {
+    "consNo": "0123456789",
+    "consName": "张三",
+    "elecAddr": "清华大学学生公寓24号楼510",
+    "elecType": "居民生活用电",
+    "voltCode": "220V",
+    "notifyMode": "电费通知方式",
+    "settleMode": "电费结算方式",
+    "orgNo": "供电单位编号",
+    "orgName": "供电单位名称",
+    "powerOffCode": "停电标志",
+    "tmpFlag": "临时用电标志",
+    "paYmode": "缴费方式",
+    "meter_number": "0000000001",
+    "meter_read_cycle": "每月",
+    "contactMobile": "15652310112",
+    "ruralConsCode": "城网一户一表",
+    "rcvblInfoLists": [
+      {
+        "rcvblYm": "201910",
+        "releaseDate": "20191011",
+        "amtType": "正常电费",
+        "totalPq": 100,
+        "rcvblAmt": 50.00,
+        "penaltyBgnDate": "20191111",
+        "settleFlag": "欠费"
+      }
+    ],
+    "payFlowLists": [
+      {
+        "rcvblAmt": 50.00,
+        "chargeEmpName": "zfb",
+        "chargeDate": "2019-10-28 16:31:44"
+      },
+      {
+        "rcvblAmt": 100.00,
+        "chargeEmpName": "xj",
+        "chargeDate": "2019-10-28 16:34:18"
+      }
+    ],
+    "oweAmtLists": [
+      {
+        "rcvblYm": "201910",
+        "rcvblAmt": 50.00,
+        "rcvedAmt": 0.00,
+        "oweAmt": 50.00,
+        "owePenalty": 1.00,
+        "totalOweAmt": 51.00,
+        "settleFlag": "欠费"
+      }
+    ],
+    "readPqLists": [
+      {
+        "amtYm": "202003",
+        "actualYmd": "20190311",
+        "thisRead": 73.98
+      },
+      {
+        "amtYm": "202004",
+        "actualYmd": "20200411",
+        "thisRead": 73.98
+      },
+      {
+        "amtYm": "202005",
+        "actualYmd": "20200511",
+        "thisRead": 73.98
+      }
+    ],
+    "levelInfo": {
+      "levelOnePq": "一阶电量额度",
+      "levelOnePqSum": "一阶已用电量",
+      "levelOnePqRemain": "一阶剩余可用电量",
+      "levelTwoPq": "二阶电量额度",
+      "levelTwoPqRemain": "二阶剩余可用电量",
+      "levelTwoPqSum": "10",
+      "levelThreePqSum": "三阶已用电量"
+    },
+    "reimbursementAmtLists": [],
+    "penaltyInfoLists": [
+      {
+        "rcvblYm": "201908",
+        "rcvedPenalty": 50.12,
+        "rcvedDate": "20190930"
+      }
+    ],
+    "availableBalance": 1.2
+  },
+  "9876543210": {
+    "consNo": "9876543210",
+    "consName": "李四",
+    "elecAddr": "天津市滨海新区生态城人才公寓1号楼303",
+    "elecType": "居民生活用电",
+    "voltCode": "220V",
+    "notifyMode": "电费通知方式",
+    "settleMode": "电费结算方式",
+    "orgNo": "供电单位编号",
+    "orgName": "供电单位名称",
+    "powerOffCode": "停电标志",
+    "tmpFlag": "临时用电标志",
+    "paYmode": "缴费方式",
+    "meter_number": "0000000002",
+    "meter_read_cycle": "每月",
+    "contactMobile": "15652310112",
+    "ruralConsCode": "城网一户一表",
+    "rcvblInfoLists": [
+      {
+        "rcvblYm": "201910",
+        "releaseDate": "20191011",
+        "amtType": "正常电费",
+        "totalPq": 100,
+        "rcvblAmt": 50.00,
+        "penaltyBgnDate": "20191111",
+        "settleFlag": "欠费"
+      }
+    ],
+    "payFlowLists": [
+      {
+        "rcvblAmt": 50.00,
+        "chargeEmpName": "zfb",
+        "chargeDate": "2019-10-28 16:31:44"
+      },
+      {
+        "rcvblAmt": 100.00,
+        "chargeEmpName": "xj",
+        "chargeDate": "2019-10-28 16:34:18"
+      }
+    ],
+    "oweAmtLists": [
+      {
+        "rcvblYm": "201910",
+        "rcvblAmt": 50.00,
+        "rcvedAmt": 0.00,
+        "oweAmt": 50.00,
+        "owePenalty": 1.00,
+        "totalOweAmt": 51.00,
+        "settleFlag": "欠费"
+      }
+    ],
+    "readPqLists": [
+      {
+        "amtYm": "202003",
+        "actualYmd": "20190311",
+        "thisRead": 73.98
+      },
+      {
+        "amtYm": "202004",
+        "actualYmd": "20200411",
+        "thisRead": 73.98
+      },
+      {
+        "amtYm": "202005",
+        "actualYmd": "20200511",
+        "thisRead": 73.98
+      }
+    ],
+    "levelInfo": {
+      "levelOnePq": "一阶电量额度",
+      "levelOnePqSum": "一阶已用电量",
+      "levelOnePqRemain": "一阶剩余可用电量",
+      "levelTwoPq": "二阶电量额度",
+      "levelTwoPqRemain": "二阶剩余可用电量",
+      "levelTwoPqSum": "10",
+      "levelThreePqSum": "三阶已用电量"
+    },
+    "reimbursementAmtLists": [],
+    "penaltyInfoLists": [
+      {
+        "rcvblYm": "201908",
+        "rcvedPenalty": 50.12,
+        "rcvedDate": "20190930"
+      }
+    ],
+    "availableBalance": -1.2
+  }
+}

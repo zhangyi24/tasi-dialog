@@ -1,0 +1,21 @@
+{
+  "name": "bye",
+  "intent": "bye",
+  "nodes": {
+    "0": {
+      "type": "response",
+      "response": "祝您生活愉快，再见",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "1"
+        }
+      ]
+    },
+    "1": {
+      "type": "exit",
+      "todo": "hangup"
+    }
+  },
+  "version": "0.1"
+}

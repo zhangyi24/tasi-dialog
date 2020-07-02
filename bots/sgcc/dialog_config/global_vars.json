@@ -1,0 +1,25 @@
+{
+  "g_vars": {
+    "consumer_number": null,
+    "consumer_name": null,
+    "pay_to": null,
+    "meter_number": null,
+    "consumer_info_access": null,
+    "consumer_info": null,
+    "verify_name_success": null,
+    "is_sgcc_consumer": null,
+    "elec_type": null,
+    "annual_elec_usage": null,
+    "volt_code": null,
+    "tou_price_status": null,
+    "cellphone_number": null,
+    "e_bill_opened": null,
+    "meter_reading_month": null,
+    "new_high_power_electrical_appliance": null,
+    "num_people_increase": null,
+    "available_balance": null,
+    "trip": null,
+    "electricity_meter_displays_normally": null
+  },
+  "g_vars_need_init": {}
+}

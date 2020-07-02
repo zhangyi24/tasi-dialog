@@ -1,0 +1,111 @@
+{
+  "name": "取消电费通知单",
+  "intent": "取消电费通知单",
+  "nodes": {
+    "0": {
+      "type": "branch",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_info"
+              },
+              null
+            ]
+          },
+          "nextNode": "1"
+        },
+        {
+          "cond": "else",
+          "nextNode": "2"
+        }
+      ]
+    },
+    "1": {
+      "type": "flow",
+      "flowName": "get_consumer_info",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_info"
+              },
+              null
+            ]
+          },
+          "nextNode": "99"
+        },
+        {
+          "cond": "else",
+          "nextNode": "2"
+        }
+      ]
+    },
+    "2": {
+      "type": "function",
+      "funcName": "check_if_reserved_phone_number_exist",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "builtin.func_return"
+              },
+              true
+            ]
+          },
+          "nextNode": "3"
+        },
+        {
+          "cond": "else",
+          "nextNode": "99",
+          "response": "您好，您的户号系统内并未预留主联系电话，您可直接下载掌上电力2019版本进行实名认证绑定户号或去营业厅更新户号信息，如遇到掌上电力2019系统问题可拨打95598热线或点击APP右上角客服进行咨询反馈。"
+        }
+      ]
+    },
+    "3": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "取消电费通知单.cellphone_number",
+          "global_variable": "cellphone_number",
+          "response": "请提供您开户时预留的手机号"
+        }
+      ],
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "4"
+        }
+      ]
+    },
+    "4": {
+      "type": "function",
+      "funcName": "verify_cellphone_number",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "builtin.func_return"
+              },
+              true
+            ]
+          },
+          "nextNode": "99",
+          "response": "您好，已为您取消电费短信通知"
+        },
+        {
+          "cond": "else",
+          "nextNode": "99",
+          "response": "您好，您提供的联系电话与系统内主联系电话不一致，您可直接下载掌上电力2019版本进行实名认证绑定户号或去营业厅更新户号信息，如遇到掌上电力2019系统问题可拨打95598热线或点击APP右上角客服进行咨询反馈。"
+        }
+      ]
+    },
+    "99": {
+      "type": "return"
+    }
+  }
+}

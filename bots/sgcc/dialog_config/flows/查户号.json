@@ -1,0 +1,141 @@
+{
+  "name": "查户号",
+  "intent": "查户号",
+  "nodes": {
+    "0": {
+      "type": "branch",
+      "dm": [
+        {
+          "cond": {
+            "!=": [
+              {
+                "var": "global.consumer_info"
+              },
+              null
+            ]
+          },
+          "nextNode": "1"
+        },
+        {
+          "cond": "else",
+          "nextNode": "2"
+        }
+      ]
+    },
+    "1": {
+      "type": "response",
+      "response": "您的客户编号为[%global.consumer_number%]",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "99"
+        }
+      ]
+    },
+    "2": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "查户号.pay_to",
+          "response": "请问您的电费是交给国家电网公司还是物业？",
+          "global_variable": "pay_to"
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "!=": [
+              {
+                "var": "global.pay_to"
+              },
+              "物业"
+            ]
+          },
+          "nextNode": "3"
+        },
+        {
+          "cond": "else",
+          "nextNode": "99",
+          "response": "先生/女士，对不起，由于您的电费不是交给国家电网，所以您不属于国家电网的直供户，如果您有任何用电需求请您与您所属的产权单位（物业）联系，感谢您的配合。"
+        }
+      ]
+    },
+    "3": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "查户号.meter_number",
+          "response": "请您提供准确的电表号，我试着帮您查询客户编号",
+          "global_variable": "meter_number"
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "!=": [
+              {
+                "var": "global.meter_number"
+              },
+              "CANT_INFORM"
+            ]
+          },
+          "nextNode": "4"
+        },
+        {
+          "cond": "else",
+          "nextNode": "99",
+          "response": "很抱歉，由于信息不准确无法查询到您要查询的信息，建议您找到总户号或表号后再与我们联系。"
+        }
+      ]
+    },
+    "4": {
+      "type": "function",
+      "funcName": "consumer_info_access_by_meter_number",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_info_access"
+              },
+              true
+            ]
+          },
+          "nextNode": "5",
+          "response": "您好，请您提供用电凭证或电费通知单上面的用户名称"
+        },
+        {
+          "cond": "else",
+          "nextNode": "99",
+          "response": "很抱歉，由于信息不准确无法查询到您要查询的信息，建议您找到总户号或表号后再与我们联系。"
+        }
+      ]
+    },
+    "5": {
+      "type": "function",
+      "funcName": "verify_consumer_by_name",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_verify_success"
+              },
+              true
+            ]
+          },
+          "nextNode": "1"
+        },
+        {
+          "cond": "else",
+          "nextNode": "99",
+          "response": "很抱歉，由于信息不准确无法查询到您要查询的信息，建议您找到总户号或表号后再与我们联系。"
+        }
+      ]
+    },
+    "99": {
+      "type": "return"
+    }
+  },
+  "version": "0.1"
+}

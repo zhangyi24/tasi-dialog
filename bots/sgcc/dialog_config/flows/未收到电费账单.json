@@ -1,0 +1,89 @@
+{
+  "name": "未收到电费账单",
+  "intent": "未收到电费账单",
+  "nodes": {
+    "0": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "未收到电费账单.e_bill_opened",
+          "global_variable": "e_bill_opened",
+          "response": "请问您是否申请过电子账单？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.e_bill_opened"
+              },
+              true
+            ]
+          },
+          "nextNode": "99",
+          "response": "由于您申请过电子账单，所以纸质账单已取消。"
+        },
+        {
+          "cond": "else",
+          "nextNode": "1"
+        }
+      ]
+    },
+    "1": {
+      "type": "branch",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_info"
+              },
+              null
+            ]
+          },
+          "nextNode": "2"
+        },
+        {
+          "cond": "else",
+          "nextNode": "3"
+        }
+      ]
+    },
+    "2": {
+      "type": "flow",
+      "flowName": "get_consumer_info",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_info"
+              },
+              null
+            ]
+          },
+          "nextNode": "99"
+        },
+        {
+          "cond": "else",
+          "nextNode": "3"
+        }
+      ]
+    },
+    "3": {
+      "type": "function",
+      "funcName": "electricity_bill_not_received_response",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "99",
+          "response": "[%builtin.func_return%]"
+        }
+      ]
+    },
+    "99": {
+      "type": "return"
+    }
+  }
+}

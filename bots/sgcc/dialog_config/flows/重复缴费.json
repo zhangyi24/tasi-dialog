@@ -1,0 +1,62 @@
+{
+  "name": "重复缴费",
+  "intent": "重复缴费",
+  "nodes": {
+    "0": {
+      "type": "branch",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_info"
+              },
+              null
+            ]
+          },
+          "nextNode": "1"
+        },
+        {
+          "cond": "else",
+          "nextNode": "2"
+        }
+      ]
+    },
+    "1": {
+      "type": "flow",
+      "flowName": "get_consumer_info",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_info"
+              },
+              null
+            ]
+          },
+          "nextNode": "3"
+        },
+        {
+          "cond": "else",
+          "nextNode": "2"
+        }
+      ]
+    },
+    "2": {
+      "type": "function",
+      "funcName": "repeat_payment_reponse",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "3",
+          "response": "[%builtin.func_return%]"
+        }
+      ]
+    },
+    "3": {
+      "type": "return"
+    }
+  },
+  "version": "0.1"
+}
