@@ -1,0 +1,62 @@
+{
+  "name": "电价标准",
+  "intent": "电价标准",
+  "nodes": {
+    "0": {
+      "type": "branch",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_info"
+              },
+              null
+            ]
+          },
+          "nextNode": "1"
+        },
+        {
+          "cond": "else",
+          "nextNode": "2"
+        }
+      ]
+    },
+    "1": {
+      "type": "flow",
+      "flowName": "get_consumer_info",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_info"
+              },
+              null
+            ]
+          },
+          "nextNode": "3"
+        },
+        {
+          "cond": "else",
+          "nextNode": "2"
+        }
+      ]
+    },
+    "2": {
+      "type": "function",
+      "funcName": "elec_price_inquiry",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "3",
+          "response": "[%builtin.func_return%]"
+        }
+      ]
+    },
+    "3": {
+      "type": "return"
+    }
+  },
+  "version": "0.1"
+}

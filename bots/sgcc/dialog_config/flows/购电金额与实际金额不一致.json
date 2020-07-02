@@ -1,0 +1,62 @@
+{
+  "name": "购电金额与实际金额不一致",
+  "intent": "购电金额与实际金额不一致",
+  "nodes": {
+    "0": {
+      "type": "branch",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_info"
+              },
+              null
+            ]
+          },
+          "nextNode": "1"
+        },
+        {
+          "cond": "else",
+          "nextNode": "2"
+        }
+      ]
+    },
+    "1": {
+      "type": "flow",
+      "flowName": "get_consumer_info",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_info"
+              },
+              null
+            ]
+          },
+          "nextNode": "99"
+        },
+        {
+          "cond": "else",
+          "nextNode": "2"
+        }
+      ]
+    },
+    "2": {
+      "type": "function",
+      "funcName": "amount_differ_reponse",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "99",
+          "response": "[%builtin.func_return%]"
+        }
+      ]
+    },
+    "99": {
+      "type": "return"
+    }
+  },
+  "version": "0.1"
+}

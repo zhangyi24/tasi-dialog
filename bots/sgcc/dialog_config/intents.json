@@ -1,0 +1,128 @@
+{
+  "查户号": {
+    "name": "查户号",
+    "description": "",
+    "slots": {
+      "consumer_number": {
+        "name": "consumer_number",
+        "chineseName": "户号",
+        "lexicon": "user.consumer_number"
+      },
+      "pay_to": {
+        "name": "pay_to",
+        "chineseName": "交费地点",
+        "lexicon": "user.pay_to"
+      },
+      "meter_number": {
+        "name": "meter_number",
+        "chineseName": "电表号",
+        "lexicon": "user.meter_number"
+      }
+    }
+  },
+  "查电费": {
+    "name": "查电费",
+    "description": "",
+    "slots": {}
+  },
+  "电价标准": {
+    "name": "电价标准",
+    "description": ""
+  },
+  "开通分时电价": {
+    "name": "开通分时电价",
+    "description": "",
+    "slot": {}
+  },
+  "取消电费通知单": {
+    "name": "取消电费通知单",
+    "description": "",
+    "slots": {
+      "cellphone_number": {
+        "name": "cellphone_number",
+        "chineseName": "手机号码",
+        "lexicon": "user.cellphone_number"
+      }
+    }
+  },
+  "密码重置": {
+    "name": "密码重置",
+    "description": "",
+    "slots": {
+      "cellphone_number": {
+        "name": "cellphone_number",
+        "chineseName": "手机号码",
+        "lexicon": "user.cellphone_number"
+      }
+    }
+  },
+  "重复缴费": {
+    "name": "重复缴费",
+    "description": ""
+  },
+  "未收到电费账单": {
+    "name": "未收到电费账单",
+    "description": "",
+    "slots": {
+      "e_bill_opened": {
+        "name": "e_bill_opened",
+        "chineseName": "开通电子账单",
+        "lexicon": "builtin.yes_or_no"
+      }
+    }
+  },
+  "购电金额与实际金额不一致": {
+    "name": "购电金额与实际金额不一致",
+    "description": ""
+  },
+  "查询抄表数据": {
+    "name": "查询抄表数据",
+    "chineseName": "查询抄表数据",
+    "description": "查询抄表数据",
+    "slots": {
+      "month": {
+        "name": "month",
+        "chineseName": "月份",
+        "lexicon": "builtin.month"
+      }
+    }
+  },
+  "电费电量异常": {
+    "name": "电费电量异常",
+    "description": "",
+    "slots": {
+      "new_high_power_electrical_appliance": {
+        "name": "new_high_power_electrical_appliance",
+        "chineseName": "是否新增大功率电器",
+        "lexicon": "builtin.yes_or_no"
+      },
+      "num_people_increase": {
+        "name": "num_people_increase",
+        "chineseName": "人数增加",
+        "lexicon": "builtin.yes_or_no"
+      }
+    }
+  },
+  "停电": {
+    "name": "停电",
+    "description": "",
+    "slots": {
+      "trip": {
+        "name": "trip",
+        "chineseName": "跳闸",
+        "lexicon": "builtin.yes_or_no"
+      },
+      "electricity_meter_displays_normally": {
+        "name": "electricity_meter_displays_normally",
+        "chineseName": "电表显示正常",
+        "lexicon": "builtin.yes_or_no"
+      }
+    }
+  },
+  "bye": {
+    "name": "bye",
+    "chineseName": "再见",
+    "description": "再见",
+    "slots": {}
+  }
+}

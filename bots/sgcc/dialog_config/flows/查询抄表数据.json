@@ -1,0 +1,77 @@
+{
+  "name": "查询抄表数据",
+  "intent": "查询抄表数据",
+  "nodes": {
+    "0": {
+      "type": "branch",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_info"
+              },
+              null
+            ]
+          },
+          "nextNode": "1"
+        },
+        {
+          "cond": "else",
+          "nextNode": "2"
+        }
+      ]
+    },
+    "1": {
+      "type": "flow",
+      "flowName": "get_consumer_info",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_info"
+              },
+              null
+            ]
+          },
+          "nextNode": "99"
+        },
+        {
+          "cond": "else",
+          "nextNode": "2"
+        }
+      ]
+    },
+    "2": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "查询抄表数据.month",
+          "global_variable": "meter_reading_month",
+          "response": "请问您想查询哪个月的抄表示数?"
+        }
+      ],
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "3"
+        }
+      ]
+    },
+    "3": {
+      "type": "function",
+      "funcName": "meter_reading_inquiry",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "99",
+          "response": "[%builtin.func_return%]"
+        }
+      ]
+    },
+    "99": {
+      "type": "return"
+    }
+  }
+}

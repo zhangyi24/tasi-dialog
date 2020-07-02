@@ -1,0 +1,116 @@
+{
+  "name": "电费电量异常",
+  "intent": "电费电量异常",
+  "nodes": {
+    "0": {
+      "type": "branch",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_info"
+              },
+              null
+            ]
+          },
+          "nextNode": "1"
+        },
+        {
+          "cond": "else",
+          "nextNode": "2"
+        }
+      ]
+    },
+    "1": {
+      "type": "flow",
+      "flowName": "get_consumer_info",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_info"
+              },
+              null
+            ]
+          },
+          "nextNode": "99"
+        },
+        {
+          "cond": "else",
+          "nextNode": "2"
+        }
+      ]
+    },
+    "2": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "电费电量异常.new_high_power_electrical_appliance",
+          "global_variable": "new_high_power_electrical_appliance",
+          "response": "请问您最近是否新增大功率电器?"
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.new_high_power_electrical_appliance"
+              },
+              true
+            ]
+          },
+          "nextNode": "99",
+          "response": "经过初步判断，可能是由于您新增加了大功率电器导致您电费电量的增加。"
+        },
+        {
+          "cond": "else",
+          "nextNode": "3"
+        }
+      ]
+    },
+    "3": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "电费电量异常.num_people_increase",
+          "global_variable": "num_people_increase",
+          "response": "请问最近家里是否有亲朋好友入住?或有新生宝宝？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.num_people_increase"
+              },
+              true
+            ]
+          },
+          "nextNode": "99",
+          "response": "经过初步判断，可能是由于您最近家里人数增多导致您电费电量的增加。"
+        },
+        {
+          "cond": "else",
+          "nextNode": "4"
+        }
+      ]
+    },
+    "4": {
+      "type": "response",
+      "response": "抱歉未帮您分析出电量异常的原因。建议您找有资质的电工将家中空气开关断开，关闭家用电器后，查看电表是不是继续走字。如果继续走字说明电表有故障，建议您到供电营业厅办理验表手续。",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "99"
+        }
+      ]
+    },
+    "99": {
+      "type": "return"
+    }
+  }
+}

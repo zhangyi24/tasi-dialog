@@ -1,0 +1,136 @@
+{
+  "name": "停电",
+  "intent": "停电",
+  "nodes": {
+    "0": {
+      "type": "branch",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_info"
+              },
+              null
+            ]
+          },
+          "nextNode": "1"
+        },
+        {
+          "cond": "else",
+          "nextNode": "2"
+        }
+      ]
+    },
+    "1": {
+      "type": "flow",
+      "flowName": "get_consumer_info",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_info"
+              },
+              null
+            ]
+          },
+          "nextNode": "99"
+        },
+        {
+          "cond": "else",
+          "nextNode": "2"
+        }
+      ]
+    },
+    "2": {
+      "type": "function",
+      "funcName": "get_available_balance",
+      "dm": [
+        {
+          "cond": {
+            "<=": [
+              {
+                "var": "global.available_balance"
+              },
+              0
+            ]
+          },
+          "nextNode": "99",
+          "response": "您当前显示欠费停电，欠费金额为[%global.available_balance%]元。建议 您缴清电费后，等待15-30分钟，长按电表上的复电按钮3-5秒。"
+        },
+        {"cond": "else",
+        "nextNode": "3"}
+      ]
+    },
+    "3": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "停电.trip",
+          "global_variable": "trip",
+          "response": "请问您家里的空气开关和电表附近的空气开关是否跳开？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.trip"
+              },
+              true
+            ]
+          },
+          "nextNode": "99",
+          "response": "建议您联系您的物业帮您合闸"
+        },
+        {
+          "cond": "else",
+          "nextNode": "4"
+        }
+      ]
+    },
+    "4": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "停电.electricity_meter_displays_normally",
+          "global_variable": "electricity_meter_displays_normally",
+          "response": "请问您家电表液晶屏是否有显示？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.electricity_meter_displays_normally"
+              },
+              true
+            ]
+          },
+          "nextNode": "99",
+          "response": "根据您的描述，停电原因可能是您客户端资产故障造成的，为了确保您的用电安全，建议您找物业或有资质的电工为您排查维修。"
+        },
+        {
+          "cond": "else",
+          "nextNode": "5"
+        }
+      ]
+    },
+    "5": {
+      "type": "response",
+      "response": "您先别着急，我马上帮您反映停电问题，让抢修师傅尽快到您家中帮您排查，请您耐心等待。",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "99"
+        }
+      ]
+    },
+    "99": {
+      "type": "return"
+    }
+  }
+}
