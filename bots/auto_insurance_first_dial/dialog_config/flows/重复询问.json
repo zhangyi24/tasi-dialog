@@ -1,0 +1,20 @@
+{
+  "name": "重复询问",
+  "intent": "重复询问",
+  "nodes": {
+    "0": {
+      "type": "response",
+      "response": "[%builtin.last_response%]",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "1"
+        }
+      ]
+    },
+    "1": {
+      "type": "return"
+    }
+  },
+  "version": "0.1"
+}

@@ -1,0 +1,20 @@
+{
+  "name": "询问车牌",
+  "intent": "询问车牌",
+  "nodes": {
+    "0": {
+      "type": "response",
+      "response": "这边看到您的车牌号是[%license_number%]。",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "1"
+        }
+      ]
+    },
+    "1": {
+      "type": "return"
+    }
+  },
+  "version": "0.1"
+}

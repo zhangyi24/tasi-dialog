@@ -1,0 +1,21 @@
+{
+  "name": "车辆过户",
+  "intent": "车辆过户",
+  "nodes": {
+    "0": {
+      "type": "response",
+      "response": "好的，那先不打扰您了，有机会继续跟您联系，感谢您的接听，祝您生活愉快，再见。",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "1"
+        }
+      ]
+    },
+    "1": {
+      "type": "exit",
+      "todo": "hangup"
+    }
+  },
+  "version": "0.1"
+}

@@ -33,14 +33,14 @@ import run_classifier
 
 
 class Bert_Classifier(object):
-    def __init__(self, data_dir):
-        self.data_dir = data_dir
+    def __init__(self, checkpoints_dir, label_dir):
+        self.checkpoints_dir = checkpoints_dir
+        self.label_dir = label_dir
         self.task_name = 'intent'
         dir_name = os.path.dirname(__file__)
         self.bert_config_file = os.path.join(dir_name, 'chinese_L-12_H-768_A-12/bert_config.json')
         self.vocab_file = os.path.join(dir_name, 'chinese_L-12_H-768_A-12/vocab.txt')
         self.init_checkpoint = os.path.join(dir_name, 'chinese_L-12_H-768_A-12/bert_model.ckpt')
-        self.model_dir = 'checkpoints/intent'
         self.do_lower_case = True
         self.max_seq_length = 64
         self.predict_batch_size = 8
@@ -59,7 +59,7 @@ class Bert_Classifier(object):
         task_name = self.task_name.lower()
         if task_name not in run_classifier.processors:
             raise ValueError("Task not found: %s" % (task_name))
-        processor = run_classifier.processors[task_name](self.data_dir)
+        processor = run_classifier.processors[task_name](self.label_dir)
         self.label_list = processor.get_labels()
 
         self.tokenizer = tokenization.FullTokenizer(
@@ -84,13 +84,13 @@ class Bert_Classifier(object):
             self.sess.run(tf.global_variables_initializer())
             saver = tf.train.Saver()
             ckpt_dirs = {}
-            for file in os.listdir(self.model_dir):
+            for file in os.listdir(self.checkpoints_dir):
                 if file.startswith('model.ckpt-') and file.endswith('meta'):
                     idx = int(file[:-5].split('-')[-1])
                     ckpt_dirs[idx] = file[:-5]
             if not ckpt_dirs:
                 print('No model found.')
-            self.ckpt = os.path.join(self.model_dir, ckpt_dirs[max(ckpt_dirs.keys())])
+            self.ckpt = os.path.join(self.checkpoints_dir, ckpt_dirs[max(ckpt_dirs.keys())])
             saver.restore(self.sess, self.ckpt)
 
     def predict(self, texts):

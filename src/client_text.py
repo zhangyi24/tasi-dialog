@@ -106,7 +106,7 @@ if __name__ == '__main__':
 	# call_info and user_info
 	call_id = '123'
 	call_sor_id = '130****1234'
-	user_info = 'dummy#杭州#60'
+	user_info = 'dummy#val0#val1#val2#val3#val4#val5#val6#val7#val8#val9'
 
 	# run
 	while True:
@@ -127,6 +127,3 @@ if __name__ == '__main__':
 			resp_body = resp.json() if resp.content else {}
 		if input('continue? (Y?n)').lower() == 'n':
 			break
-		
-		
-		
