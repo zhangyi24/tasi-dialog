@@ -1,0 +1,17 @@
+{
+  "g_vars": {
+    "name": null,
+    "license_number": null,
+    "is_user": null,
+    "is_user_car": null,
+    "is_expired": null,
+    "is_there_time": null,
+    "intent_to_introduce": null,
+    "retain": null,
+    "deposit_doubt": null
+  },
+  "g_vars_need_init": [
+    "name",
+    "license_number"
+  ]
+}

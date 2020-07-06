@@ -8,12 +8,12 @@ sys.path.append('..')
 from models.bert.predict import Bert_Classifier
 
 
-class NLU_Model(object):
+class IntentModel(object):
     def intent_recognition(self, user_utter):
         pass
 
 
-class NLU_Model_template(NLU_Model):
+class IntentModelTemplate(IntentModel):
     def __init__(self, templates):
         self.templates = templates
 
@@ -28,10 +28,11 @@ class NLU_Model_template(NLU_Model):
         return result
 
 
-class NLU_Model_bert(NLU_Model):
-    def __init__(self):
-        data_dir = 'datasets/intent'
-        self.model = Bert_Classifier(data_dir=data_dir)
+class IntentModelBERT(IntentModel):
+    def __init__(self, checkpoints_dir, label_dir):
+        self.checkpoints_dir = checkpoints_dir
+        self.label_dir = label_dir
+        self.model = Bert_Classifier(checkpoints_dir=self.checkpoints_dir, label_dir=self.label_dir)
 
     def intent_recognition(self, user_utter):
         if not user_utter:

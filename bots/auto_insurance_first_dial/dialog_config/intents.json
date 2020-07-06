@@ -1,0 +1,87 @@
+{
+  "车险首拨": {
+    "name": "车险首拨",
+    "slots": {
+      "is_user": {
+        "name": "is_user",
+        "chineseName": "身份核实",
+        "valueSet": "user.is_user"
+      },
+      "is_user_car": {
+        "name": "is_user_car",
+        "chineseName": "核实车牌",
+        "valueSet": "user.is_user_car"
+      },
+      "is_expired": {
+        "name": "is_expired",
+        "chineseName": "是否到期",
+        "valueSet": "user.is_expired"
+      },
+      "is_there_time": {
+        "name": "is_there_time",
+        "chineseName": "是否有时间",
+        "valueSet": "user.is_there_time"
+      },
+      "intent_to_introduce": {
+        "name": "intent_to_introduce",
+        "chineseName": "身份及意图介绍",
+        "valueSet": "user.intent_to_introduce"
+      },
+      "business_recommendation": {
+        "name": "business_recommendation",
+        "chineseName": "业务推荐",
+        "valueSet": "user.business_recommendation"
+      },
+      "retain": {
+        "name": "retain",
+        "chineseName": "挽留",
+        "valueSet": "user.retain"
+      },
+      "deposit_doubt": {
+        "name": "deposit_doubt",
+        "chineseName": "押金质疑",
+        "valueSet": "user.deposit_doubt"
+      }
+    }
+  },
+  "询问车牌": {
+    "name": "询问车牌",
+    "slots": {}
+  },
+  "身份质疑": {
+    "name": "身份质疑",
+    "slots": {}
+  },
+  "身份询问": {
+    "name": "身份询问",
+    "slots": {}
+  },
+  "投诉举报": {
+    "name": "投诉举报",
+    "slots": {}
+  },
+  "车辆过户": {
+    "name": "车辆过户",
+    "slots": {}
+  },
+  "已办理": {
+    "name": "已办理",
+    "slots": {}
+  },
+  "发送短信": {
+    "name": "发送短信",
+    "slots": {}
+  },
+  "排斥": {
+    "name": "排斥",
+    "slots": {}
+  },
+  "人情保": {
+    "name": "人情保",
+    "slots": {}
+  },
+  "重复询问": {
+    "name": "重复询问",
+    "slots": {}
+  }
+}

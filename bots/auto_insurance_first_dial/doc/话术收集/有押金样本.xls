@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
+  <Version>14.00</Version>
+ </DocumentProperties>
+ <OfficeDocumentSettings xmlns="urn:schemas-microsoft-com:office:office">
+  <AllowPNG/>
+ </OfficeDocumentSettings>
+ <ExcelWorkbook xmlns="urn:schemas-microsoft-com:office:excel">
+  <WindowHeight>10005</WindowHeight>
+  <WindowWidth>10005</WindowWidth>
+  <WindowTopX>120</WindowTopX>
+  <WindowTopY>135</WindowTopY>
+  <ProtectStructure>False</ProtectStructure>
+  <ProtectWindows>False</ProtectWindows>
+ </ExcelWorkbook>
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Bottom"/>
+   <Borders/>
+   <Font ss:FontName="Arial" x:Family="Swiss"/>
+   <Interior/>
+   <NumberFormat/>
+   <Protection/>
+  </Style>
+  <Style ss:ID="s62">
+   <Font ss:FontName="Arial" x:Family="Swiss" ss:Color="#0000FF" ss:Bold="1"/>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="Sheet1">
+  <Table ss:ExpandedColumnCount="4" ss:ExpandedRowCount="12" x:FullColumns="1"
+   x:FullRows="1">
+   <Column ss:Index="2" ss:AutoFitWidth="0" ss:Width="398.25"/>
+   <Row>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">entrance_id</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">content</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">robot_action</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">call_result</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[吴国良]本人吗？#用户：喂。#机器人</Data></Cell>
+    <Cell><Data ss:Type="String">押金质疑#超时</Data></Cell>
+    <Cell><Data ss:Type="String">12</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[陶丽丽]本人吗？#用户：喂。#机器人</Data></Cell>
+    <Cell><Data ss:Type="String">押金质疑#超时</Data></Cell>
+    <Cell><Data ss:Type="String">12</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[严雷]本人吗？#用户：对啊。#机器人</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">12</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[王闯]本人吗？#用户：对。#机器人：</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">12</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[李璐]本人吗？#用户：不是。#机器人</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">12</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[丁志强]本人吗？#用户：是的。#机器</Data></Cell>
+    <Cell><Data ss:Type="String">押金质疑#超时</Data></Cell>
+    <Cell><Data ss:Type="String">12</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[包薛春]本人吗？#用户：什么#机器人</Data></Cell>
+    <Cell><Data ss:Type="String">押金质疑#超时</Data></Cell>
+    <Cell><Data ss:Type="String">12</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[包海海]本人吗？#用户：对的#机器人</Data></Cell>
+    <Cell><Data ss:Type="String">押金质疑#超时</Data></Cell>
+    <Cell><Data ss:Type="String">12</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[唐景动]本人吗？#用户：呃对#机器人</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">12</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[郑旺长]本人吗？#用户：啊怎么了#机</Data></Cell>
+    <Cell><Data ss:Type="String">押金质疑#超时</Data></Cell>
+    <Cell><Data ss:Type="String">12</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号零八零幺，请问您是[林育国]本人吗？#用户：#机器人：喂</Data></Cell>
+    <Cell><Data ss:Type="String">押金质疑#超时</Data></Cell>
+    <Cell><Data ss:Type="String">12</Data></Cell>
+   </Row>
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <Selected/>
+   <Panes>
+    <Pane>
+     <Number>3</Number>
+     <ActiveRow>18</ActiveRow>
+     <ActiveCol>2</ActiveCol>
+    </Pane>
+   </Panes>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+ </Worksheet>
+</Workbook>

@@ -1,0 +1,20 @@
+{
+  "name": "身份质疑",
+  "intent": "身份质疑",
+  "nodes": {
+    "0": {
+      "type": "response",
+      "response": "我这边是XX电话车险的小王，我们跟4S店是有合作的。",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "1"
+        }
+      ]
+    },
+    "1": {
+      "type": "return"
+    }
+  },
+  "version": "0.1"
+}

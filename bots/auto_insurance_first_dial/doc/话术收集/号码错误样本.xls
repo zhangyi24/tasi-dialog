@@ -1,0 +1,300 @@
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
+  <Version>14.00</Version>
+ </DocumentProperties>
+ <OfficeDocumentSettings xmlns="urn:schemas-microsoft-com:office:office">
+  <AllowPNG/>
+ </OfficeDocumentSettings>
+ <ExcelWorkbook xmlns="urn:schemas-microsoft-com:office:excel">
+  <WindowHeight>10005</WindowHeight>
+  <WindowWidth>10005</WindowWidth>
+  <WindowTopX>120</WindowTopX>
+  <WindowTopY>135</WindowTopY>
+  <ProtectStructure>False</ProtectStructure>
+  <ProtectWindows>False</ProtectWindows>
+ </ExcelWorkbook>
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Bottom"/>
+   <Borders/>
+   <Font ss:FontName="Arial" x:Family="Swiss"/>
+   <Interior/>
+   <NumberFormat/>
+   <Protection/>
+  </Style>
+  <Style ss:ID="s62">
+   <Font ss:FontName="Arial" x:Family="Swiss" ss:Color="#0000FF" ss:Bold="1"/>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="Sheet1">
+  <Table ss:ExpandedColumnCount="4" ss:ExpandedRowCount="41" x:FullColumns="1"
+   x:FullRows="1">
+   <Column ss:Index="2" ss:AutoFitWidth="0" ss:Width="478.5"/>
+   <Column ss:AutoFitWidth="0" ss:Width="227.25"/>
+   <Row>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">entrance_id</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">content</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">robot_action</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">call_result</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[林杰]本人吗？#用户：是啊#机器人：</Data></Cell>
+    <Cell><Data ss:Type="String">核实车牌#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[王汝兴]本人吗？#用户：不是你打错了</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[陈钢]本人吗？#用户：怎么#机器人：</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[温永春]本人吗？#用户：不是#机器人</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[蔡兴军]本人吗？#用户：我的#机器人</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[何华云]本人吗？#用户：和划痕是吧#</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[陈雨平]本人吗？#用户：我不是#机器</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[孔月芳]本人吗？#用户：不是的打错了</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[吕建伟]本人吗？#用户：呃是#机器人</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[福清市融兴化工涂料厂]吗？#用户：呃</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[林建容]本人吗？#用户：噢不是不是#</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[陈玉珍]本人吗？#用户：没有了#机器</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[艾华飞]本人吗？#用户：不是不是啊#</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[朱元军]本人吗？#用户：什么东西呢#</Data></Cell>
+    <Cell><Data ss:Type="String">核实车牌#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[张振全]本人吗？#用户：嗯打错了#机</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[王德平]本人吗？#用户：#机器人：喂</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[陈勇]本人吗？#用户：不是#机器人：</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[廖成林]本人吗？#用户：不是不是不是</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[吴煌阳]本人吗？#用户：我不清楚你打</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[李声洪]本人吗？#用户：什么呀#机器</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[张可平]本人吗？#用户：不是的打错了</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[陈清柱]本人吗？#用户：是啊什么事#</Data></Cell>
+    <Cell><Data ss:Type="String">核实车牌#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[陈智雄]本人吗？#用户：啊不是不是啊</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[余奕]本人吗？#用户：喂喂#机器人：</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[卓明玉]本人吗？#用户：不是不是不是</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[林学惠]本人吗？#用户：不是#机器人</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[肖乐]本人吗？#用户：谁啊#机器人：</Data></Cell>
+    <Cell><Data ss:Type="String">核实车牌#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[林长征]本人吗？#用户：谁#机器人：</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[姚旭东]本人吗？#用户：你说什么#机</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[林涌烽]本人吗？#用户：怎么#机器人</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[靖江市佳盛物流有限公司]吗？#用户：</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[陈丽华]本人吗？#用户：不是#机器人</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[陈风开]本人吗？#用户：对#机器人：</Data></Cell>
+    <Cell><Data ss:Type="String">核实车牌#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[蔡亮]本人吗？#用户：不是#机器人：</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[孟忠亮]本人吗？#用户：呃不是打错了</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[郭娅]本人吗？#用户：#机器人：喂？</Data></Cell>
+    <Cell><Data ss:Type="String">核实车牌#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[戴汪萍]本人吗？#用户：不是#机器人</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[叶燕逢]本人吗？#用户：呃不是你打错</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[黎雪峰]本人吗？#用户：啊#机器人：</Data></Cell>
+    <Cell><Data ss:Type="String">核实车牌#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1010000011</Data></Cell>
+    <Cell><Data ss:Type="String">机器人：喂您好这里是人保电话车险我是小王工号0801，请问您是[赵智良]本人吗？#用户：你打长途#机</Data></Cell>
+    <Cell><Data ss:Type="String">结束语#超时</Data></Cell>
+    <Cell><Data ss:Type="String">10</Data></Cell>
+   </Row>
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <Selected/>
+   <Panes>
+    <Pane>
+     <Number>3</Number>
+     <ActiveRow>14</ActiveRow>
+     <ActiveCol>6</ActiveCol>
+    </Pane>
+   </Panes>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+ </Worksheet>
+</Workbook>

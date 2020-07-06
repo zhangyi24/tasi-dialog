@@ -6,17 +6,17 @@
       "consumer_number": {
         "name": "consumer_number",
         "chineseName": "户号",
-        "lexicon": "user.consumer_number"
+        "valueSet": "user.consumer_number"
       },
       "pay_to": {
         "name": "pay_to",
         "chineseName": "交费地点",
-        "lexicon": "user.pay_to"
+        "valueSet": "user.pay_to"
       },
       "meter_number": {
         "name": "meter_number",
         "chineseName": "电表号",
-        "lexicon": "user.meter_number"
+        "valueSet": "user.meter_number"
       }
     }
   },
@@ -41,7 +41,7 @@
       "cellphone_number": {
         "name": "cellphone_number",
         "chineseName": "手机号码",
-        "lexicon": "user.cellphone_number"
+        "valueSet": "user.cellphone_number"
       }
     }
   },
@@ -52,7 +52,7 @@
       "cellphone_number": {
         "name": "cellphone_number",
         "chineseName": "手机号码",
-        "lexicon": "user.cellphone_number"
+        "valueSet": "user.cellphone_number"
       }
     }
   },
@@ -67,7 +67,7 @@
       "e_bill_opened": {
         "name": "e_bill_opened",
         "chineseName": "开通电子账单",
-        "lexicon": "builtin.yes_or_no"
+        "valueSet": "builtin.yes_or_no"
       }
     }
   },
@@ -83,7 +83,7 @@
       "month": {
         "name": "month",
         "chineseName": "月份",
-        "lexicon": "builtin.month"
+        "valueSet": "builtin.month"
       }
     }
   },
@@ -94,12 +94,12 @@
       "new_high_power_electrical_appliance": {
         "name": "new_high_power_electrical_appliance",
         "chineseName": "是否新增大功率电器",
-        "lexicon": "builtin.yes_or_no"
+        "valueSet": "builtin.yes_or_no"
       },
       "num_people_increase": {
         "name": "num_people_increase",
         "chineseName": "人数增加",
-        "lexicon": "builtin.yes_or_no"
+        "valueSet": "builtin.yes_or_no"
       }
     }
   },
@@ -110,12 +110,12 @@
       "trip": {
         "name": "trip",
         "chineseName": "跳闸",
-        "lexicon": "builtin.yes_or_no"
+        "valueSet": "builtin.yes_or_no"
       },
       "electricity_meter_displays_normally": {
         "name": "electricity_meter_displays_normally",
         "chineseName": "电表显示正常",
-        "lexicon": "builtin.yes_or_no"
+        "valueSet": "builtin.yes_or_no"
       }
     }
   },
