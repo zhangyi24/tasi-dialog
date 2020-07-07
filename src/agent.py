@@ -173,6 +173,9 @@ class Bot(object):
                     'flow_name']):
                     node_stack.clear()
                     node_stack.append({'flow_name': self.intent_flow_mapping[intent], 'node_id': '0'})
+                    main_flow_node_id = main_flow_node['node_id']
+                    main_flow_node.clear()
+                    main_flow_node['node_id'] = main_flow_node_id
 
         # 执行流程，直到得到response
         while not resp['content']:

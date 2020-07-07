@@ -11,27 +11,39 @@ class NLUManager(object):
 		self.checkpoints_dir = checkpoints_dir
 		self.label_dir = label_dir
 		self.templates = templates
-		self.precompile_templates()
+		self.preprocess_templates()
 		self.intents = intents
 		self.value_sets = value_sets
-		self.precompile_value_sets()
+		self.preprocess_value_sets()
 		self.stop_words = stop_words
 		self.intent_model_bert = None
 		if os.path.exists(self.checkpoints_dir) and os.path.exists(self.label_dir):
 			self.intent_model_bert = IntentModelBERT(self.checkpoints_dir, self.label_dir)
 		self.intent_model_template = IntentModelTemplate(self.templates)
 	
-	def precompile_templates(self):
+	def preprocess_templates(self):
 		for intent_name in self.templates:
 			for i, template in enumerate(self.templates[intent_name]['templates']):
 				self.templates[intent_name]['templates'][i] = re.compile(template)
 	
-	def precompile_value_sets(self):
+	def preprocess_value_sets(self):
+		"""1.编译正则表达式。2.把dict型的别名按长度从长到短排序"""
 		for value_set_from in self.value_sets:
-			for value_set in self.value_sets[value_set_from]:
-				if self.value_sets[value_set_from][value_set]['type'] == 'regex':
-					regex = self.value_sets[value_set_from][value_set]['regex']
-					self.value_sets[value_set_from][value_set]['regex'] = re.compile(regex)
+			for value_set_name in self.value_sets[value_set_from]:
+				if self.value_sets[value_set_from][value_set_name]['type'] == 'regex':
+					regex = self.value_sets[value_set_from][value_set_name]['regex']
+					self.value_sets[value_set_from][value_set_name]['regex'] = re.compile(regex)
+				elif self.value_sets[value_set_from][value_set_name]['type'] == 'dict':
+					values = set()
+					reverse_idx = {}
+					for standard_value_name, aliases in self.value_sets[value_set_from][value_set_name]['dict'].items():
+						for alias in aliases:
+							values.add(alias)
+							reverse_idx[alias] = standard_value_name
+					values = list(values)
+					values.sort(key=len, reverse=True)
+					self.value_sets[value_set_from][value_set_name]['values_sorted'] = values
+					self.value_sets[value_set_from][value_set_name]['reverse_idx'] = reverse_idx
 		
 	def delete_stop_words(self, user_utter):
 		for word in self.stop_words:

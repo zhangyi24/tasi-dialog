@@ -72,13 +72,11 @@ def slot_filling_once(slot, user_utter, intents, value_sets):
 	value_set = value_sets[value_set_from][value_set_name]
 	# 填槽（字符串匹配）
 	if value_set['type'] == 'dict':
-		for standard_name, aliases in value_set['dict'].items():
-			for alias in aliases:
-				if alias in user_utter:
-					slot['value'] = standard_name
-					break
-			if slot['value'] is not None:
+		for value in value_set['values_sorted']:
+			if value in user_utter:
+				slot['value'] = value_set['reverse_idx'][value]
 				break
+
 	elif value_set['type'] == 'regex':
 		search_obj = value_set['regex'].search(user_utter)
 		if search_obj:
