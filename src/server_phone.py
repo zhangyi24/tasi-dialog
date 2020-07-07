@@ -108,22 +108,39 @@ class MainHandler(tornado.web.RequestHandler):
             # 处理扩展字段
             user_info = self.req_body['inparams']['extend'].split('#')[1:]
             # 初始化一个机器人，返回开场白
-            bot_resp = self.bot.init(user_id=self.req_body['userid'], user_info=user_info,
-                                     call_info=self.req_body['inparams'],
-                                     task_id=self.req_body['inparams']['strategy_params'].split('#')[0])
+            self.bot.init(user_id=self.req_body['userid'], user_info=user_info,
+                          call_info=self.req_body['inparams'],
+                          task_id=self.req_body['inparams']['strategy_params'].split('#')[0])
             user = self.bot.users[self.req_body['userid']]
             user['inter_idx'] = '1'
             user['resp_queue'] = collections.deque()
 
             # 为了将对话信息入库，首先需要将用户基本信息入库
             self.db.add_user(user['call_info'].get('call_sor_id', ''))
+            # 获取开场白
+            bot_resp, user['call_status'] = self.bot.greeting(user_id=self.req_body['userid'])
+            # 正常交互
+            if user['call_status'] == 'on':
+                if bot_resp['allow_interrupt']:
+                    resp_body = self.generate_resp_body_speak_listen(user, bot_resp['content'])
+                else:
+                    resp_body = self.generate_resp_body_speak(user, bot_resp['content'])
+                    user['resp_queue'].append(self.generate_resp_body_listen(user))
 
-            # 处理打断模式和非打断模式
-            if bot_resp['allow_interrupt']:
-                resp_body = self.generate_resp_body_speak_listen(user, bot_resp['content'])
-            else:
+            # 机器人发起挂断
+            elif user['call_status'] == 'hangup':
                 resp_body = self.generate_resp_body_speak(user, bot_resp['content'])
-                user['resp_queue'].append(self.generate_resp_body_listen(user))
+                user['resp_queue'].append(self.generate_resp_body_hangup(user))
+
+            # 机器人发起呼叫转移
+            elif user['call_status'] == 'fwd':
+                if self.bot_conf["lock_before_fwd"]:
+                    resp_body = self.generate_resp_body_lock_queue(user)
+                    user['resp_queue'].append(
+                        self.generate_resp_body_speak(user, bot_resp['content']))
+                else:
+                    resp_body = self.generate_resp_body_speak(user, '正在为您转接至人工')
+                    user['resp_queue'].append(self.generate_resp_body_fwd(user))
 
         elif self.req_body['inaction'] == 9:
             if self.req_body['userid'] not in self.bot.users:

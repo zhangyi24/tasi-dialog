@@ -12,6 +12,7 @@ import collections
 from nlu import NLUManager
 from dm import cond_judge
 from nlg import response_process
+
 sys.path.append(".")
 functions_path = 'dialog_config/functions.py'
 if os.path.exists(functions_path):
@@ -100,7 +101,8 @@ class Bot(object):
         # init nlu_manager
         checkpoints_dir = 'checkpoints/intent'
         label_dir = 'datasets/intent'
-        self.nlu_manager = NLUManager(checkpoints_dir, label_dir, self.templates, self.intents, self.value_sets, self.stop_words)
+        self.nlu_manager = NLUManager(checkpoints_dir, label_dir, self.templates, self.intents, self.value_sets,
+                                      self.stop_words)
         self.nlu_manager.intent_recognition('%%初始化%%')  # 第一次识别会比较慢，所以先识别一次。
 
         self.users = {}
@@ -124,49 +126,80 @@ class Bot(object):
         # use user_info to init some global variables
         if len(self.g_vars_need_init) != len(user_info):
             logging.warning("The length of 'g_vars_need_init' must be equal to the length of 'user_info': %s != %s",
-                          len(self.g_vars_need_init), len(user_info))
+                            len(self.g_vars_need_init), len(user_info))
         self.users[user_id]['g_vars'].update(dict(zip(self.g_vars_need_init, user_info)))
+
+    def greeting(self, user_id):
+        user = self.users[user_id]
+        # generate response
+        resp = {'content': None, 'allow_interrupt': self.interact_mode == '2', 'input_channel': '10'}
+        # return first response in main flow as the bot's response
+        if 'main' in self.flows:
+            resp, user['call_status'] = self.get_response(user_id, user_utter=None)
         # return greeting as the bot's response
-        resp = {'content': response_process(self.service_language['greeting'], self.users[user_id]['g_vars'], self.users[user_id]['builtin_vars']),
-                'allow_interrupt': self.interact_mode == '2', 'input_channel': '10'}
-        return resp
+        if not resp['content']:
+            resp['content'] = response_process(self.service_language['greeting'], self.users[user_id]['g_vars'],
+                                               self.users[user_id]['builtin_vars'])
+        self.users[user_id]['builtin_vars']['last_response'] = resp['content']
+        return resp, user['call_status']
 
     def response(self, user_id, user_utter):
+        """生成机器人回复"""
+        resp, call_status = self.get_response(user_id, user_utter)
+        g_vars = self.users[user_id]['g_vars']
+        builtin_vars = self.users[user_id]['builtin_vars']
+        if resp['content'] is None:
+            # 兜底话术
+            resp['content'] = response_process(self.service_language['pardon'], g_vars, builtin_vars)
+        return resp, call_status
+
+    def get_response(self, user_id, user_utter):
+        """生成除了兜底话术之外的机器人正常回复"""
         user = self.users[user_id]
         resp = {'content': None, 'allow_interrupt': self.interact_mode == '2', 'input_channel': '10'}
         g_vars = self.users[user_id]['g_vars']
         builtin_vars = self.users[user_id]['builtin_vars']
         node_stack = self.users[user_id]['node_stack']
         main_flow_node = self.users[user_id]['main_flow_node']
-        # 意图识别
-        intent = self.nlu_manager.intent_recognition(user_utter)
-        builtin_vars['intent'] = intent
-        # 根据意图识别结果调整node_stack
-        if intent is not None:
-            if not node_stack or (
-                    intent in self.intent_flow_mapping and self.intent_flow_mapping[intent] != node_stack[0][
-                'flow_name']):
-                node_stack.clear()
-                node_stack.append({'flow_name': self.intent_flow_mapping[intent], 'node_id': '0'})
+
+        if user_utter is not None:
+            # 意图识别
+            intent = self.nlu_manager.intent_recognition(user_utter)
+            builtin_vars['intent'] = intent
+            # 根据意图识别结果调整node_stack
+            if intent is not None:
+                if not node_stack or (
+                        intent in self.intent_flow_mapping and self.intent_flow_mapping[intent] != node_stack[0][
+                    'flow_name']):
+                    node_stack.clear()
+                    node_stack.append({'flow_name': self.intent_flow_mapping[intent], 'node_id': '0'})
 
         # 执行流程，直到得到response
         while not resp['content']:
             # get current node
             # print(g_vars, node_stack)
             if node_stack:
-                current_flow = self.flows[node_stack[-1]['flow_name']]
-                current_node = current_flow['nodes'][node_stack[-1]['node_id']]
+                current_flow_name = node_stack[-1]['flow_name']
+                current_flow = self.flows[current_flow_name]
+                curren_node_id = node_stack[-1]['node_id']
+                current_node = current_flow['nodes'][curren_node_id]
+                logging.info('flow_name: %s, node_id: %s, node_type: %s' % (
+                    current_flow_name, curren_node_id, current_node['type']))
             elif main_flow_node:
-                current_flow = self.flows['main']
-                current_node = current_flow['nodes'][main_flow_node['node_id']]
+                current_flow_name = 'main'
+                current_flow = self.flows[current_flow_name]
+                curren_node_id = main_flow_node['node_id']
+                current_node = current_flow['nodes'][curren_node_id]
+                logging.info('flow_name: %s, node_id: %s, node_type: %s' % (
+                    current_flow_name, curren_node_id, current_node['type']))
             else:
-                resp['content'] = response_process(self.service_language['pardon'], g_vars, builtin_vars)
                 break
 
             # log results
             # todo: 每经过一个节点就把该节点的结果追加到results后，有没有更合理的记录对话结果的方法
             user['results'].extend(current_node.get('results', []))
 
+            # process current node
             # branch
             if current_node['type'] == 'branch':
                 pass
@@ -183,23 +216,22 @@ class Bot(object):
             # flow
             elif current_node['type'] == 'flow':
                 node_info = node_stack[-1] if node_stack else main_flow_node
-                # 非主流程
-                if node_stack:
-                    if 'return' not in node_info:
-                        node_info['return'] = False
-                        node_stack.append({'flow_name': current_node['flowName'], 'node_id': '0'})
-                        continue
-                    else:
-                        del node_info['return']
+                if 'return' not in node_info:
+                    node_info['return'] = False
+                    node_stack.append({'flow_name': current_node['flowName'], 'node_id': '0'})
+                    continue
+                else:
+                    del node_info['return']
 
             # slot_filling
             elif current_node['type'] == 'slot_filling':
                 node_info = node_stack[-1] if node_stack else main_flow_node
                 if 'slots_status' not in node_info:
-                    node_info['slots_status'] = self.nlu_manager.slots_status_init(current_node['slots'],
-                                                                                        user_utter, g_vars)
+                    node_info['slots_status'] = self.nlu_manager.slots_status_init(current_node['slots'])
                 resp['content'], finish = self.nlu_manager.slots_filling(node_info['slots_status'], user_utter,
                                                                          g_vars)
+                if resp['content'] is not None:
+                    resp['content'] = response_process(resp['content'], g_vars, builtin_vars)
                 if not finish:
                     continue
                 else:
@@ -207,13 +239,15 @@ class Bot(object):
 
             # function
             elif current_node['type'] == 'function':
-                exec('builtin_vars["func_return"] = ' + 'functions.' + current_node['funcName'] + '(user_utter, g_vars)')
+                exec(
+                    'builtin_vars["func_return"] = ' + 'functions.' + current_node['funcName'] + '(user_utter, g_vars)')
 
             # dm
             assert 'dm' in current_node
             for case in current_node['dm']:
                 cond = case['cond']
-                cond_is_true = True if cond is True else cond_judge(cond, data={"global": g_vars, "builtin": builtin_vars})
+                cond_is_true = True if cond is True else cond_judge(cond,
+                                                                    data={"global": g_vars, "builtin": builtin_vars})
                 if cond_is_true or cond == 'else':
                     # 处理nextNode。分当前流程是主流程和非主流程两种情况处理
                     # 非主流程
@@ -221,8 +255,12 @@ class Bot(object):
                         node_stack[-1]['node_id'] = case['nextNode']
                         next_node = current_flow['nodes'][case['nextNode']]
                         if next_node['type'] == 'return':
+                            logging.info('flow_name: %s, node_id: %s, node_type: %s' % (
+                                current_flow_name, case['nextNode'], next_node['type']))
                             node_stack.pop()
                         elif next_node['type'] == 'exit':
+                            logging.info('flow_name: %s, node_id: %s, node_type: %s' % (
+                                current_flow_name, case['nextNode'], next_node['type']))
                             if next_node['todo'] == 'hangup':
                                 user['call_status'] = 'hangup'
                             elif next_node['todo'] == 'fwd':
@@ -230,16 +268,20 @@ class Bot(object):
                             node_stack.clear()
                     # 主流程
                     else:
-                        main_flow_node = {'node_id': case['nextNode']}
+                        main_flow_node['node_id'] = case['nextNode']
                         next_node = current_flow['nodes'][case['nextNode']]
                         if next_node['type'] == 'return':
-                            main_flow_node = {}
+                            logging.info('flow_name: %s, node_id: %s, node_type: %s' % (
+                                current_flow_name, case['nextNode'], next_node['type']))
+                            main_flow_node.clear()
                         elif next_node['type'] == 'exit':
+                            logging.info('flow_name: %s, node_id: %s, node_type: %s' % (
+                                current_flow_name, case['nextNode'], next_node['type']))
                             if next_node['todo'] == 'hangup':
                                 user['call_status'] = 'hangup'
                             elif next_node['todo'] == 'fwd':
                                 user['call_status'] = 'fwd'
-                            main_flow_node = {}
+                            main_flow_node.clear()
 
                     # 处理response
                     if 'response' in case:

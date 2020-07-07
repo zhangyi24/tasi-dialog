@@ -12,41 +12,48 @@ sys.path.append('..')
 MAX_REQUEST_NUM = 2
 
 
-def slots_status_init(slots, user_utter, intents, value_sets, g_vars):
+def slots_status_init(slots):
 	slots_status = {
 		'slots': [],
-		'curr_slot_id': 0
+		'curr_slot_id': 0	# 待填槽id
 	}
 	for slot in slots:
 		slot = copy.deepcopy(slot)
+		# 初始化slot状态
 		slot['intent'], slot['name'] = slot['name'].split('.')
-		slot['num_requested'] = 0
+		slot['times_requested'] = 0
 		slot['value'] = None
-		slot_filling_once(slot, user_utter, intents, value_sets)
-		if slot['value'] is not None and "global_variable" in slot:
-			g_vars[slot['global_variable']] = slot['value']
-		if 'response' in slot:
-			slot['max_request_num'] = MAX_REQUEST_NUM
-			slots_status['slots'].append(slot)
+		if 'response_before_filling' not in slot:
+			slot['response_before_filling'] = True
+		# max_request_num
+		slot['max_request_num'] = MAX_REQUEST_NUM if 'response' in slot else 0
+		slots_status['slots'].append(slot)
 	return slots_status
 
 
 def slots_filling(slots_status, user_utter, intents, value_sets, g_vars):
+	# resp是机器人的回复，finish是填槽是否结束的标志
 	resp, finish = None, True
+	# 取出待填槽的状态
 	slot = slots_status['slots'][slots_status['curr_slot_id']]
-	slot_filling_once(slot, user_utter, intents, value_sets)
+	# 填槽
+	if slot['times_requested'] > 0 or not slot['response_before_filling']:
+		slot_filling_once(slot, user_utter, intents, value_sets)
+	# 检查并修改填槽状态
 	while slots_status['curr_slot_id'] < len(slots_status['slots']):
+		# 已填
 		if slot['value'] is not None:
 			if "global_variable" in slot:
 				g_vars[slot['global_variable']] = slot['value']
 			slots_status['curr_slot_id'] += 1
+		# 未填
 		else:
-			if slot['num_requested'] < slot['max_request_num']:
-				resp = response_process(slot['response'], g_vars)
-				slot['num_requested'] += 1
+			if slot['times_requested'] < slot['max_request_num']:
+				resp = slot['response']
+				slot['times_requested'] += 1
 				return resp, False
 			else:
-				slot['value'] = 'CANT_INFORM'
+				slot['value'] = None
 				if "global_variable" in slot:
 					g_vars[slot['global_variable']] = slot['value']
 				slots_status['curr_slot_id'] += 1
@@ -54,6 +61,11 @@ def slots_filling(slots_status, user_utter, intents, value_sets, g_vars):
 
 
 def slot_filling_once(slot, user_utter, intents, value_sets):
+	"""
+	更新slot['value']
+	"""
+	if user_utter is None:
+		return
 	# 获得value_set
 	value_set = intents[slot['intent']]['slots'][slot['name']]['valueSet']
 	value_set_from, value_set_name = value_set.split('.')
@@ -79,70 +91,68 @@ def slot_filling_once(slot, user_utter, intents, value_sets):
 
 
 def slot_filling_bool(slot, user_utter):
-	if slot['num_requested'] >= 1:
-		slot['value'] = None
-		for i in ['没错', '不错']:
-			if i in user_utter:
-				slot['value'] = True
-				break
-		if slot['value'] is None:
-			for i in ['不知道', '不清楚', '忘了', '记不清']:
-				if i in user_utter:
-					slot['value'] = 'CANT_INFORM'
-					break
-		if slot['value'] is None:
-			for i in ['不', '没']:
-				if i in user_utter:
-					slot['value'] = False
-					break
-		if slot['value'] is None:
+	slot['value'] = None
+	for i in ['没错', '不错']:
+		if i in user_utter:
 			slot['value'] = True
+			break
+	if slot['value'] is None:
+		for i in ['不知道', '不清楚', '忘了', '记不清']:
+			if i in user_utter:
+				slot['value'] = None
+				break
+	if slot['value'] is None:
+		for i in ['不', '没']:
+			if i in user_utter:
+				slot['value'] = False
+				break
+	if slot['value'] is None:
+		slot['value'] = True
 
 
 def slot_filling_month(slot, user_utter):
-	if slot['num_requested'] >= 1:
-		today = datetime.datetime.today()
-		if '上上个月' in user_utter:
-			month = today.month - 2
-			year = today.year
-			if month < 1:
-				month += 12
-				year -= 1
-			slot['value'] = '%04d%02d' % (year, month)
-		elif '下下个月' in user_utter:
-			month = today.month + 2
-			year = today.year
-			if month > 12:
-				month -= 12
-				year += 1
-			slot['value'] = '%04d%02d' % (year, month)
-		elif '上个月' in user_utter:
-			month = today.month - 1
-			year = today.year
-			if month < 1:
-				month += 12
-				year -= 1
-			slot['value'] = '%04d%02d' % (year, month)
-		elif '下个月' in user_utter:
-			month = today.month + 1
-			year = today.year
-			if month > 12:
-				month -= 12
-				year += 1
-			slot['value'] = '%04d%02d' % (year, month)
-		elif '这个月' in user_utter or '本月' in user_utter:
-			slot['value'] = '%04d%02d' % (today.year, today.month)
-		else:
-			zh_mapping = {'一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10, '十一': 11,
-			              '十二': 12}
-			for month in ['十一', '十二', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十',
-			              '12', '11', '10', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
-				if month in user_utter:
-					if month.isdecimal():
-						slot['value'] = '%04d%02d' % (today.year, int(month))
-					else:
-						slot['value'] = '%04d%02d' % (today.year, zh_mapping[month])
-					break
+	today = datetime.datetime.today()
+	if '上上个月' in user_utter:
+		month = today.month - 2
+		year = today.year
+		if month < 1:
+			month += 12
+			year -= 1
+		slot['value'] = '%04d%02d' % (year, month)
+	elif '下下个月' in user_utter:
+		month = today.month + 2
+		year = today.year
+		if month > 12:
+			month -= 12
+			year += 1
+		slot['value'] = '%04d%02d' % (year, month)
+	elif '上个月' in user_utter:
+		month = today.month - 1
+		year = today.year
+		if month < 1:
+			month += 12
+			year -= 1
+		slot['value'] = '%04d%02d' % (year, month)
+	elif '下个月' in user_utter:
+		month = today.month + 1
+		year = today.year
+		if month > 12:
+			month -= 12
+			year += 1
+		slot['value'] = '%04d%02d' % (year, month)
+	elif '这个月' in user_utter or '本月' in user_utter:
+		slot['value'] = '%04d%02d' % (today.year, today.month)
+	else:
+		zh_mapping = {'一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10, '十一': 11,
+					  '十二': 12}
+		for month in ['十一', '十二', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十',
+					  '12', '11', '10', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
+			if month in user_utter:
+				if month.isdecimal():
+					slot['value'] = '%04d%02d' % (today.year, int(month))
+				else:
+					slot['value'] = '%04d%02d' % (today.year, zh_mapping[month])
+				break
 
 
 if __name__ == '__main__':

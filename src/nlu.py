@@ -46,11 +46,11 @@ class NLUManager(object):
 			intent = self.intent_model_template.intent_recognition(user_utter)
 		return intent
 	
-	def slots_filling(self, slots, user_utter, g_vars):
-		return slots_filling(slots, user_utter, self.intents, self.value_sets, g_vars)
+	def slots_filling(self, slots_status, user_utter, g_vars):
+		return slots_filling(slots_status, user_utter, self.intents, self.value_sets, g_vars)
 	
-	def slots_status_init(self, slots_status, user_utter, g_vars):
-		return slots_status_init(slots_status, user_utter, self.intents, self.value_sets, g_vars)
+	def slots_status_init(self, slots):
+		return slots_status_init(slots)
 	
 
 if __name__ == '__main__':

@@ -318,7 +318,7 @@
       "type": "slot_filling",
       "slots": [
         {
-          "name": "挽留",
+          "name": "车险首拨.retain",
           "global_variable": "retain",
           "response": "我们XX这次优惠的力度还是很大的，要不我稍后安排一位高级客户经理跟您联系可以吗？"
         }
