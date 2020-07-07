@@ -57,12 +57,21 @@ class MainHandler(tornado.web.RequestHandler):
 	def post(self):
 		if self.req_body['inaction'] == 8:
 			user_info = self.req_body['inparams']['user_info'].split('#')[1:]
-			bot_resp = self.bot.init(user_id=self.req_body['userid'], user_info=user_info,
+			self.bot.init(user_id=self.req_body['userid'], user_info=user_info,
 			                         call_info=self.req_body['inparams'])
 			user = self.bot.users[self.req_body['userid']]
 			user['inter_idx'] = '1'
 			user['resp_queue'] = collections.deque()
-			resp_body = self.generate_resp_body_interact(user, bot_resp['content'])
+
+			# 获取开场白
+			bot_resp, user['call_status'] = self.bot.greeting(user_id=self.req_body['userid'])
+			# 正常交互
+			if user['call_status'] == 'on':
+				resp_body = self.generate_resp_body_interact(user, bot_resp['content'])
+			# 机器人发起挂断或转人工
+			else:
+				resp_body = self.generate_resp_body_interact(user, bot_resp['content'], input=False)
+				user['resp_queue'].append(self.generate_resp_body_hangup(user))
 		
 		elif self.req_body['inaction'] == 9:
 			if self.req_body['userid'] not in self.bot.users:

@@ -17,7 +17,7 @@
               {
                 "var": "global.consumer_number"
               },
-              "CANT_INFORM"
+              null
             ]
           },
           "nextNode": "1"
@@ -73,7 +73,7 @@
               {
                 "var": "global.meter_number"
               },
-              "CANT_INFORM"
+              null
             ]
           },
           "nextNode": "3"

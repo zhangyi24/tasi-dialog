@@ -76,7 +76,7 @@
               {
                 "var": "global.meter_number"
               },
-              "CANT_INFORM"
+              null
             ]
           },
           "nextNode": "4"
