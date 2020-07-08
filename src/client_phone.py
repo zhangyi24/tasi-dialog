@@ -4,7 +4,7 @@ import requests
 userid = '25044006'
 local_server_url = 'http://127.0.0.1:59999'
 remote_server_url = 'http://101.6.68.40:59999'
-url = remote_server_url
+url = local_server_url
 req_body_8 = {
     'userid': userid,
     'inaction': 8,
@@ -43,18 +43,18 @@ req_body_tts = {
 }
 
 req_body_asr = {
-    'userid': '905044005',
+    'userid': userid,
     'inaction': 9,
     'inparams': {
-        'call_id': '905044005',
+        'call_id': userid,
         'inter_idx': '1',
         'begin_play': '2020-03-14 22:22:47939',
         'end_play': '2020-03-14 22:22:52044',
         'result_time': '2020-03-14 22:22:52044',
         'flow_result_type': '2',
-        'input': 'ws_20200401_152240_896681.wav[转人工。]',
+        'input': 'ws_20200401_152240_896681.wav[怎么缴费。]',
         # 'inter_no': '2020-03-14 22:22:47939',
-        'inter_no': 'ws_20200401_152240_896681.wav[转人工。]',
+        'inter_no': 'ws_20200401_152240_896681.wav[怎么缴费。]',
         'org': '',
         'grammar': '',
         'newsess': '',
@@ -65,9 +65,9 @@ req_body_asr = {
 }
 
 req_body_tts_asr = {
-    'userid': '905044005', 'inaction': 9,
+    'userid': userid, 'inaction': 9,
     'inparams': {
-        'call_id': '905044005', 'inter_idx': '1', 'begin_play': '2020-03-15 15:41:20410',
+        'call_id': userid, 'inter_idx': '1', 'begin_play': '2020-03-15 15:41:20410',
         'end_play': '2020-03-15 15:41:27730', 'result_time': '2020-03-15 15:41:27730',
         'flow_result_type': '2', 'input': '人工客服。', 'inter_no': '2020-03-15 15:41:20410',
         'org': '', 'grammar': '', 'newsess': '', 'res_node_lst': '', 'res_parse_mode': '',
@@ -95,6 +95,7 @@ req_body_user_hangup = {
 		"extended_field": "扩展字段，后继新增字段在此字段中拼接"
 	}
 }
+
 req_body_11 = {
     "userid": userid,
     "inaction": 11,
@@ -118,6 +119,6 @@ req_body_0 = {
     }
 }
 
-for req_body in [req_body_8, req_body_tts, req_body_asr, req_body_11, req_body_user_hangup]:
+for req_body in [req_body_8, req_body_tts, req_body_asr, req_body_tts, req_body_user_hangup]:
     resp = requests.post(url=url, json=req_body)
     print(resp.elapsed, resp.json() if resp.content else {})

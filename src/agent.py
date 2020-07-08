@@ -171,11 +171,14 @@ class Bot(object):
                 if not node_stack or (
                         intent in self.intent_flow_mapping and self.intent_flow_mapping[intent] != node_stack[0][
                     'flow_name']):
+                    # 清空node_stack，把识别到的意图的对应流程压入node_stack
                     node_stack.clear()
                     node_stack.append({'flow_name': self.intent_flow_mapping[intent], 'node_id': '0'})
-                    main_flow_node_id = main_flow_node['node_id']
-                    main_flow_node.clear()
-                    main_flow_node['node_id'] = main_flow_node_id
+                    # 清空main_flow_node的除'node_id'外的其他信息
+                    if main_flow_node:
+                        main_flow_node_id = main_flow_node['node_id']
+                        main_flow_node.clear()
+                        main_flow_node['node_id'] = main_flow_node_id
 
         # 执行流程，直到得到response
         while not resp['content']:
