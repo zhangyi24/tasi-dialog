@@ -116,7 +116,8 @@ class MainHandler(tornado.web.RequestHandler):
             user['resp_queue'] = collections.deque()
 
             # 为了将对话信息入库，首先需要将用户基本信息入库
-            self.db.add_user(user['call_info'].get('call_sor_id', ''))
+            if self.db:
+                self.db.add_user(user['call_info'].get('call_sor_id', ''))
             # 获取开场白
             bot_resp, user['call_status'] = self.bot.greeting(user_id=self.req_body['userid'])
             # 正常交互
@@ -165,9 +166,10 @@ class MainHandler(tornado.web.RequestHandler):
                 if self.req_body['inparams']['flow_result_type'] in ['1', '2']:
                     user_input, asr_record_path = self.parse_asr_result(self.req_body['inparams']['input'])
                 if user_input:
-                    self.db.add_msg(user=user['call_info'].get('call_sor_id', ''),
-                                    receipt='bot', msg=user_input, task_id=user['task_id'],
-                                    asr_record_path=asr_record_path)
+                    if self.db:
+                        self.db.add_msg(user=user['call_info'].get('call_sor_id', ''),
+                                        receipt='bot', msg=user_input, task_id=user['task_id'],
+                                        asr_record_path=asr_record_path)
                     user['history'].append('用户：' + user_input)
                 bot_resp, user['call_status'] = self.bot.response(self.req_body['userid'], user_input)
 
@@ -221,56 +223,59 @@ class MainHandler(tornado.web.RequestHandler):
                              'input'] == 'timeout'
         if bot_say_something and not retransmission:
             user['history'].append('机器人：' + resp_body['outparams']['prompt_text'])
-            self.db.add_msg(user='bot',
-                            receipt=user['call_info'].get('call_sor_id', ''), msg=resp_body['outparams']['prompt_text'],
-                            task_id=user['task_id'])
+            if self.db:
+                self.db.add_msg(user='bot',
+                                receipt=user['call_info'].get('call_sor_id', ''), msg=resp_body['outparams']['prompt_text'],
+                                task_id=user['task_id'])
         user['last_resp_body'] = resp_body
         logging.info('[dialog] resp_headers: %s' % dict(self._headers))
         logging.info('[dialog] resp_body: %s' % resp_body)
-        threading.Thread(target=self.db.write_msgs, name='SQL').start()
+        if self.db:
+            threading.Thread(target=self.db.write_msgs, name='SQL').start()
         if resp_body['outaction'] == '10':
             del self.bot.users[resp_body['userid']]
             threading.Thread(target=self.save_results, args=(user,), name='call_post_process').start()
 
     def save_results(self, user):
-        req_body = {
-            "callid": "",
-            "entranceId": "",
-            "eventId": "",
-            "listId": "",
-            "custId": "",
-            "content": "",
-            "robotAction": "",
-            "callResult": "",
-            "comcode": "",
-            "isToacd": ""
-        }
-        self.bot.convert_results_to_codes(user)
-        req_body.update({
-            "callid": user["call_info"].get('call_id', ''),
-            "entranceId": user["call_info"].get('entranceId', ''),
-            "content": '#'.join(user['history']),
-            "isToacd": '0' if user['call_status'] == 'fwd' else '1',
-            "callResult": '#'.join(user['results'])
-        })
-        req_body.update(dict(zip(("eventId", "custId", "listId"), user['call_info']['strategy_params'].split('#'))))
-        extend = user['call_info'].get('extend', '').split('#')
-        for i in range(len(extend)):
-            req_body.update({'col%d' % (i + 1): extend[i]})
-        req_body = [req_body]
-        resp = requests.post(self.bot_conf['result_save_url'],
-                             data=json.dumps(req_body, ensure_ascii=False, separators=(',', ':')).encode('utf-8'))
-        logging.info('[save_result] req_headers: %s' % resp.request.headers)
-        logging.info('[save_result] req_body: %s' % resp.request.body.decode('utf-8'))
-        logging.info('[save_result] resp_headers: %s' % resp.headers)
-        logging.info('[save_result] resp_body: %s' % resp.json())
+        if 'result_save_url' in self.bot_conf:
+            req_body = {
+                "callid": "",
+                "entranceId": "",
+                "eventId": "",
+                "listId": "",
+                "custId": "",
+                "content": "",
+                "robotAction": "",
+                "callResult": "",
+                "comcode": "",
+                "isToacd": ""
+            }
+            self.bot.convert_results_to_codes(user)
+            req_body.update({
+                "callid": user["call_info"].get('call_id', ''),
+                "entranceId": user["call_info"].get('entranceId', ''),
+                "content": '#'.join(user['history']),
+                "isToacd": '0' if user['call_status'] == 'fwd' else '1',
+                "callResult": '#'.join(user['results'])
+            })
+            req_body.update(dict(zip(("eventId", "custId", "listId"), user['call_info']['strategy_params'].split('#'))))
+            extend = user['call_info'].get('extend', '').split('#')
+            for i in range(len(extend)):
+                req_body.update({'col%d' % (i + 1): extend[i]})
+            req_body = [req_body]
+            resp = requests.post(self.bot_conf['result_save_url'],
+                                 data=json.dumps(req_body, ensure_ascii=False, separators=(',', ':')).encode('utf-8'))
+            logging.info('[save_result] req_headers: %s' % resp.request.headers)
+            logging.info('[save_result] req_body: %s' % resp.request.body.decode('utf-8'))
+            logging.info('[save_result] resp_headers: %s' % resp.headers)
+            logging.info('[save_result] resp_body: %s' % resp.json())
 
     def parse_asr_result(self, input_raw):
         user_input, asr_record_path = '', ''
         if '[' not in input_raw:
             return user_input, asr_record_path
         asr_record_path, user_input = input_raw.rstrip(']').rsplit('[', 1)
-        if asr_record_path:
+        if asr_record_path and 'record_dir' in self.asr_conf:
             asr_record_path = os.path.join(self.asr_conf['record_dir'], asr_record_path)
         return user_input, asr_record_path
 
@@ -367,38 +372,48 @@ if __name__ == "__main__":
     # parse sys.argv
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--port', default=59999, type=int)
+    parser.add_argument('-c', '--config', default="config_phone.yml", type=str)
     # set 2 to enable Interact Mode
     parser.add_argument('-m', '--mode', default='1', type=str, choices=['1', '2'],
                         help='interact mode. 1: user can not interrupt when bot is speaking; 2: user can interrupt when bot is speaking')
     parser.add_argument('-l', '--lock', action='store_true',
                         help='Whether to lock the queue of agent before call transfer')
     args = parser.parse_args()
+
+    # config
     conf = {}
-    with open("config_phone.yml") as f:
-        conf = yaml.safe_load(f)
+    if os.path.exists(args.config):
+        with open(args.config, 'r', encoding='utf-8') as f:
+            conf = yaml.safe_load(f)
+
+    # port
+    port = conf.get("port", args.port)
+
+    # config logging
     if "logging" in conf:
         filename = conf['logging']['handlers']['log_file_handler']['filename']
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         logging.config.dictConfig(conf["logging"])
-    bot_conf = conf['bot']
-    bot_conf.update({'lock_before_fwd': args.lock})
-    asr_conf = conf['asr']
 
-    # bot
+    # config bot
+    bot_conf = conf.get('bot', {})
+    bot_conf.update({'lock_before_fwd': args.lock})
+
+    # config asr
+    asr_conf = conf.get('asr', {})
+
+    # load bot
     logging.info('loading bot...')
     bot = Bot(interact_mode=args.mode)
     logging.info('bot loaded.')
 
-    # # mysql
-    # db = MySQLWrapper(conf['mysql'])
-
-    # postgresql
-    db = PostgreSQLWrapper(conf['postgresql'])
+    # config db
+    db = PostgreSQLWrapper(conf['postgresql']) if 'postgresql' in conf else None
 
     # app
     application = tornado.web.Application([
         (r"/", MainHandler, dict(bot=bot, db=db, bot_conf=bot_conf, asr_conf=asr_conf)),
     ])
     application.listen(args.port)
-    logging.info('listening on 127.0.0.1:%s...' % args.port)
+    logging.info('listening on 127.0.0.1:%s...' % port)
     tornado.ioloop.IOLoop.current().start()
