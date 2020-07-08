@@ -7,7 +7,7 @@ from intent_recognition import IntentModelBERT, IntentModelTemplate
 
 
 class NLUManager(object):
-	def __init__(self, checkpoints_dir, label_dir, templates, intents, value_sets, stop_words):
+	def __init__(self, checkpoints_dir, label_dir, templates, intents, value_sets, stop_words, thresholds):
 		self.checkpoints_dir = checkpoints_dir
 		self.label_dir = label_dir
 		self.templates = templates
@@ -16,6 +16,7 @@ class NLUManager(object):
 		self.value_sets = value_sets
 		self.preprocess_value_sets()
 		self.stop_words = stop_words
+		self.thresholds = thresholds
 		self.intent_model_bert = None
 		if os.path.exists(self.checkpoints_dir) and os.path.exists(self.label_dir):
 			self.intent_model_bert = IntentModelBERT(self.checkpoints_dir, self.label_dir)
@@ -53,7 +54,9 @@ class NLUManager(object):
 	def intent_recognition(self, user_utter):
 		intent = None
 		if self.intent_model_bert:
-			intent = self.intent_model_bert.intent_recognition(user_utter)
+			intent, confidence = self.intent_model_bert.intent_recognition(user_utter)
+			if confidence < self.thresholds['intent_bert']:
+				intent = None
 		if not intent:
 			intent = self.intent_model_template.intent_recognition(user_utter)
 		return intent

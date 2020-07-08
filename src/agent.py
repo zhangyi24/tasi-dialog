@@ -54,7 +54,7 @@ class Bot(object):
         # value_sets
         # builtin value_sets
         self.value_sets = {}
-        builtin_value_sets_file_path = os.path.join(os.path.dirname(__file__), 'builtin_value_sets.json')
+        builtin_value_sets_file_path = os.path.join(os.path.dirname(__file__), 'config', 'value_sets.json')
         with open(builtin_value_sets_file_path, 'r', encoding='utf-8') as f:
             self.value_sets['builtin'] = json.load(f)
         # custom value_sets
@@ -98,11 +98,22 @@ class Bot(object):
                 results = json.load(f)
                 self.results_tracker = ResultsTracker(results['results_code'], results['init_results'])
 
+        # default thresholds
+        default_thresholds_file = os.path.join(os.path.dirname(__file__), 'config', 'thresholds.json')
+        with open(default_thresholds_file, 'r', encoding='utf-8') as f:
+            self.thresholds = json.load(f)
+        # custom thresholds
+        custom_thresholds_file = 'dialog_config/thresholds.json'
+        if os.path.exists(custom_thresholds_file):
+            with open(custom_thresholds_file, 'r', encoding='utf-8') as f:
+                self.thresholds.update(json.load(f))
+
+
         # init nlu_manager
         checkpoints_dir = 'checkpoints/intent'
         label_dir = 'datasets/intent'
         self.nlu_manager = NLUManager(checkpoints_dir, label_dir, self.templates, self.intents, self.value_sets,
-                                      self.stop_words)
+                                      self.stop_words, self.thresholds)
         self.nlu_manager.intent_recognition('%%初始化%%')  # 第一次识别会比较慢，所以先识别一次。
 
         self.users = {}
@@ -297,5 +308,6 @@ class Bot(object):
         return resp, user['call_status']
 
     def convert_results_to_codes(self, user):
-        user['results'] = self.results_tracker.convert_results_to_codes(user['results'])
+        if self.results_tracker:
+            user['results'] = self.results_tracker.convert_results_to_codes(user['results'])
         return user['results']

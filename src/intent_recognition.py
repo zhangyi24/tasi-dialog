@@ -36,11 +36,10 @@ class IntentModelBERT(IntentModel):
 
     def intent_recognition(self, user_utter):
         if not user_utter:
-            intent_name, confidence = 'others', 1.0
+            intent_name, confidence = None, 1.0
         else:
             intent_name, confidence = self.model.predict([user_utter])[0]
             logging.info('intent recognition result(BERT): ("%s", %s, %s)' % (user_utter, intent_name, confidence))
-            if confidence < 0.93:
-                intent_name = 'others'
-        intent_name = intent_name if intent_name != 'others' else None
-        return intent_name
+            if intent_name == 'others':
+                intent_name = None
+        return intent_name, confidence
