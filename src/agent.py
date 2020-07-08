@@ -297,5 +297,6 @@ class Bot(object):
         return resp, user['call_status']
 
     def convert_results_to_codes(self, user):
-        user['results'] = self.results_tracker.convert_results_to_codes(user['results'])
+        if self.results_tracker:
+            user['results'] = self.results_tracker.convert_results_to_codes(user['results'])
         return user['results']
