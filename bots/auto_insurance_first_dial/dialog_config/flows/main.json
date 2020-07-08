@@ -1,0 +1,546 @@
+{
+  "name": "main",
+  "nodes": {
+    "0": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "车险首拨.is_user",
+          "global_variable": "is_user",
+          "response": "喂您好，这里是XX电话车险，我是小王，工号0801，请问您是[%global.name%]本人吗？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.is_user"
+              },
+              "不是"
+            ]
+          },
+          "nextNode": "1"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.is_user"
+              },
+              "是"
+            ]
+          },
+          "nextNode": "2"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.is_user"
+              },
+              "表示在忙"
+            ]
+          },
+          "nextNode": "30"
+        }
+      ]
+    },
+    "1": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "车险首拨.is_user_car",
+          "global_variable": "is_user_car",
+          "response": "那[%global.license_number%]是您家的车嘛？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.is_user_car"
+              },
+              "不是"
+            ]
+          },
+          "nextNode": "20"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.is_user_car"
+              },
+              "是"
+            ]
+          },
+          "nextNode": "2"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.is_user_car"
+              },
+              "要求报价"
+            ]
+          },
+          "nextNode": "2"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.is_user_car"
+              },
+              "表示在忙"
+            ]
+          },
+          "nextNode": "31"
+        }
+      ]
+    },
+    "2": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "车险首拨.is_expired",
+          "global_variable": "is_expired",
+          "response": "感谢您的接听，我们XX电话车险正在做优惠活动，您的爱车[%global.license_number%]保险快到期了对吧？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.is_expired"
+              },
+              "未到期"
+            ]
+          },
+          "nextNode": "4"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.is_expired"
+              },
+              "到期"
+            ]
+          },
+          "nextNode": "3"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.is_expired"
+              },
+              "拒绝"
+            ]
+          },
+          "nextNode": "5"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.is_expired"
+              },
+              "非本人"
+            ]
+          },
+          "nextNode": "1"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.is_expired"
+              },
+              "有押金"
+            ]
+          },
+          "nextNode": "6"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.is_expired"
+              },
+              "表示在忙"
+            ]
+          },
+          "nextNode": "32"
+        }
+      ]
+    },
+    "3": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "车险首拨.intent_to_introduce",
+          "global_variable": "intent_to_introduce",
+          "response": "是这样的，我们XX车险现在优惠力度还挺大的，稍后安排一位高级客户经理帮您算算今年大概的保费，到时您接听一下电话好吧？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.intent_to_introduce"
+              },
+              "同意"
+            ]
+          },
+          "nextNode": "21"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.intent_to_introduce"
+              },
+              "拒绝"
+            ]
+          },
+          "nextNode": "20"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.intent_to_introduce"
+              },
+              "未到期"
+            ]
+          },
+          "nextNode": "4"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.intent_to_introduce"
+              },
+              "有押金"
+            ]
+          },
+          "nextNode": "6"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.intent_to_introduce"
+              },
+              "表示在忙"
+            ]
+          },
+          "nextNode": "33"
+        }
+      ]
+    },
+    "4": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "车险首拨.business_recommendation",
+          "global_variable": "business_recommendation",
+          "response": "嗯确实是离您的保险期限还有一段时间，不过这个您放心，我们还是会按期给您接上的，不会让您重复投保的。反正早晚都得办，提前买的话优惠力度更大。要不让我们客户经理先给您报个价，您先看看？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.business_recommendation"
+              },
+              "同意"
+            ]
+          },
+          "nextNode": "21"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.business_recommendation"
+              },
+              "拒绝"
+            ]
+          },
+          "nextNode": "20"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.business_recommendation"
+              },
+              "未到期"
+            ]
+          },
+          "nextNode": "20"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.business_recommendation"
+              },
+              "有押金"
+            ]
+          },
+          "nextNode": "20"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.business_recommendation"
+              },
+              "表示在忙"
+            ]
+          },
+          "nextNode": "34"
+        }
+      ]
+    },
+    "5": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "车险首拨.retain",
+          "global_variable": "retain",
+          "response": "我们XX这次优惠的力度还是很大的，要不我稍后安排一位高级客户经理跟您联系可以吗？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.retain"
+              },
+              "同意"
+            ]
+          },
+          "nextNode": "21"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.retain"
+              },
+              "拒绝"
+            ]
+          },
+          "nextNode": "20"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.retain"
+              },
+              "未到期"
+            ]
+          },
+          "nextNode": "4"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.retain"
+              },
+              "有押金"
+            ]
+          },
+          "nextNode": "6"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.retain"
+              },
+              "表示在忙"
+            ]
+          },
+          "nextNode": "35"
+        }
+      ]
+    },
+    "6": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "车险首拨.deposit_doubt",
+          "global_variable": "deposit_doubt",
+          "response": "其实有押金也是可以自愿选择保险公司投保的，那我安排一位高级客户经理和您联系？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.deposit_doubt"
+              },
+              "同意"
+            ]
+          },
+          "nextNode": "21"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.deposit_doubt"
+              },
+              "拒绝"
+            ]
+          },
+          "nextNode": "20"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.deposit_doubt"
+              },
+              "未到期"
+            ]
+          },
+          "nextNode": "20"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.deposit_doubt"
+              },
+              "有押金"
+            ]
+          },
+          "nextNode": "20"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.deposit_doubt"
+              },
+              "表示在忙"
+            ]
+          },
+          "nextNode": "36"
+        }
+      ]
+    },
+    "20": {
+      "type": "response",
+      "response": "好的，那先不打扰您了，有机会继续跟您联系，感谢您的接听，祝您生活愉快，再见。",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "91"
+        }
+      ]
+    },
+    "21": {
+      "type": "response",
+      "response": "好的，稍后客户经理给您回电，请您注意接听，就不打扰了，祝您生活愉快，再见。",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "91"
+        }
+      ]
+    },
+    "30": {
+      "type": "flow",
+      "flowName": "时间预约",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "0"
+        }
+      ]
+    },
+    "31": {
+      "type": "flow",
+      "flowName": "时间预约",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "1"
+        }
+      ]
+    },
+    "32": {
+      "type": "flow",
+      "flowName": "时间预约",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "2"
+        }
+      ]
+    },
+    "33": {
+      "type": "flow",
+      "flowName": "时间预约",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "3"
+        }
+      ]
+    },
+    "34": {
+      "type": "flow",
+      "flowName": "时间预约",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "4"
+        }
+      ]
+    },
+    "35": {
+      "type": "flow",
+      "flowName": "时间预约",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "5"
+        }
+      ]
+    },
+    "36": {
+      "type": "flow",
+      "flowName": "时间预约",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "6"
+        }
+      ]
+    },
+    "91": {
+      "type": "exit",
+      "todo": "hangup"
+    }
+  }
+}

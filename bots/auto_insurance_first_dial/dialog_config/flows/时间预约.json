@@ -1,0 +1,102 @@
+{
+  "name": "时间预约",
+  "nodes": {
+    "0": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "车险首拨.is_there_time",
+          "global_variable": "is_there_time",
+          "response": "哦，那您什么时候方便我们再联系您呢？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.is_there_time"
+              },
+              "同意"
+            ]
+          },
+          "nextNode": "21"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.is_there_time"
+              },
+              "拒绝"
+            ]
+          },
+          "nextNode": "20"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.is_there_time"
+              },
+              "现在方便"
+            ]
+          },
+          "nextNode": "90"
+        },
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.is_there_time"
+              },
+              "其他未识别"
+            ]
+          },
+          "nextNode": "22"
+        },
+        {
+          "cond": "else",
+          "nextNode": "0"
+        }
+      ]
+    },
+    "20": {
+      "type": "response",
+      "response": "好的，那先不打扰您了，有机会继续跟您联系，感谢您的接听，祝您生活愉快，再见。",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "91"
+        }
+      ]
+    },
+    "21": {
+      "type": "response",
+      "response": "好的，稍后客户经理给您回电，请您注意接听，就不打扰了，祝您生活愉快，再见。",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "91"
+        }
+      ]
+    },
+    "22": {
+      "type": "response",
+      "response": "好的，后续客户经理会给您回电，请您注意接听，祝您生活愉快，再见。",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "91"
+        }
+      ]
+    },
+    "90": {
+      "type": "return"
+    },
+    "91": {
+      "type": "exit",
+      "todo": "hangup"
+    }
+  }
+}

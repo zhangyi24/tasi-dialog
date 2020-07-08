@@ -1,0 +1,20 @@
+{
+  "name": "身份询问",
+  "intent": "身份询问",
+  "nodes": {
+    "0": {
+      "type": "response",
+      "response": "我这边是XX电话车险的小王。",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "1"
+        }
+      ]
+    },
+    "1": {
+      "type": "return"
+    }
+  },
+  "version": "0.1"
+}

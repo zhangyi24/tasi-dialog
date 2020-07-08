@@ -1,0 +1,21 @@
+{
+  "name": "已办理",
+  "intent": "已办理",
+  "nodes": {
+    "0": {
+      "type": "response",
+      "response": "那先不打扰您了，有机会继续跟您联系，感谢您的接听，祝您生活愉快，再见。",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "1"
+        }
+      ]
+    },
+    "1": {
+      "type": "exit",
+      "todo": "hangup"
+    }
+  },
+  "version": "0.1"
+}
