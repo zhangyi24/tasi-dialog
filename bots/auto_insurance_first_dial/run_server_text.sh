@@ -1,2 +1,2 @@
-python ../../src/models/build_datasets.py
+#!/bin/bash
 python ../../src/server_text.py

@@ -30,10 +30,10 @@ class ResultsTracker(object):
 
 
 class Bot(object):
-    def __init__(self, interact_mode='1'):
+    def __init__(self, interruptable=True):
         # import config files
         # flows
-        self.interact_mode = interact_mode
+        self.interruptable = interruptable
         self.flows = {}
         for file in glob.glob('dialog_config/flows/*.json'):
             flow_name = os.path.basename(file).split('.')[0]
@@ -111,8 +111,7 @@ class Bot(object):
 
         # init nlu_manager
         checkpoints_dir = 'checkpoints/intent'
-        label_dir = 'datasets/intent'
-        self.nlu_manager = NLUManager(checkpoints_dir, label_dir, self.templates, self.intents, self.value_sets,
+        self.nlu_manager = NLUManager(checkpoints_dir, self.templates, self.intents, self.value_sets,
                                       self.stop_words, self.thresholds)
         self.nlu_manager.intent_recognition('%%初始化%%')  # 第一次识别会比较慢，所以先识别一次。
 
@@ -143,7 +142,7 @@ class Bot(object):
     def greeting(self, user_id):
         user = self.users[user_id]
         # generate response
-        resp = {'content': None, 'allow_interrupt': self.interact_mode == '2', 'input_channel': '10'}
+        resp = {'content': None, 'allow_interrupt': self.interruptable, 'input_channel': '10'}
         # return first response in main flow as the bot's response
         if 'main' in self.flows:
             resp, user['call_status'] = self.get_response(user_id, user_utter=None)
@@ -167,7 +166,7 @@ class Bot(object):
     def get_response(self, user_id, user_utter):
         """生成除了兜底话术之外的机器人正常回复"""
         user = self.users[user_id]
-        resp = {'content': None, 'allow_interrupt': self.interact_mode == '2', 'input_channel': '10'}
+        resp = {'content': None, 'allow_interrupt': self.interruptable, 'input_channel': '10'}
         g_vars = self.users[user_id]['g_vars']
         builtin_vars = self.users[user_id]['builtin_vars']
         node_stack = self.users[user_id]['node_stack']

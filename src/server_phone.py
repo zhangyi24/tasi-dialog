@@ -18,6 +18,7 @@ import requests
 from agent import Bot
 from utils.mysql import MySQLWrapper
 from utils.postgresql import PostgreSQLWrapper
+from utils.logger import config_logger
 
 RESPONSE_BODY_9 = {
     "ret": 0,
@@ -369,51 +370,64 @@ class MainHandler(tornado.web.RequestHandler):
 
 
 if __name__ == "__main__":
+    # config logger
+    config_logger('logs/phone')
+
     # parse sys.argv
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--port', default=59999, type=int)
-    parser.add_argument('-c', '--config', default="config_phone.yml", type=str)
     # set 2 to enable Interact Mode
-    parser.add_argument('-m', '--mode', default='1', type=str, choices=['1', '2'],
-                        help='interact mode. 1: user can not interrupt when bot is speaking; 2: user can interrupt when bot is speaking')
-    parser.add_argument('-l', '--lock', action='store_true',
-                        help='Whether to lock the queue of agent before call transfer')
+    parser.add_argument('-i', '--interruptable', action='store_true',
+                        help='whether the user can interrupt when bot is speaking')
+    parser.add_argument('-l', '--lock_before_fwd', action='store_true',
+                        help='Whether to lock the queue of agent before call forwarding')
+    parser.add_argument('-c', '--config', default="config_phone.yml", type=str)
     args = parser.parse_args()
 
-    # config
+    # builtin_conf
     conf = {}
-    if os.path.exists(args.config):
-        with open(args.config, 'r', encoding='utf-8') as f:
+    builtin_config_file = os.path.join(os.path.dirname(__file__), 'config', 'cfg_server_phone.yml')
+    if os.path.exists(builtin_config_file):
+        with open(builtin_config_file, 'r', encoding='utf-8') as f:
             conf = yaml.safe_load(f)
 
-    # port
-    port = conf.get("port", args.port)
+    # custom config
+    if os.path.exists(args.config):
+        with open(args.config, 'r', encoding='utf-8') as f:
+            custom_conf = yaml.safe_load(f)
+            conf.update(custom_conf)
 
-    # config logging
-    if "logging" in conf:
-        filename = conf['logging']['handlers']['log_file_handler']['filename']
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        logging.config.dictConfig(conf["logging"])
+    # config port
+    conf.setdefault("port", args.port)
+
+    # config db
+    if 'postgresql' not in conf:
+        logging.warning('postgresql database config is not available.')
+        db = None
+    else:
+        try:
+            db = PostgreSQLWrapper(conf['postgresql'])
+        except:
+            db = None
+            logging.warning('fail to connect to the postgresql database.')
 
     # config bot
-    bot_conf = conf.get('bot', {})
-    bot_conf.update({'lock_before_fwd': args.lock})
+    conf.setdefault('bot', {})
+    conf['bot'].setdefault('interruptable', args.interruptable)
+    conf['bot'].setdefault('lock_before_fwd', args.lock_before_fwd)
 
     # config asr
-    asr_conf = conf.get('asr', {})
+    conf.setdefault('asr', {})
 
     # load bot
     logging.info('loading bot...')
-    bot = Bot(interact_mode=args.mode)
+    bot = Bot(interruptable=conf['bot']['interruptable'])
     logging.info('bot loaded.')
-
-    # config db
-    db = PostgreSQLWrapper(conf['postgresql']) if 'postgresql' in conf else None
 
     # app
     application = tornado.web.Application([
-        (r"/", MainHandler, dict(bot=bot, db=db, bot_conf=bot_conf, asr_conf=asr_conf)),
+        (r"/", MainHandler, dict(bot=bot, db=db, bot_conf=conf['bot'], asr_conf=conf['asr'])),
     ])
-    application.listen(args.port)
-    logging.info('listening on 127.0.0.1:%s...' % port)
+    application.listen(conf['port'])
+    logging.info('listening on 127.0.0.1:%s...' % conf['port'])
     tornado.ioloop.IOLoop.current().start()

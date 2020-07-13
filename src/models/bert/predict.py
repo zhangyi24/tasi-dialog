@@ -33,9 +33,8 @@ import run_classifier
 
 
 class Bert_Classifier(object):
-    def __init__(self, checkpoints_dir, label_dir):
+    def __init__(self, checkpoints_dir):
         self.checkpoints_dir = checkpoints_dir
-        self.label_dir = label_dir
         self.task_name = 'intent'
         dir_name = os.path.dirname(__file__)
         self.bert_config_file = os.path.join(dir_name, 'chinese_L-12_H-768_A-12/bert_config.json')
@@ -59,8 +58,8 @@ class Bert_Classifier(object):
         task_name = self.task_name.lower()
         if task_name not in run_classifier.processors:
             raise ValueError("Task not found: %s" % (task_name))
-        processor = run_classifier.processors[task_name](self.label_dir)
-        self.label_list = processor.get_labels()
+        with open(os.path.join(self.checkpoints_dir, 'labels.txt'), 'r', encoding='utf-8') as f:
+            self.label_list = f.read().strip().split()
 
         self.tokenizer = tokenization.FullTokenizer(
             vocab_file=self.vocab_file, do_lower_case=self.do_lower_case)
@@ -122,6 +121,6 @@ class Bert_Classifier(object):
                                       })
         results = []
         for prob in probabilities:
-            label_id = np.argmax(prob)
+            label_id = int(np.argmax(prob))
             results.append([self.label_list[label_id], prob[label_id]])
         return results

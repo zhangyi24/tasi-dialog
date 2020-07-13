@@ -12,7 +12,7 @@ req_body_init = {
 		'call_id': '',
 		'call_sor_id': '',
 		'start_time': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S%f')[:-3],
-		'user_info': {}
+		'user_info': ''
 	}
 }
 
@@ -34,7 +34,7 @@ req_body_tts_asr = {
 	'inparams': {
 		'call_id': '',
 		'inter_idx': '',
-		'flow_result_type': '2',
+		'flow_result_type': '1',
 		'input': '',
 		'inter_no': ''
 	}

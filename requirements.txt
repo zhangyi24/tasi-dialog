@@ -1,5 +1,5 @@
+tensorflow==1.11
 tornado
 psycopg2
-mysql-connector-python
 pyyaml
 requests

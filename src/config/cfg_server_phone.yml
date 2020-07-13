@@ -1,0 +1,14 @@
+port: 59999
+postgresql:
+  host: "47.93.120.246"
+  port: "5432"
+  user: "postgres"
+  password: "305Cm@TFg3u70N8Q"
+  dbname: "visualization"
+  client_encoding: "utf-8"
+  connect_timeout: 5
+bot:
+  interruptable: False
+  result_save_url: "http://39.99.186.66:8001/api/robot/resultSave"
+asr:
+  record_dir: 'https://tasi-callcenter-audio-record.oss-cn-beijing.aliyuncs.com/ASR/'

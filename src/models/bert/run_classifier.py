@@ -692,7 +692,10 @@ def main(_):
 	processor = processors[task_name](FLAGS.data_dir)
 	
 	label_list = processor.get_labels()
-	
+	labels_file = os.path.join(FLAGS.output_dir, "labels.txt")
+	with open(os.path.join(labels_file, 'labels.txt'), 'w', encoding='utf-8') as f:
+		print('\n'.join(label_list), file=f)
+
 	tokenizer = tokenization.FullTokenizer(
 		vocab_file=FLAGS.vocab_file, do_lower_case=FLAGS.do_lower_case)
 	

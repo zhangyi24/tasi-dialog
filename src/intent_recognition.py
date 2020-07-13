@@ -29,10 +29,9 @@ class IntentModelTemplate(IntentModel):
 
 
 class IntentModelBERT(IntentModel):
-    def __init__(self, checkpoints_dir, label_dir):
+    def __init__(self, checkpoints_dir):
         self.checkpoints_dir = checkpoints_dir
-        self.label_dir = label_dir
-        self.model = Bert_Classifier(checkpoints_dir=self.checkpoints_dir, label_dir=self.label_dir)
+        self.model = Bert_Classifier(checkpoints_dir=self.checkpoints_dir)
 
     def intent_recognition(self, user_utter):
         if not user_utter:

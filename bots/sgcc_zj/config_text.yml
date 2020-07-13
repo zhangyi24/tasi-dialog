@@ -1,29 +1,2 @@
 port: 59998
-logging:
-    version : 1
-    disable_existing_loggers: False
-    formatters:
-        simpleFormater:
-            format: '%(asctime)s.%(msecs)03d - %(levelname)7s: %(name)10s: %(message)s'
-            datefmt: '%Y-%m-%d %H:%M:%S'
-    handlers:
-        console:
-            class: logging.StreamHandler
-            formatter: simpleFormater
-            level: INFO
-
-        log_file_handler:
-            class: logging.handlers.TimedRotatingFileHandler
-            level: INFO
-            formatter: simpleFormater
-            filename: logs/text/master.log
-            when: 'd'
-            interval: 1               
-            backupCount: 5  
-            encoding: "utf8"
-    root:
-        level: INFO
-        handlers: [console, log_file_handler]
-
-
 

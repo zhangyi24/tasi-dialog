@@ -1,3 +1,4 @@
+#!/bin/bash
 ckpt_dir=checkpoints/intent
 data_dir=datasets/intent
 bert_dir=../../src/models/bert

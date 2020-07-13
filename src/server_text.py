@@ -15,6 +15,7 @@ import tornado.escape
 import tornado.web
 
 from agent import Bot
+from utils.logger import config_logger
 
 RESPONSE_BODY_9 = {
 	"ret": 0,
@@ -133,26 +134,30 @@ class MainHandler(tornado.web.RequestHandler):
 
 
 if __name__ == "__main__":
+	# config logger
+	config_logger('logs/text')
+
 	# parse sys.argv
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-p', '--port', default=59998, type=int)
 	parser.add_argument('-c', '--config', default="config_text.yml", type=str)
 	args = parser.parse_args()
 
-	# config
+	# builtin_conf
 	conf = {}
-	if os.path.exists(args.config):
-		with open(args.config) as f:
+	builtin_config_file = os.path.join(os.path.dirname(__file__), 'config', 'cfg_server_text.yml')
+	if os.path.exists(builtin_config_file):
+		with open(builtin_config_file, 'r', encoding='utf-8') as f:
 			conf = yaml.safe_load(f)
 
-	# port
-	port = conf.get("port", args.port)
+	# custom config
+	if os.path.exists(args.config):
+		with open(args.config, 'r', encoding='utf-8') as f:
+			custom_conf = yaml.safe_load(f)
+			conf.update(custom_conf)
 
-	# logging
-	if "logging" in conf:
-		filename = conf['logging']['handlers']['log_file_handler']['filename']
-		os.makedirs(os.path.dirname(filename), exist_ok=True)
-		logging.config.dictConfig(conf["logging"])
+	# config port
+	conf.setdefault("port", args.port)
 	
 	# bot
 	logging.info('loading bot...')
@@ -162,6 +167,6 @@ if __name__ == "__main__":
 	application = tornado.web.Application([
 		(r"/", MainHandler, dict(bot=bot)),
 	])
-	application.listen(args.port)
-	logging.info('listening on 127.0.0.1:%s...' % port)
+	application.listen(conf['port'])
+	logging.info('listening on 127.0.0.1:%s...' % conf['port'])
 	tornado.ioloop.IOLoop.current().start()
