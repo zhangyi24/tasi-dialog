@@ -401,15 +401,20 @@ if __name__ == "__main__":
     conf.setdefault("port", args.port)
 
     # config db
+    db = None
     if 'postgresql' not in conf:
         logging.warning('postgresql database config is not available.')
         db = None
     else:
-        try:
-            db = PostgreSQLWrapper(conf['postgresql'])
-        except:
-            db = None
-            logging.warning('fail to connect to the postgresql database.')
+        for _ in range(5):
+            try:
+                db = PostgreSQLWrapper(conf['postgresql'])
+                logging.info('connect to the postgresql database successfully.')
+                break
+            except:
+                logging.warning('fail to connect to the postgresql database.')
+                time.sleep(0.5)
+
 
     # config bot
     conf.setdefault('bot', {})
