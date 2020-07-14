@@ -91,17 +91,24 @@ if __name__ == '__main__':
 	parser.add_argument('-c', '--config', default="config_text.yml", type=str)
 	args = parser.parse_args()
 
-	# config
+	# builtin_conf
 	conf = {}
-	if os.path.exists(args.config):
-		with open(args.config) as f:
+	builtin_config_file = os.path.join(os.path.dirname(__file__), 'config', 'cfg_server_text.yml')
+	if os.path.exists(builtin_config_file):
+		with open(builtin_config_file, 'r', encoding='utf-8') as f:
 			conf = yaml.safe_load(f)
 
-	# port
-	port = conf.get("port", args.port)
+	# custom config
+	if os.path.exists(args.config):
+		with open(args.config, 'r', encoding='utf-8') as f:
+			custom_conf = yaml.safe_load(f)
+			conf.update(custom_conf)
+
+	# config port
+	conf.setdefault("port", args.port)
 
 	# url
-	server_url = 'http://%s:%s' % (args.ip, args.port)
+	server_url = 'http://%s:%s' % (args.ip, conf['port'])
 
 	# call_info and user_info
 	call_id = '123'
