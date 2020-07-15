@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  server:
+    image: tasitech/tasi_dialog:v0.1
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./bots:/opt/dialog/bots
+      - ./src:/opt/dialog/src
+    network_mode: "host"
+
+  client:
+    image: tasitech/tasi_dialog:v0.1
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./bots:/opt/dialog/bots
+      - ./src:/opt/dialog/src
+    network_mode: "host"
+
