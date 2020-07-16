@@ -6,6 +6,7 @@ import collections
 import re
 import os
 
+from utils.str_process import expand_template, get_template_len
 from slot_filling import slots_filling, slots_status_init
 from intent_recognition import IntentModelBERT, IntentModelTemplate
 
@@ -14,7 +15,6 @@ class NLUManager(object):
 	def __init__(self, checkpoints_dir, templates, intents, value_sets, stop_words, thresholds):
 		self.checkpoints_dir = checkpoints_dir
 		self.templates = templates
-		self.preprocess_templates()
 		self.intents = intents
 		self.value_sets = value_sets
 		self.preprocess_value_sets()
@@ -24,30 +24,30 @@ class NLUManager(object):
 		if os.path.exists(self.checkpoints_dir):
 			self.intent_model_bert = IntentModelBERT(self.checkpoints_dir)
 		self.intent_model_template = IntentModelTemplate(self.templates)
-	
-	def preprocess_templates(self):
-		for intent_name in self.templates:
-			for i, template in enumerate(self.templates[intent_name]['templates']):
-				self.templates[intent_name]['templates'][i] = re.compile(template)
+
 	
 	def preprocess_value_sets(self):
-		"""1.编译正则表达式。2.把dict型的别名按长度从长到短排序"""
+		"""1.编译regex型的正则表达式。2.把dict型的别名按长度从长到短排序"""
 		for value_set_from in self.value_sets:
 			for value_set_name in self.value_sets[value_set_from]:
 				if self.value_sets[value_set_from][value_set_name]['type'] == 'regex':
 					regex = self.value_sets[value_set_from][value_set_name]['regex']
 					self.value_sets[value_set_from][value_set_name]['regex'] = re.compile(regex)
 				elif self.value_sets[value_set_from][value_set_name]['type'] == 'dict':
-					values = set()
-					reverse_idx = {}
-					for standard_value_name, aliases in self.value_sets[value_set_from][value_set_name]['dict'].items():
-						for alias in aliases:
-							values.add(alias)
-							reverse_idx[alias] = standard_value_name
-					values = list(values)
-					values.sort(key=len, reverse=True)
-					self.value_sets[value_set_from][value_set_name]['values_sorted'] = values
-					self.value_sets[value_set_from][value_set_name]['reverse_idx'] = reverse_idx
+					value_set = self.value_sets[value_set_from][value_set_name]
+					value_set["templates"] = set()
+					value_set["templates_info"] = dict()
+					for standard_value, templates_raw in value_set['dict'].items():
+						for template_raw in templates_raw:
+							for template in expand_template(template_raw):
+								value_set["templates"].add(template)
+								value_set["templates_info"][template] = {
+									"standard_value": standard_value,
+									"regex": re.compile(template),
+									"template_raw": template_raw
+								}
+					value_set["templates"] = list(value_set["templates"])
+					value_set["templates"].sort(key=get_template_len, reverse=True)
 		
 	def delete_stop_words(self, user_utter):
 		for word in self.stop_words:

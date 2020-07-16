@@ -1,3 +1,7 @@
+# coding=utf-8
+# Copyright 2020 Tsinghua University, Author: Yi Zhang
+"""Utils for postgresql."""
+
 import datetime
 import os
 import collections

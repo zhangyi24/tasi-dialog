@@ -10,6 +10,7 @@ import logging
 
 sys.path.append('..')
 from models.bert.predict import Bert_Classifier
+from utils.str_process import expand_template, get_template_len
 
 
 class IntentModel(object):
@@ -19,16 +20,33 @@ class IntentModel(object):
 
 class IntentModelTemplate(IntentModel):
     def __init__(self, templates):
-        self.templates = templates
+        self.templates = set()
+        self.templates_info = {}
+        for intent in templates:
+            for template_raw in templates[intent]['templates']:
+                for template in expand_template(template_raw):
+                    self.templates.add(template)
+                    self.templates_info[template] = {
+                        "intent": intent,
+                        "regex": re.compile(template),
+                        "template_raw": template_raw
+                    }
+        self.templates = list(self.templates)
+        self.templates.sort(key=get_template_len, reverse=True)
 
     def intent_recognition(self, user_utter):
         result = None
-        for intent_name in self.templates:
-            for template in self.templates[intent_name]['templates']:
-                if template.search(user_utter):
-                    result = intent_name
-                    break
-        logging.info('intent recognition result(regex): ("%s", %s)' % (user_utter, result))
+        template_hit = None
+        for template in self.templates:
+            if self.templates_info[template]["regex"].search(user_utter):
+                result = self.templates_info[template]["intent"]
+                template_hit = template
+                break
+        if result:
+            logging.info('intent recognition result(regex): (user_input: "%s", intent: %s, template: %s)' % (
+            user_utter, result, self.templates_info[template_hit]["template_raw"]))
+        else:
+            logging.info('intent recognition result(regex): (user_input: "%s", intent: %s)' % (user_utter, result))
         return result
 
 

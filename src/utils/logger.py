@@ -1,3 +1,7 @@
+# coding=utf-8
+# Copyright 2020 Tsinghua University, Author: Yi Zhang
+"""Utils for logging."""
+
 import logging.config
 import os
 
