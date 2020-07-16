@@ -1,4 +1,8 @@
 # coding=utf-8
+# Copyright 2020 Tsinghua University, Author: Yi Zhang
+"""Slot filling."""
+
+# coding=utf-8
 import sys
 import copy
 import re

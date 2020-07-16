@@ -1,4 +1,8 @@
 # coding=utf-8
+# Copyright 2020 Tsinghua University, Author: Yi Zhang
+"""Natural language generation based on templates."""
+
+# coding=utf-8
 import re
 
 def response_process(string, global_vars=None, builtin_vars=None):

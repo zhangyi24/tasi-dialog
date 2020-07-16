@@ -1,4 +1,8 @@
 # coding=utf-8
+# Copyright 2020 Tsinghua University, Author: Yi Zhang
+"""Dialog server (text version)."""
+
+# coding=utf-8
 import json
 import argparse
 import datetime

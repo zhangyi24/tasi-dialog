@@ -1,4 +1,6 @@
 # coding=utf-8
+# Copyright 2020 Tsinghua University, Author: Yi Zhang
+"""Bot for dialog server."""
 
 import json
 import glob

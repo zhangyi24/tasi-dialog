@@ -1,4 +1,7 @@
 # coding=utf-8
+# Copyright 2020 Tsinghua University, Author: Yi Zhang
+"""A simple client for testing server(text version)"""
+
 import datetime
 import requests
 import argparse

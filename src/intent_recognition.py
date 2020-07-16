@@ -1,3 +1,7 @@
+# coding=utf-8
+# Copyright 2020 Tsinghua University, Author: Yi Zhang
+"""Intent recognition."""
+
 import sys
 import os
 import collections
