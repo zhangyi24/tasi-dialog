@@ -57,7 +57,7 @@
         },
         {
           "cond": "else",
-          "nextNode": "0"
+          "nextNode": "23"
         }
       ]
     },
@@ -84,6 +84,16 @@
     "22": {
       "type": "response",
       "response": "好的，后续客户经理会给您回电，请您注意接听，祝您生活愉快，再见。",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "91"
+        }
+      ]
+    },
+    "23": {
+      "type": "response",
+      "response": "可能是我这边信号不好 打扰了 再见。",
       "dm": [
         {
           "cond": true,
