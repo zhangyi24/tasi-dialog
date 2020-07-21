@@ -21,6 +21,7 @@ def build_datasets(samples_path, datasets_dir):
     test_set = {}
     for intent in samples:
         samples_per_intent = samples[intent]['samples']
+        samples_per_intent = list(set(samples_per_intent))
         random.shuffle(samples_per_intent)
         train_set[intent] = samples_per_intent[: int(len(samples_per_intent) * 0.8)]
         dev_set[intent] = samples_per_intent[int(len(samples_per_intent) * 0.8): int(len(samples_per_intent) * 0.9)]
