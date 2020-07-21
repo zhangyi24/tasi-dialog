@@ -693,7 +693,7 @@ def main(_):
 	
 	label_list = processor.get_labels()
 	labels_file = os.path.join(FLAGS.output_dir, "labels.txt")
-	with open(os.path.join(labels_file, 'labels.txt'), 'w', encoding='utf-8') as f:
+	with open(labels_file, 'w', encoding='utf-8') as f:
 		print('\n'.join(label_list), file=f)
 
 	tokenizer = tokenization.FullTokenizer(
