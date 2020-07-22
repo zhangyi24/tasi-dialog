@@ -60,6 +60,7 @@ class MainHandler(tornado.web.RequestHandler):
 		self.write('SPMIBOT')
 	
 	def post(self):
+		assert self.req_body['inaction'] in [8, 9]
 		if self.req_body['inaction'] == 8:
 			user_info = self.req_body['inparams']['user_info'].split('#')[1:]
 			self.bot.init(user_id=self.req_body['userid'], user_info=user_info,

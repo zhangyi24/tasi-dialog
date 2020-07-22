@@ -109,6 +109,7 @@ class MainHandler(tornado.web.RequestHandler):
 
     async def post(self):
         resp_body = None
+        assert self.req_body['inaction'] in [8, 9, 11, 0]
         if self.req_body['inaction'] == 8:
             # 处理扩展字段
             user_info = self.req_body['inparams']['extend'].split('#')[1:]
