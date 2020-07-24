@@ -278,8 +278,8 @@ class MainHandler(tornado.web.RequestHandler):
 
     def parse_asr_result(self, input_raw):
         user_input, asr_record_path = '', ''
-        if '[' not in input_raw:
-            return user_input, asr_record_path
+        if '[' not in input_raw or ']' not in input_raw:
+            return input_raw, ''
         asr_record_path, user_input = input_raw.rstrip(']').rsplit('[', 1)
         if asr_record_path and 'record_dir' in self.asr_conf:
             asr_record_path = os.path.join(self.asr_conf['record_dir'], asr_record_path)

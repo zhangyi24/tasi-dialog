@@ -60,6 +60,7 @@ class MainHandler(tornado.web.RequestHandler):
 		self.write('SPMIBOT')
 	
 	def post(self):
+		resp_body = None
 		assert self.req_body['inaction'] in [8, 9]
 		if self.req_body['inaction'] == 8:
 			user_info = self.req_body['inparams']['user_info'].split('#')[1:]
@@ -87,6 +88,7 @@ class MainHandler(tornado.web.RequestHandler):
 			user = self.bot.users[self.req_body['userid']]
 			# 用户主动挂断
 			if self.req_body['inparams']['flow_result_type'] == '3' and self.req_body['inparams']['input'] == 'hangup':
+				user['resp_queue'].clear()
 				resp_body = self.generate_resp_body_hangup(user)
 			# 有待完成指令
 			elif user['resp_queue']:

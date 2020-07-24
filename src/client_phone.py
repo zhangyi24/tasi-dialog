@@ -1,5 +1,6 @@
 # coding=utf-8
 import requests
+import copy
 
 userid = '25044006'
 local_server_url = 'http://127.0.0.1:59999'
@@ -69,7 +70,7 @@ req_body_tts_asr = {
     'inparams': {
         'call_id': userid, 'inter_idx': '1', 'begin_play': '2020-03-15 15:41:20410',
         'end_play': '2020-03-15 15:41:27730', 'result_time': '2020-03-15 15:41:27730',
-        'flow_result_type': '2', 'input': '人工客服。', 'inter_no': '2020-03-15 15:41:20410',
+        'flow_result_type': '1', 'input': '', 'inter_no': '2020-03-15 15:41:20410',
         'org': '', 'grammar': '', 'newsess': '', 'res_node_lst': '', 'res_parse_mode': '',
         'extended_field': ''
     }
@@ -119,6 +120,30 @@ req_body_0 = {
     }
 }
 
-for req_body in [req_body_8, req_body_tts, req_body_asr, req_body_tts, req_body_user_hangup]:
+def get_req_body_tts_asr(user_utter):
+    req_body = copy.deepcopy(req_body_tts_asr)
+    req_body['inparams'].update({'input': user_utter})
+    return req_body
+
+
+def post(url, req_body):
     resp = requests.post(url=url, json=req_body)
     print(resp.elapsed, resp.json() if resp.content else {})
+
+
+if __name__ == '__main__':
+    post(url, req_body_8)
+    user_utters = [
+        "是的",
+        "还没",
+        "额",
+        "额",
+        "额",
+        "额",
+        "额"
+    ]
+    for user_utter in user_utters:
+        req_body = get_req_body_tts_asr(user_utter)
+        post(url, req_body)
+    post(url, req_body_user_hangup)
+
