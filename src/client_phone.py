@@ -134,10 +134,10 @@ def post(url, req_body):
 if __name__ == '__main__':
     post(url, req_body_8)
     user_utters = [
-        "是的",
-        "还没",
-        "额",
-        "额",
+        "发送短信",
+        "发送短信",
+        "发送短信",
+        "发送短信",
         "额",
         "额",
         "额"

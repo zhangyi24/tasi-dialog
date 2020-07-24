@@ -249,14 +249,26 @@ class Bot(object):
                 node_info = node_stack[-1] if node_stack else main_flow_node
                 if 'slots_status' not in node_info:
                     node_info['slots_status'] = self.nlu_manager.slots_status_init(current_node['slots'])
-                resp['content'], finish = self.nlu_manager.slots_filling(node_info['slots_status'], user_utter,
+                slot_request, slots_filling_finish = self.nlu_manager.slots_filling(node_info['slots_status'], user_utter,
                                                                          g_vars)
-                if resp['content'] is not None:
-                    resp['content'] = response_process(resp['content'], g_vars, builtin_vars)
-                if not finish:
+                if slot_request is not None:
+                    resp['content'] = response_process(slot_request, g_vars, builtin_vars)
+                    continue
+                if not slots_filling_finish:
                     continue
                 else:
+                    slots_filling_success = any(slot['value'] is not None for slot in node_info['slots_status']['slots'])
                     del node_info['slots_status']
+                    if not slots_filling_success:
+                        # 意图识别
+                        intent = self.intent_recognition(user_utter)
+                        builtin_vars['intent'] = intent
+                        intent_recognition_done = True
+                        if intent is not None:
+                            # 清空node_stack，把识别到的意图的对应流程压入node_stack
+                            node_stack.clear()
+                            node_stack.append({'flow_name': self.intent_flow_mapping[intent], 'node_id': '0'})
+                            continue
 
             # function
             elif current_node['type'] == 'function':

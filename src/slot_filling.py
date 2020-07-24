@@ -55,8 +55,9 @@ def slots_filling(slots_status, user_utter, intents, value_sets, g_vars):
         else:
             if slot['times_requested'] < slot['max_request_num']:
                 resp = slot['response']
+                finish = False
                 slot['times_requested'] += 1
-                return resp, False
+                break
             else:
                 slot['value'] = None
                 if "global_variable" in slot:
@@ -85,7 +86,7 @@ def slot_filling_once(slot, user_utter, intents, value_sets):
                 slot['value_raw'] = search_obj.group()
                 slot['value'] = template_info['standard_value']
                 logging.info("slot_filling: (slot: %s.%s, standard_value: %s, value_raw: %s, template: %s)" % (
-                slot['intent'], slot['name'], slot['value'], slot['value_raw'], template_info['template_raw']))
+                    slot['intent'], slot['name'], slot['value'], slot['value_raw'], template_info['template_raw']))
                 break
     elif value_set['type'] == 'regex':
         search_obj = value_set['regex'].search(user_utter)
