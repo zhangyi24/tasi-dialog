@@ -110,7 +110,6 @@ class Bot(object):
             with open(custom_thresholds_file, 'r', encoding='utf-8') as f:
                 self.thresholds.update(json.load(f))
 
-
         # init nlu_manager
         checkpoints_dir = 'checkpoints/intent'
         self.nlu_manager = NLUManager(checkpoints_dir, self.templates, self.intents, self.value_sets,
@@ -174,10 +173,13 @@ class Bot(object):
         node_stack = self.users[user_id]['node_stack']
         main_flow_node = self.users[user_id]['main_flow_node']
 
-        if user_utter is not None:
+        intent_recognition_done = False
+        _, _, current_node = self.get_current_flow_and_node(node_stack, main_flow_node)
+        if not current_node or current_node['type'] not in ['slot_filling', 'flow']:
             # 意图识别
-            intent = self.nlu_manager.intent_recognition(user_utter)
+            intent = self.intent_recognition(user_utter)
             builtin_vars['intent'] = intent
+            intent_recognition_done = True
             # 根据意图识别结果调整node_stack
             if intent is not None:
                 if not node_stack or (
@@ -196,22 +198,23 @@ class Bot(object):
         while not resp['content']:
             # get current node
             # print(g_vars, node_stack)
-            if node_stack:
-                current_flow_name = node_stack[-1]['flow_name']
-                current_flow = self.flows[current_flow_name]
-                curren_node_id = node_stack[-1]['node_id']
-                current_node = current_flow['nodes'][curren_node_id]
-                logging.info('flow_name: %s, node_id: %s, node_type: %s' % (
-                    current_flow_name, curren_node_id, current_node['type']))
-            elif main_flow_node:
-                current_flow_name = 'main'
-                current_flow = self.flows[current_flow_name]
-                curren_node_id = main_flow_node['node_id']
-                current_node = current_flow['nodes'][curren_node_id]
-                logging.info('flow_name: %s, node_id: %s, node_type: %s' % (
-                    current_flow_name, curren_node_id, current_node['type']))
-            else:
-                break
+            current_flow_name, current_flow, current_node = self.get_current_flow_and_node(node_stack, main_flow_node,
+                                                                                           verbose=True)
+            if current_flow_name is None:
+                if intent_recognition_done:
+                    break
+                else:
+                    # 意图识别
+                    intent = self.intent_recognition(user_utter)
+                    builtin_vars['intent'] = intent
+                    intent_recognition_done = True
+                    if intent is None:
+                        break
+                    else:
+                        # 清空node_stack，把识别到的意图的对应流程压入node_stack
+                        node_stack.clear()
+                        node_stack.append({'flow_name': self.intent_flow_mapping[intent], 'node_id': '0'})
+                        continue
 
             # log results
             # todo: 每经过一个节点就把该节点的结果追加到results后，有没有更合理的记录对话结果的方法
@@ -308,7 +311,30 @@ class Bot(object):
         builtin_vars['last_response'] = resp['content']
         return resp, user['call_status']
 
+    def get_current_flow_and_node(self, node_stack, main_flow_node, verbose=False):
+        current_flow_name, current_flow, current_node = None, None, None
+        if node_stack:
+            current_flow_name = node_stack[-1]['flow_name']
+            current_flow = self.flows[current_flow_name]
+            curren_node_id = node_stack[-1]['node_id']
+            current_node = current_flow['nodes'][curren_node_id]
+            if verbose:
+                logging.info('flow_name: %s, node_id: %s, node_type: %s' % (
+                    current_flow_name, curren_node_id, current_node['type']))
+        elif main_flow_node:
+            current_flow_name = 'main'
+            current_flow = self.flows[current_flow_name]
+            curren_node_id = main_flow_node['node_id']
+            current_node = current_flow['nodes'][curren_node_id]
+            if verbose:
+                logging.info('flow_name: %s, node_id: %s, node_type: %s' % (
+                    current_flow_name, curren_node_id, current_node['type']))
+        return current_flow_name, current_flow, current_node
+
     def convert_results_to_codes(self, user):
         if self.results_tracker:
             user['results'] = self.results_tracker.convert_results_to_codes(user['results'])
         return user['results']
+
+    def intent_recognition(self, user_utter):
+        return self.nlu_manager.intent_recognition(user_utter) if user_utter is not None else None

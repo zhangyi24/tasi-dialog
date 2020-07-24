@@ -82,8 +82,7 @@ def slot_filling_once(slot, user_utter, intents, value_sets):
             template_info = value_set['templates_info'][template]
             search_obj = template_info['regex'].search(user_utter)
             if search_obj:
-                span = search_obj.span()
-                slot['value_raw'] = user_utter[span[0]: span[1] + 1]
+                slot['value_raw'] = search_obj.group()
                 slot['value'] = template_info['standard_value']
                 logging.info("slot_filling: (slot: %s.%s, standard_value: %s, value_raw: %s, template: %s)" % (
                 slot['intent'], slot['name'], slot['value'], slot['value_raw'], template_info['template_raw']))
@@ -91,8 +90,7 @@ def slot_filling_once(slot, user_utter, intents, value_sets):
     elif value_set['type'] == 'regex':
         search_obj = value_set['regex'].search(user_utter)
         if search_obj:
-            span = search_obj.span()
-            slot['value'] = user_utter[span[0]: span[1] + 1]
+            slot['value'] = search_obj.group()
     elif value_set['type'] == 'bool':
         slot_filling_bool(slot, user_utter)
     elif value_set['type'] == 'month':
