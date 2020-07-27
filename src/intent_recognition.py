@@ -10,7 +10,7 @@ import logging
 
 sys.path.append('..')
 from models.bert.predict import Bert_Classifier
-from utils.str_process import expand_template, get_template_len
+from utils.str_process import expand_template, get_template_len, pattern_to_pinyin, hanzi_to_pinyin
 
 
 class IntentModel(object):
@@ -26,9 +26,12 @@ class IntentModelTemplate(IntentModel):
             for template_raw in templates[intent]['templates']:
                 for template in expand_template(template_raw):
                     self.templates.add(template)
+                    template_pinyin = pattern_to_pinyin(template)
                     self.templates_info[template] = {
                         "intent": intent,
                         "regex": re.compile(template),
+                        "template_pinyin": template_pinyin,
+                        "regex_pinyin": re.compile(template_pinyin),
                         "template_raw": template_raw
                     }
         self.templates = list(self.templates)
@@ -43,10 +46,26 @@ class IntentModelTemplate(IntentModel):
                 template_hit = template
                 break
         if result:
-            logging.info('intent recognition result(regex): (user_input: "%s", intent: %s, template: %s)' % (
-            user_utter, result, self.templates_info[template_hit]["template_raw"]))
+            logging.info('intent recognition result(regex): (user_input: "%s", intent: %s, template: %s, template_raw: %s)' % (
+            user_utter, result, template_hit, self.templates_info[template_hit]["template_raw"]))
         else:
             logging.info('intent recognition result(regex): (user_input: "%s", intent: %s)' % (user_utter, result))
+        return result
+
+    def intent_recognition_pinyin(self, user_utter):
+        user_utter_pinyin, _ = hanzi_to_pinyin(user_utter)
+        result = None
+        template_hit = None
+        for template in self.templates:
+            if self.templates_info[template]["regex_pinyin"].search(user_utter_pinyin):
+                result = self.templates_info[template]["intent"]
+                template_hit = template
+                break
+        if result:
+            logging.info('intent recognition result(regex_pinyin): (user_input: "%s", intent: %s, template: %s, template_raw: %s)' % (
+            user_utter, result, template_hit, self.templates_info[template_hit]["template_raw"]))
+        else:
+            logging.info('intent recognition result(regex_pinyin): (user_input: "%s", intent: %s)' % (user_utter, result))
         return result
 
 

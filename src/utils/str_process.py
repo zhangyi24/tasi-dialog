@@ -5,6 +5,8 @@
 import re
 from itertools import product
 
+from pypinyin import pinyin, lazy_pinyin, Style
+
 
 def expand_template(template):
     """
@@ -40,6 +42,21 @@ def get_matches_total_len(pattern, string):
 def get_template_len(template):
     return len(template) - get_matches_total_len(r'\.\{\d+\,\d+\}', template)
 
+
+def hanzi_to_pinyin(hanzi):
+    pinyin_list = []
+    map_pinyin_idx_hanzi_idx = {0: 0}
+    len_pinyin = 0
+    for py in pinyin(hanzi):
+        pinyin_list.append(py[0])
+        len_pinyin += len(py[0]) + 1
+        map_pinyin_idx_hanzi_idx[len_pinyin] = len(pinyin_list)
+    return ' '.join(pinyin_list), map_pinyin_idx_hanzi_idx
+
+
+def pattern_to_pinyin(pattern):
+    pattern = pattern.replace('.', r'( *\b[^ ]+?\b *)')
+    return ' '.join(py[0] for py in pinyin(pattern))
 
 if __name__ == '__main__':
     expand_template('帮我呼叫(张三|李四)[的电话|的电话号码|的手机]')

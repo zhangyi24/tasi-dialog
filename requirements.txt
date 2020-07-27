@@ -3,3 +3,4 @@ tornado
 psycopg2
 pyyaml
 requests
+pypinyin

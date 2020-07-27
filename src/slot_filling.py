@@ -11,6 +11,7 @@ import collections
 import logging
 
 from nlg import response_process
+from utils.str_process import hanzi_to_pinyin
 
 sys.path.append('..')
 
@@ -85,9 +86,24 @@ def slot_filling_once(slot, user_utter, intents, value_sets):
             if search_obj:
                 slot['value_raw'] = search_obj.group()
                 slot['value'] = template_info['standard_value']
-                logging.info("slot_filling: (slot: %s.%s, standard_value: %s, value_raw: %s, template: %s)" % (
-                    slot['intent'], slot['name'], slot['value'], slot['value_raw'], template_info['template_raw']))
-                break
+                logging.info(
+                    "slot_filling: (slot: %s.%s, standard_value: %s, value_raw: %s, template: %s, template_raw: %s)" % (
+                        slot['intent'], slot['name'], slot['value'], slot['value_raw'], template,
+                        template_info['template_raw']))
+                return
+        user_utter_pinyin, map_pinyin_idx_hanzi_idx = hanzi_to_pinyin(user_utter)
+        for template in templates:
+            template_info = value_set['templates_info'][template]
+            search_obj = template_info['regex_pinyin'].search(user_utter_pinyin)
+            if search_obj:
+                span = search_obj.span()
+                slot['value_raw'] = user_utter[map_pinyin_idx_hanzi_idx[span[0]]: map_pinyin_idx_hanzi_idx[span[1] + 1]]
+                slot['value'] = template_info['standard_value']
+                logging.info(
+                    "slot_filling: (slot: %s.%s, standard_value: %s, value_raw: %s, template: %s, template_raw: %s)" % (
+                        slot['intent'], slot['name'], slot['value'], slot['value_raw'], template,
+                        template_info['template_raw']))
+                return
     elif value_set['type'] == 'regex':
         search_obj = value_set['regex'].search(user_utter)
         if search_obj:
