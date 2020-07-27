@@ -55,8 +55,19 @@ def hanzi_to_pinyin(hanzi):
 
 
 def pattern_to_pinyin(pattern):
-    pattern = pattern.replace('.', r'( *\b[^ ]+?\b *)')
-    return ' '.join(py[0] for py in pinyin(pattern))
+    pinyin_list = []
+    for py in pinyin(pattern):
+        py = py[0]
+        if re.fullmatch(r'.{\d?,\d?}', py):
+            py = py.replace('.', r'( *\b[^ ]+?\b *)')
+            pinyin_list.append(py)
+        else:
+            pinyin_list.append(py)
+            pinyin_list.append(' ')
+    pattern_pinyin = ''.join(pinyin_list)
+    pattern_pinyin = pattern_pinyin.rstrip()
+    return pattern_pinyin
+
 
 if __name__ == '__main__':
     expand_template('帮我呼叫(张三|李四)[的电话|的电话号码|的手机]')
