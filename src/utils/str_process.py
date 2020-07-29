@@ -69,5 +69,12 @@ def pattern_to_pinyin(pattern):
     return pattern_pinyin
 
 
+def replace_space(string):
+    string = string.strip()
+    string = re.sub(r'\s+', '。', string)
+    return string
+
+
 if __name__ == '__main__':
-    expand_template('帮我呼叫(张三|李四)[的电话|的电话号码|的手机]')
+    string = '嗯嗯 \n 好的  打扰了 再见 '
+    print(replace_space(string))

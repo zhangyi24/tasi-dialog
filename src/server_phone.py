@@ -23,6 +23,7 @@ from agent import Bot
 from utils.mysql import MySQLWrapper
 from utils.postgresql import PostgreSQLWrapper
 from utils.logger import config_logger
+from utils.str_process import replace_space
 
 RESPONSE_BODY_9 = {
     "ret": 0,
@@ -126,6 +127,7 @@ class MainHandler(tornado.web.RequestHandler):
                 self.db.add_user(user['call_info'].get('call_sor_id', ''))
             # 获取开场白
             bot_resp, user['call_status'] = self.bot.greeting(user_id=self.req_body['userid'])
+            bot_resp['content'] = replace_space(bot_resp['content'])
             # 正常交互
             if user['call_status'] == 'on':
                 if bot_resp['allow_interrupt']:
@@ -178,7 +180,7 @@ class MainHandler(tornado.web.RequestHandler):
                                         asr_record_path=asr_record_path)
                     user['history'].append('用户：' + user_input)
                 bot_resp, user['call_status'] = self.bot.response(self.req_body['userid'], user_input)
-
+                bot_resp['content'] = replace_space(bot_resp['content'])
                 # 正常交互
                 if user['call_status'] == 'on':
                     if bot_resp['allow_interrupt']:

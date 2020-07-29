@@ -498,7 +498,7 @@
     },
     "22": {
       "type": "response",
-      "response": "可能是我这边信号不好 打扰了 再见。",
+      "response": "可能是我这边信号不好，打扰了，再见。",
       "dm": [
         {
           "cond": true,
