@@ -1,0 +1,92 @@
+{
+  "房产营销-卖房": {
+    "name": "房产营销-卖房",
+    "slots": {
+      "price": {
+        "name": "price",
+        "chineseName": "均价",
+        "valueSet": "builtin.all"
+      },
+      "traffic": {
+        "name": "traffic",
+        "chineseName": "交通",
+        "valueSet": "builtin.all"
+      },
+      "company": {
+        "name": "company",
+        "chineseName": "公司",
+        "valueSet": "builtin.all"
+      },
+      "type": {
+        "name": "type",
+        "chineseName": "房屋类型",
+        "valueSet": "builtin.all"
+      },
+      "fee": {
+        "name": "fee",
+        "chineseName": "费用",
+        "valueSet": "builtin.all"
+      },
+      "property_right": {
+        "name": "property_right",
+        "chineseName": "产权年限",
+        "valueSet": "builtin.all"
+      },
+      "has_carport": {
+        "name": "has_carport",
+        "chineseName": "是否有车位",
+        "valueSet": "builtin.all"
+      },
+      "property_fee": {
+        "name": "property_fee",
+        "chineseName": "物业费",
+        "valueSet": "builtin.all"
+      }
+    }
+  },
+  "金融营销-贷款": {
+    "name": "金融营销-贷款",
+    "slots": {
+      "detail": {
+        "name": "detail",
+        "chineseName": "具体内容",
+        "valueSet": "builtin.all"
+      },
+      "venture": {
+        "name": "venture",
+        "chineseName": "风险",
+        "valueSet": "builtin.all"
+      }
+    }
+  },
+  "金融营销-理财": {
+    "name": "金融营销-理财",
+    "slots": {
+      "detail": {
+        "name": "detail",
+        "chineseName": "具体内容",
+        "valueSet": "builtin.all"
+      },
+      "venture": {
+        "name": "venture",
+        "chineseName": "风险",
+        "valueSet": "builtin.all"
+      }
+    }
+  },
+  "教育培训": {
+    "name": "教育培训",
+    "slots": {
+      "detail": {
+        "name": "detail",
+        "chineseName": "具体内容",
+        "valueSet": "builtin.all"
+      },
+      "feature": {
+        "name": "feature",
+        "chineseName": "特色",
+        "valueSet": "builtin.all"
+      }
+    }
+  }
+}

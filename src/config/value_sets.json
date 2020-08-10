@@ -1,4 +1,10 @@
 {
+  "all": {
+    "name": "all",
+    "chineseName": "所有",
+    "type": "regex",
+    "regex": ".*"
+  },
   "city": {
     "name": "city",
     "chineseName": "城市",

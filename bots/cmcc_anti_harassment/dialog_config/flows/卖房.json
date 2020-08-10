@@ -1,0 +1,149 @@
+{
+  "name": "卖房",
+  "intent": "房产营销-卖房",
+  "nodes": {
+    "0": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "房产营销-卖房.price",
+          "global_variable": "housing_price",
+          "response": "你们这个产品的均价是多少？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "1"
+        }
+      ]
+    },
+    "1": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "房产营销-卖房.traffic",
+          "global_variable": "housing_traffic",
+          "response": "房子周边交通方便么？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "2"
+        }
+      ]
+    },
+    "2": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "房产营销-卖房.company",
+          "global_variable": "housing_company",
+          "response": "你们是哪家公司啊？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "3"
+        }
+      ]
+    },
+    "3": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "房产营销-卖房.type",
+          "global_variable": "housing_type",
+          "response": "你们这个是商铺还是普通住宅？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "4"
+        }
+      ]
+    },
+    "4": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "房产营销-卖房.fee",
+          "global_variable": "housing_fee",
+          "response": "水费电费燃气费是多少？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "5"
+        }
+      ]
+    },
+    "5": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "房产营销-卖房.property_right",
+          "global_variable": "housing_property_right",
+          "response": "产权是多少年的？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "6"
+        }
+      ]
+    },
+    "6": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "房产营销-卖房.has_carport",
+          "global_variable": "housing_has_carport",
+          "response": "有车位么？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "7"
+        }
+      ]
+    },
+    "7": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "房产营销-卖房.property_fee",
+          "global_variable": "housing_property_fee",
+          "response": "物业费是多少？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "8"
+        }
+      ]
+    },
+    "8": {
+      "type": "response",
+      "response": "好的，我大概了解了，那先这样，再见。",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "90"
+        }
+      ]
+    },
+    "90": {
+      "type": "exit",
+      "todo": "hangup"
+    }
+  },
+  "version": "0.1"
+}

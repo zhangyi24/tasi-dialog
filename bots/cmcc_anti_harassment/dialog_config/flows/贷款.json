@@ -1,0 +1,53 @@
+{
+  "name": "贷款",
+  "intent": "金融营销-贷款",
+  "nodes": {
+    "0": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "金融营销-贷款.detail",
+          "global_variable": "loan_detail",
+          "response": "简单介绍一下你们的产品"
+        }
+      ],
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "1"
+        }
+      ]
+    },
+    "1": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "金融营销-贷款.venture",
+          "global_variable": "loan_venture",
+          "response": "风险有哪些？"
+        }
+      ],
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "2"
+        }
+      ]
+    },
+    "2": {
+      "type": "response",
+      "response": "好的，我大概了解了，那先这样，再见。",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "90"
+        }
+      ]
+    },
+    "90": {
+      "type": "exit",
+      "todo": "hangup"
+    }
+  },
+  "version": "0.1"
+}

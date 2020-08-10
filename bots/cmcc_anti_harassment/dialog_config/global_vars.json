@@ -1,0 +1,20 @@
+{
+  "g_vars": {
+    "housing_price": null,
+    "housing_traffic": null,
+    "housing_company": null,
+    "housing_type": null,
+    "housing_fee": null,
+    "housing_property_right": null,
+    "housing_has_carport": null,
+    "housing_property_fee": null,
+    "loan_detail": null,
+    "loan_venture": null,
+    "fortune_detail": null,
+    "fortune_venture": null,
+    "edu_detail": null,
+    "edu_feature": null
+  },
+  "g_vars_need_init": [
+  ]
+}
