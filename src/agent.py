@@ -111,7 +111,7 @@ class Bot(object):
                 self.thresholds.update(json.load(f))
 
         # init nlu_manager
-        checkpoints_dir = 'checkpoints/intent'
+        checkpoints_dir = 'checkpoints/intent/bert/best_model'
         self.nlu_manager = NLUManager(checkpoints_dir, self.templates, self.intents, self.value_sets,
                                       self.stop_words, self.thresholds)
         self.nlu_manager.intent_recognition('%%初始化%%')  # 第一次识别会比较慢，所以先识别一次。

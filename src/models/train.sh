@@ -3,7 +3,7 @@ python train.py --data_dir intent \
   --model_name_or_path bert-base-chinese \
   --model_type bert \
   --tokenizer_type bert \
-  --output_dir intent-pl-bert \
+  --output_dir intent-bert \
   --max_seq_length 64 \
   --learning_rate 2e-5 \
   --num_train_epochs 1 \

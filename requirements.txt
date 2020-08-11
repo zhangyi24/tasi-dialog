@@ -1,6 +1,9 @@
-tensorflow==1.11
+torch
+pytorch-lightning
 tornado
 psycopg2
 pyyaml
 requests
+scikit-learn
 pypinyin
+transformers

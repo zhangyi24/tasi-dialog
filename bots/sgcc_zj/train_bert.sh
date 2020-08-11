@@ -1,23 +1,30 @@
 #!/bin/bash
-ckpt_dir=checkpoints/intent
-data_dir=datasets/intent
-bert_dir=../../src/models/bert
-pretrained_ckpt_dir=$bert_dir/chinese_L-12_H-768_A-12
+task=intent
+#!/bin/bash
+task=intent
+model_type=bert
+pretrained_model_name_or_path=bert-base-chinese
+model_class=bert
+tokenizer_class=bert
+ckpt_dir=checkpoints/$task/$model_type
+data_dir=datasets/$task
+rm -rf $ckpt_dir
+rm -rf $data_dir
+
 python ../../src/models/build_datasets.py
 
-rm -rf $ckpt_dir
-
-python $bert_dir/run_classifier.py \
-  --task_name=intent \
-  --do_train=true \
-  --do_eval=true \
-  --do_predict=true \
-  --data_dir=$data_dir \
-  --vocab_file=$pretrained_ckpt_dir/vocab.txt \
-  --bert_config_file=$pretrained_ckpt_dir/bert_config.json \
-  --init_checkpoint=$pretrained_ckpt_dir/bert_model.ckpt \
-  --max_seq_length=64 \
-  --train_batch_size=32 \
-  --learning_rate=2e-5 \
-  --num_train_epochs=10.0 \
-  --output_dir=$ckpt_dir
+models_dir=../../src/models/
+python $models_dir/train.py --task $task \
+  --data_dir $data_dir \
+  --output_dir $ckpt_dir \
+  --pretrained_model_name_or_path $pretrained_model_name_or_path \
+  --model_class $model_class \
+  --tokenizer_class $tokenizer_class \
+  --max_seq_length 64 \
+  --train_batch_size 64 \
+  --num_train_epochs 3 \
+  --learning_rate 2e-5 \
+  --warmup_prop 0.1 \
+  --seed 12345 \
+  --do_train \
+  --do_predict

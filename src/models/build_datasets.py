@@ -22,6 +22,7 @@ def build_datasets(samples_path, datasets_dir):
     for intent in samples:
         samples_per_intent = samples[intent]['samples']
         samples_per_intent = list(set(samples_per_intent))
+        samples_per_intent.sort()
         random.shuffle(samples_per_intent)
         train_set[intent] = samples_per_intent[: int(len(samples_per_intent) * 0.8)]
         dev_set[intent] = samples_per_intent[int(len(samples_per_intent) * 0.8): int(len(samples_per_intent) * 0.9)]
@@ -44,7 +45,6 @@ def save_dataset(dataset, set_type):
 if __name__ == '__main__':
     datasets_dir = 'datasets/intent'
     os.makedirs(datasets_dir, exist_ok=True)
-
     random.seed(12345)
     samples_path = 'dialog_config/corpus/samples.json'
     if os.path.exists(samples_path):

@@ -9,7 +9,7 @@ import re
 import logging
 
 sys.path.append('..')
-from models.bert.predict import Bert_Classifier
+from models.predict import Bert_Classifier
 from utils.str_process import expand_template, get_template_len, pattern_to_pinyin, hanzi_to_pinyin
 
 
@@ -70,16 +70,16 @@ class IntentModelTemplate(IntentModel):
 
 
 class IntentModelBERT(IntentModel):
-    def __init__(self, checkpoints_dir):
-        self.checkpoints_dir = checkpoints_dir
-        self.model = Bert_Classifier(checkpoints_dir=self.checkpoints_dir)
+    def __init__(self, model_path):
+        self.model_path = model_path
+        self.model = Bert_Classifier(model_path=self.model_path)
 
     def intent_recognition(self, user_utter):
         if not user_utter:
             intent_name, confidence = None, 1.0
         else:
-            intent_name, confidence = self.model.predict([user_utter])[0]
-            logging.info('intent recognition result(BERT): ("%s", %s, %s)' % (user_utter, intent_name, confidence))
+            intent_name, confidence = self.model.predict(user_utter)
+            logging.info('intent recognition result(%s): ("%s", %s, %s)' % (self.model.config.model_type, user_utter, intent_name, confidence))
             if intent_name == 'others':
                 intent_name = None
         return intent_name, confidence

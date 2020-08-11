@@ -1,10 +1,9 @@
+# coding=utf-8
 import argparse
 import glob
 import logging
 import os
 import shutil
-import csv
-import random
 from pathlib import Path
 from typing import Any, Dict
 
@@ -44,7 +43,7 @@ class BERTTransformer(pl.LightningModule):
         label2id = {label: idx for idx, label in enumerate(labels)}
         config_kwargs = {"id2label": id2label, "label2id": label2id}
         cache_dir = self.hparams.cache_dir if self.hparams.cache_dir else None
-        self.config = AutoConfig.from_pretrained(self.hparams.model_name_or_path, cache_dir=cache_dir, **config_kwargs)
+        self.config = AutoConfig.from_pretrained(self.hparams.pretrained_model_name_or_path, cache_dir=cache_dir, **config_kwargs)
 
         extra_model_params = ("encoder_layerdrop", "decoder_layerdrop", "dropout", "attention_dropout")
         for p in extra_model_params:
@@ -52,20 +51,20 @@ class BERTTransformer(pl.LightningModule):
                 assert hasattr(self.config, p), f"model config doesn't have a `{p}` attribute"
                 setattr(self.config, p, getattr(self.hparams, p))
 
-        model_type = self.hparams.model_type.lower() if self.hparams.model_type is not None else None
-        self.config.update({"model_type": model_type})
-        model_class = SEQUENCE_CLASSIFICATION_MODELS.get(model_type, AutoModelForSequenceClassification)
+        model_class = self.hparams.model_class.lower() if self.hparams.model_class is not None else None
+        self.config.update({"model_class": model_class})
+        model_class = SEQUENCE_CLASSIFICATION_MODELS.get(model_class, AutoModelForSequenceClassification)
         self.model = model_class.from_pretrained(
-            self.hparams.model_name_or_path,
-            from_tf=bool(".ckpt" in self.hparams.model_name_or_path),
+            self.hparams.pretrained_model_name_or_path,
+            from_tf=bool(".ckpt" in self.hparams.pretrained_model_name_or_path),
             config=self.config,
             cache_dir=cache_dir,
         )
 
-        tokenizer_type = self.hparams.tokenizer_type.lower() if self.hparams.tokenizer_type is not None else None
-        self.config.update({"tokenizer_type": tokenizer_type})
-        tokenizer_class = TOKENIZERS.get(tokenizer_type, AutoTokenizer)
-        self.tokenizer = tokenizer_class.from_pretrained(self.hparams.model_name_or_path, cache_dir=cache_dir)
+        tokenizer_class = self.hparams.tokenizer_class.lower() if self.hparams.tokenizer_class is not None else None
+        self.config.update({"tokenizer_class": tokenizer_class})
+        tokenizer_class = TOKENIZERS.get(tokenizer_class, AutoTokenizer)
+        self.tokenizer = tokenizer_class.from_pretrained(self.hparams.pretrained_model_name_or_path, cache_dir=cache_dir)
 
     def forward(self, **inputs):
         return self.model(**inputs)
@@ -178,14 +177,14 @@ class BERTTransformer(pl.LightningModule):
             self.hparams.data_dir,
             "cached_{}_{}_{}".format(
                 set_type,
-                os.path.split(os.path.realpath(self.hparams.model_name_or_path))[-1],
+                os.path.split(os.path.realpath(self.hparams.pretrained_model_name_or_path))[-1],
                 str(self.hparams.max_seq_length),
             ),
         )
 
     @pl.utilities.rank_zero_only
     def on_save_checkpoint(self, checkpoint: Dict[str, Any]) -> None:
-        save_path = self.output_dir.joinpath("best_tfmr")
+        save_path = self.output_dir.joinpath("best_model")
         save_path.mkdir(exist_ok=True)
         self.model.save_pretrained(save_path)
         self.tokenizer.save_pretrained(save_path)
@@ -250,20 +249,20 @@ class BERTTransformer(pl.LightningModule):
 
         # model
         parser.add_argument(
-            "--model_name_or_path",
+            "--pretrained_model_name_or_path",
             default=None,
             type=str,
             required=True,
             help="Path to pretrained model or model identifier from huggingface.co/models",
         )
         parser.add_argument(
-            "--model_type", default=None, type=str, help="Pretrained model type"
+            "--model_class", default=None, type=str, help="Pretrained model class"
         )
         parser.add_argument(
-            "--tokenizer_type",
+            "--tokenizer_class",
             default=None,
             type=str,
-            help="Pretrained tokenizer type",
+            help="Pretrained tokenizer class",
         )
         parser.add_argument(
             "--cache_dir",
@@ -316,21 +315,19 @@ class LoggingCallback(pl.Callback):
                 rank_zero_info(f"{key} = {metrics[key]}")
 
     def on_test_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule):
-        rank_zero_info("***** Test results *****")
         metrics = trainer.callback_metrics
         # Log and save results to file
         output_test_results_file = os.path.join(pl_module.hparams.output_dir, "test_results.txt")
-        with open(output_test_results_file, "w") as f:
+        with open(output_test_results_file, "w", encoding="utf-8") as f:
+            rank_zero_info("***** Test results *****")
+            print("***** Test results *****", file=f)
             for key in sorted(metrics):
                 if key not in ["log", "progress_bar"]:
                     rank_zero_info(f"{key} = {metrics[key]}")
-                    f.write(f"{key} = {metrics[key]}")
+                    print(f"{key} = {metrics[key]}", file=f)
 
 
 def get_trainer(model: pl.LightningModule, args: argparse.Namespace, logger=True):
-    # seed_everything
-    pl.seed_everything(args.seed)
-
     # empty output_dir
     if os.path.exists(model.hparams.output_dir):
         shutil.rmtree(model.hparams.output_dir)
@@ -358,6 +355,7 @@ def get_trainer(model: pl.LightningModule, args: argparse.Namespace, logger=True
         logger=logger,
         checkpoint_callback=checkpoint_callback,
         early_stop_callback=False,
+        deterministic=True,
         **train_params,
     )
 
@@ -369,14 +367,20 @@ if __name__ == "__main__":
     parser = BERTTransformer.add_model_specific_args(parser)
     args = parser.parse_args()
 
+    # seed_everything
+    pl.seed_everything(args.seed)
+
     model = BERTTransformer(args)
     trainer = get_trainer(model, args)
 
-    if args.do_train:
-        trainer.fit(model)
+    trainer.fit(model)
 
-    # Optionally, predict on dev set and write to output_dir
-    if args.do_predict:
-        checkpoints = list(sorted(glob.glob(os.path.join(args.output_dir, "epoch=*.ckpt"), recursive=True)))
-        model = BERTTransformer.load_from_checkpoint(checkpoints[-1])
-        trainer.test(model)
+    # test
+    checkpoints = glob.glob(os.path.join(args.output_dir, "epoch=*.ckpt"))
+    epoch_id_max = max(int(ckpt.rsplit("=", maxsplit=1)[-1].rstrip(".ckpt")) for ckpt in checkpoints)
+    ckpt = os.path.join(args.output_dir, f"epoch={epoch_id_max}.ckpt")
+    model = BERTTransformer.load_from_checkpoint(ckpt)
+    trainer.test(model)
+    # delete checkpoints to save disk space
+    for ckpt in checkpoints:
+        os.remove(ckpt)
