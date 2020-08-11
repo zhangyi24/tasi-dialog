@@ -3,9 +3,28 @@ import csv
 import os
 import logging
 
-from transformers import InputExample, InputFeatures
+from transformers import (
+    InputExample,
+    InputFeatures,
+    BertForSequenceClassification,
+    AlbertForSequenceClassification,
+    XLNetForSequenceClassification,
+    BertTokenizer,
+    XLNetTokenizer
+)
 from scipy.stats import pearsonr, spearmanr
 from sklearn.metrics import f1_score
+
+
+SEQUENCE_CLASSIFICATION_MODELS = {
+    "bert": BertForSequenceClassification,
+    "albert": AlbertForSequenceClassification,
+    "xlnet": XLNetForSequenceClassification
+}
+TOKENIZERS = {
+    "bert": BertTokenizer,
+    "xlnet": XLNetTokenizer
+}
 
 logger = logging.getLogger(__name__)
 

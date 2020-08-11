@@ -18,26 +18,12 @@ from transformers import (
     AdamW,
     AutoConfig,
     AutoModelForSequenceClassification,
-    BertForSequenceClassification,
-    XLNetForSequenceClassification,
-    AlbertForSequenceClassification,
     AutoTokenizer,
-    BertTokenizer,
-    XLNetTokenizer,
     get_linear_schedule_with_warmup,
 )
 
-from utils import processors, convert_examples_to_features, compute_metrics
+from utils import processors, convert_examples_to_features, compute_metrics, SEQUENCE_CLASSIFICATION_MODELS, TOKENIZERS
 
-SEQUENCE_CLASSIFICATION_MODELS = {
-    "bert": BertForSequenceClassification,
-    "albert": AlbertForSequenceClassification,
-    "xlnet": XLNetForSequenceClassification
-}
-TOKENIZERS = {
-    "bert": BertTokenizer,
-    "xlnet": XLNetTokenizer
-}
 
 logger = logging.getLogger(__name__)
 
@@ -53,19 +39,22 @@ class BERTTransformer(pl.LightningModule):
         self.processor = processors[hparams.task](hparams.data_dir)
         self.output_dir = Path(self.hparams.output_dir)
 
+        labels = self.processor.get_labels()
+        id2label = {idx: label for idx, label in enumerate(labels)}
+        label2id = {label: idx for idx, label in enumerate(labels)}
+        config_kwargs = {"id2label": id2label, "label2id": label2id}
         cache_dir = self.hparams.cache_dir if self.hparams.cache_dir else None
-        self.config = AutoConfig.from_pretrained(self.hparams.model_name_or_path, cache_dir=cache_dir)
-        self.config.update({"num_labels": len(self.processor.get_labels())})
+        self.config = AutoConfig.from_pretrained(self.hparams.model_name_or_path, cache_dir=cache_dir, **config_kwargs)
+
         extra_model_params = ("encoder_layerdrop", "decoder_layerdrop", "dropout", "attention_dropout")
         for p in extra_model_params:
             if getattr(self.hparams, p, None):
                 assert hasattr(self.config, p), f"model config doesn't have a `{p}` attribute"
                 setattr(self.config, p, getattr(self.hparams, p))
 
-        model_class = AutoModelForSequenceClassification
-        if self.hparams.model_type:
-            model_type = self.hparams.model_type.lower()
-            model_class = SEQUENCE_CLASSIFICATION_MODELS.get(model_type, AutoModelForSequenceClassification)
+        model_type = self.hparams.model_type.lower() if self.hparams.model_type is not None else None
+        self.config.update({"model_type": model_type})
+        model_class = SEQUENCE_CLASSIFICATION_MODELS.get(model_type, AutoModelForSequenceClassification)
         self.model = model_class.from_pretrained(
             self.hparams.model_name_or_path,
             from_tf=bool(".ckpt" in self.hparams.model_name_or_path),
@@ -73,10 +62,9 @@ class BERTTransformer(pl.LightningModule):
             cache_dir=cache_dir,
         )
 
-        tokenizer_class = AutoTokenizer
-        if self.hparams.tokenizer_type:
-            tokenizer_type = self.hparams.tokenizer_type.lower()
-            tokenizer_class = TOKENIZERS.get(tokenizer_type, AutoTokenizer)
+        tokenizer_type = self.hparams.tokenizer_type.lower() if self.hparams.tokenizer_type is not None else None
+        self.config.update({"tokenizer_type": tokenizer_type})
+        tokenizer_class = TOKENIZERS.get(tokenizer_type, AutoTokenizer)
         self.tokenizer = tokenizer_class.from_pretrained(self.hparams.model_name_or_path, cache_dir=cache_dir)
 
     def forward(self, **inputs):
@@ -165,7 +153,7 @@ class BERTTransformer(pl.LightningModule):
         return self.validation_step(batch, batch_nb)
 
     def _eval_end(self, outputs):
-        val_loss_mean = torch.stack([x["val_loss"] for x in outputs]).mean().detach().cpu().item()
+        val_loss_mean = torch.stack([x["val_loss"] for x in outputs]).mean().detach().cpu()
         preds = np.concatenate([x["pred"] for x in outputs], axis=0)
         preds = np.argmax(preds, axis=1)
         out_label_ids = np.concatenate([x["target"] for x in outputs], axis=0)
@@ -344,8 +332,8 @@ def get_trainer(model: pl.LightningModule, args: argparse.Namespace, logger=True
     pl.seed_everything(args.seed)
 
     # empty output_dir
-    # if os.path.exists(model.hparams.output_dir):
-    #     shutil.rmtree(model.hparams.output_dir)
+    if os.path.exists(model.hparams.output_dir):
+        shutil.rmtree(model.hparams.output_dir)
     os.makedirs(model.hparams.output_dir, exist_ok=True)
 
     # checkpoint_callback
