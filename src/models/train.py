@@ -355,6 +355,7 @@ def get_trainer(model: pl.LightningModule, args: argparse.Namespace, logger=True
         checkpoint_callback=checkpoint_callback,
         early_stop_callback=False,
         deterministic=True,
+        default_root_dir=args.output_dir,
         **train_params,
     )
 
