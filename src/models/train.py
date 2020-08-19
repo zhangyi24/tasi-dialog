@@ -37,9 +37,9 @@ class BERTTransformer(pl.LightningModule):
         self.processor = processors[hparams.task](hparams.data_dir)
         self.output_dir = Path(self.hparams.output_dir)
 
-        labels = self.processor.get_labels()
-        id2label = {idx: label for idx, label in enumerate(labels)}
-        label2id = {label: idx for idx, label in enumerate(labels)}
+        self.labels = self.processor.get_labels()
+        id2label = {idx: label for idx, label in enumerate(self.labels)}
+        label2id = {label: idx for idx, label in enumerate(self.labels)}
         config_kwargs = {"id2label": id2label, "label2id": label2id}
         cache_dir = self.hparams.cache_dir if self.hparams.cache_dir else None
         self.config = AutoConfig.from_pretrained(self.hparams.pretrained_model_name_or_path, cache_dir=cache_dir, **config_kwargs)
@@ -70,19 +70,15 @@ class BERTTransformer(pl.LightningModule):
 
     def prepare_data(self):
         """Called to initialize data. Use the call to construct features"""
-        args = self.hparams
-        processor = processors[args.task](args.data_dir)
-        self.labels = processor.get_labels()
-
         for set_type in ["train", "dev", "test"]:
             logger.info("Creating features from dataset file at %s", args.data_dir)
 
             if set_type == "train":
-                examples = processor.get_train_examples()
+                examples = self.processor.get_train_examples()
             elif set_type == "dev":
-                examples = processor.get_dev_examples()
+                examples = self.processor.get_dev_examples()
             else:
-                examples = processor.get_test_examples()
+                examples = self.processor.get_test_examples()
             features = convert_examples_to_features(
                 examples,
                 self.tokenizer,
@@ -97,9 +93,9 @@ class BERTTransformer(pl.LightningModule):
         self.trainset = self.get_dataset("train")
         self.devset = self.get_dataset("dev")
         self.testset = self.get_dataset("test")
-        steps_epoch = (len(self.trainset) - 1) // (
+        steps_per_epoch = (len(self.trainset) - 1) // (
                     self.hparams.train_batch_size * self.hparams.accumulate_grad_batches) + 1
-        self.total_steps = steps_epoch * self.hparams.max_epochs
+        self.total_steps = steps_per_epoch * self.hparams.max_epochs
 
     def get_dataset(self, set_type):
         """Load datasets. Called after prepare data."""

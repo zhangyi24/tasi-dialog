@@ -52,13 +52,13 @@ class DataProcessor(object):
         """Reads a tab separated value file."""
         with open(input_file, "r", encoding="utf-8") as f:
             reader = csv.reader(f, delimiter="\t", quotechar=quotechar)
+            try:
+                next(reader)
+            except:
+                pass
             lines = []
-            i = 0
             for line in reader:
-                if i:
-                    lines.append(line)
-                i += 1
-            random.shuffle(lines)
+                lines.append(line)
             return lines
 
 
@@ -93,9 +93,6 @@ class IntentProcessor(DataProcessor):
         """Creates examples for the training and dev sets."""
         examples = []
         for (i, line) in enumerate(lines):
-            # Only the test set has a header
-            if i == 0:
-                continue
             guid = "%s-%s" % (set_type, i)
             text_a = line[1]
             label = line[0]
