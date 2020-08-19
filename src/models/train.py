@@ -14,7 +14,6 @@ import pytorch_lightning as pl
 from pytorch_lightning.callbacks.lr_logger import LearningRateLogger
 from pytorch_lightning.utilities import rank_zero_info
 from transformers import (
-    AdamW,
     AutoConfig,
     AutoModelForSequenceClassification,
     AutoTokenizer,
@@ -203,7 +202,7 @@ class BERTTransformer(pl.LightningModule):
                 "weight_decay": 0.0,
             },
         ]
-        optimizer = AdamW(optimizer_grouped_parameters, lr=self.hparams.learning_rate, eps=self.hparams.adam_epsilon)
+        optimizer = torch.optim.AdamW(optimizer_grouped_parameters, lr=self.hparams.learning_rate)
         self.opt = optimizer
         scheduler = get_linear_schedule_with_warmup(
             self.opt, num_warmup_steps=int(self.hparams.warmup_prop * self.total_steps),
@@ -306,7 +305,7 @@ class BERTTransformer(pl.LightningModule):
 
 class LoggingCallback(pl.Callback):
     def on_validation_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule):
-        rank_zero_info("***** Validation results *****")
+        rank_zero_info("\n***** Validation results *****")
         # todo: trainer.callback_metrics
         metrics = trainer.callback_metrics
         # Log results
@@ -319,7 +318,7 @@ class LoggingCallback(pl.Callback):
         # Log and save results to file
         output_test_results_file = os.path.join(pl_module.hparams.output_dir, "test_results.txt")
         with open(output_test_results_file, "w", encoding="utf-8") as f:
-            rank_zero_info("***** Test results *****")
+            rank_zero_info("\n***** Test results *****")
             print("***** Test results *****", file=f)
             for key in sorted(metrics):
                 if key not in ["log", "progress_bar"]:

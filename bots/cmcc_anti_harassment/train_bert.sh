@@ -20,9 +20,11 @@ python $models_dir/train.py --task $task \
   --tokenizer_class $tokenizer_class \
   --max_seq_length 64 \
   --train_batch_size 64 \
-  --num_train_epochs 3 \
+  --num_train_epochs 10 \
   --learning_rate 2e-5 \
   --warmup_prop 0.1 \
   --seed 12345 \
   --do_train \
   --do_predict
+
+while true; do sleep 1; done

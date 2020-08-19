@@ -8,6 +8,7 @@
 
 
 src/models/tfs_cache
+src/models/bert
 **/checkpoints
 **/datasets
 **/lightning_logs
