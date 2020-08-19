@@ -9,6 +9,7 @@ from typing import Any, Dict
 
 import numpy as np
 import torch
+import torch.distributed
 from torch.utils.data import DataLoader, TensorDataset
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks.lr_logger import LearningRateLogger
@@ -339,7 +340,7 @@ def get_trainer(model: pl.LightningModule, args: argparse.Namespace, logger=True
     if args.fp16:
         train_params["precision"] = 16
         train_params["amp_level"] = args.fp16_opt_level
-    if args.gpus > 1:
+    if torch.distributed.is_available():
         train_params["distributed_backend"] = "ddp"
 
     # todo: weights_summary
