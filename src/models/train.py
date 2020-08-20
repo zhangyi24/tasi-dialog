@@ -191,12 +191,11 @@ class BERTTransformer(pl.LightningModule):
         no_decay = ["bias", "LayerNorm.weight"]
         optimizer_grouped_parameters = [
             {
-                "params": [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
-                "weight_decay": self.hparams.weight_decay,
+                "params": [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)]
             },
             {
                 "params": [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)],
-                "weight_decay": 0.0,
+                "weight_decay": 0.0
             },
         ]
         optimizer = torch.optim.AdamW(optimizer_grouped_parameters, lr=self.hparams.learning_rate)
@@ -273,8 +272,6 @@ class BERTTransformer(pl.LightningModule):
         parser.add_argument("--train_batch_size", default=32, type=int)
         parser.add_argument("--eval_batch_size", default=32, type=int)
         parser.add_argument("--learning_rate", default=5e-5, type=float, help="The initial learning rate for Adam.")
-        parser.add_argument("--adam_epsilon", default=1e-8, type=float, help="Epsilon for Adam optimizer.")
-        parser.add_argument("--weight_decay", default=0.0, type=float, help="Weight decay if we apply some.")
         parser.add_argument("--warmup_prop", default=0, type=float,
                             help="The proportion of warmup steps to the total steps.")
         parser.add_argument("--max_grad_norm", dest="gradient_clip_val", default=1.0, type=float,
