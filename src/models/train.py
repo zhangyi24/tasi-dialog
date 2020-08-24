@@ -23,7 +23,6 @@ from transformers import (
 
 from utils import processors, convert_examples_to_features, compute_metrics, SEQUENCE_CLASSIFICATION_MODELS, TOKENIZERS
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -43,7 +42,8 @@ class BERTTransformer(pl.LightningModule):
         label2id = {label: idx for idx, label in enumerate(self.labels)}
         config_kwargs = {"id2label": id2label, "label2id": label2id}
         cache_dir = self.hparams.cache_dir if self.hparams.cache_dir else None
-        self.config = AutoConfig.from_pretrained(self.hparams.pretrained_model_name_or_path, cache_dir=cache_dir, **config_kwargs)
+        self.config = AutoConfig.from_pretrained(self.hparams.pretrained_model_name_or_path, cache_dir=cache_dir,
+                                                 **config_kwargs)
 
         extra_model_params = ("encoder_layerdrop", "decoder_layerdrop", "dropout", "attention_dropout")
         for p in extra_model_params:
@@ -64,7 +64,13 @@ class BERTTransformer(pl.LightningModule):
         tokenizer_class = self.hparams.tokenizer_class.lower() if self.hparams.tokenizer_class is not None else None
         self.config.update({"tokenizer_class": tokenizer_class})
         tokenizer_class = TOKENIZERS.get(tokenizer_class, AutoTokenizer)
-        self.tokenizer = tokenizer_class.from_pretrained(self.hparams.pretrained_model_name_or_path, cache_dir=cache_dir)
+        self.tokenizer = tokenizer_class.from_pretrained(self.hparams.pretrained_model_name_or_path,
+                                                         cache_dir=cache_dir)
+
+        self.n_gpu_used = torch.cuda.device_count()
+        self.batch_size_per_gpu = int(np.ceil(
+            np.ceil(self.hparams.batch_size / self.hparams.accumulate_grad_batches) / self.n_gpu_used))
+        self.effective_batch_size = self.batch_size_per_gpu * self.n_gpu_used * self.hparams.accumulate_grad_batches
 
     def forward(self, **inputs):
         return self.model(**inputs)
@@ -94,8 +100,7 @@ class BERTTransformer(pl.LightningModule):
         self.trainset = self.get_dataset("train")
         self.devset = self.get_dataset("dev")
         self.testset = self.get_dataset("test")
-        steps_per_epoch = (len(self.trainset) - 1) // (
-                    self.hparams.train_batch_size * self.hparams.accumulate_grad_batches) + 1
+        steps_per_epoch = (len(self.trainset) - 1) // self.effective_batch_size + 1
         self.total_steps = steps_per_epoch * self.hparams.max_epochs
 
     def get_dataset(self, set_type):
@@ -110,19 +115,18 @@ class BERTTransformer(pl.LightningModule):
         return TensorDataset(all_input_ids, all_attention_mask, all_token_type_ids, all_labels)
 
     def train_dataloader(self):
-        return DataLoader(self.trainset, batch_size=self.hparams.train_batch_size, shuffle=True)
+        return DataLoader(self.trainset, batch_size=self.batch_size_per_gpu, shuffle=True)
 
     def val_dataloader(self):
-        return DataLoader(self.devset, batch_size=self.hparams.eval_batch_size, shuffle=False)
+        return DataLoader(self.devset, batch_size=self.batch_size_per_gpu, shuffle=False)
 
     def test_dataloader(self):
-        return DataLoader(self.testset, batch_size=self.hparams.eval_batch_size, shuffle=False)
+        return DataLoader(self.testset, batch_size=self.batch_size_per_gpu, shuffle=False)
 
     def training_step(self, batch, batch_idx):
         inputs = {"input_ids": batch[0], "attention_mask": batch[1], "labels": batch[3]}
 
         if self.config.model_type != "distilbert":
-            # todo: 看看roberta有没有token_type_ids
             inputs["token_type_ids"] = batch[2] if self.config.model_type in ["bert", "xlnet", "albert"] else None
 
         outputs = self(**inputs)
@@ -205,7 +209,6 @@ class BERTTransformer(pl.LightningModule):
             num_training_steps=self.total_steps
         )
         scheduler = {"scheduler": scheduler, "interval": "step", "frequency": 1}
-        self.scheduler = scheduler
         return [optimizer], [scheduler]
 
     @staticmethod
@@ -233,13 +236,8 @@ class BERTTransformer(pl.LightningModule):
         parser.add_argument("--n_gpus", dest="gpus", type=int, default=-1)
         parser.add_argument("--do_train", action="store_true", help="Whether to run training.")
         parser.add_argument("--do_predict", action="store_true", help="Whether to run predictions on the test set.")
-        parser.add_argument(
-            "--gradient_accumulation_steps",
-            dest="accumulate_grad_batches",
-            type=int,
-            default=1,
-            help="Number of updates steps to accumulate before performing a backward/update pass.",
-        )
+        parser.add_argument("accumulate_grad_batches", type=int, default=1,
+                            help="Number of updates steps to accumulate before performing a backward/update pass.")
         parser.add_argument("--seed", type=int, default=42, help="random seed for initialization")
 
         # model
@@ -268,9 +266,8 @@ class BERTTransformer(pl.LightningModule):
 
         # train
         parser.add_argument("--num_workers", default=4, type=int, help="kwarg passed to DataLoader")
-        parser.add_argument("--num_train_epochs", dest="max_epochs", default=3, type=int)
-        parser.add_argument("--train_batch_size", default=32, type=int)
-        parser.add_argument("--eval_batch_size", default=32, type=int)
+        parser.add_argument("--max_epochs", default=3, type=int)
+        parser.add_argument("--batch_size", default=32, type=int)
         parser.add_argument("--learning_rate", default=5e-5, type=float, help="The initial learning rate for Adam.")
         parser.add_argument("--warmup_prop", default=0, type=float,
                             help="The proportion of warmup steps to the total steps.")
@@ -300,7 +297,6 @@ class BERTTransformer(pl.LightningModule):
 class LoggingCallback(pl.Callback):
     def on_validation_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule):
         rank_zero_info("\n***** Validation results *****")
-        # todo: trainer.callback_metrics
         metrics = trainer.callback_metrics
         # Log results
         for key in sorted(metrics):
@@ -329,6 +325,9 @@ def get_trainer(model: pl.LightningModule, args: argparse.Namespace, logger=True
     # checkpoint_callback
     checkpoint_callback = pl.callbacks.ModelCheckpoint(filepath=args.output_dir, monitor="val_loss", mode="min",
                                                        save_top_k=1)
+    # early_stop_callback
+    early_stop_callback = pl.callbacks.EarlyStopping(monitor='val_loss', min_delta=0.00, patience=10, verbose=False,
+                                                     mode='min')
     # logging_callback
     logging_callback = LoggingCallback()
 
@@ -337,17 +336,16 @@ def get_trainer(model: pl.LightningModule, args: argparse.Namespace, logger=True
     if args.fp16:
         train_params["precision"] = 16
         train_params["amp_level"] = args.fp16_opt_level
-    if torch.distributed.is_available():
+    if torch.distributed.is_available() and model.n_gpu_used > 1:
         train_params["distributed_backend"] = "ddp"
 
-    # todo: weights_summary
     trainer = pl.Trainer.from_argparse_args(
         args,
         weights_summary=None,
         callbacks=[logging_callback, LearningRateLogger()],
         logger=logger,
         checkpoint_callback=checkpoint_callback,
-        early_stop_callback=False,
+        early_stop_callback=early_stop_callback,
         deterministic=True,
         default_root_dir=args.output_dir,
         **train_params,
@@ -357,6 +355,8 @@ def get_trainer(model: pl.LightningModule, args: argparse.Namespace, logger=True
 
 
 if __name__ == "__main__":
+    assert torch.cuda.device_count() > 0, "No CUDA devices found"
+
     parser = argparse.ArgumentParser()
     parser = BERTTransformer.add_model_specific_args(parser)
     args = parser.parse_args()
