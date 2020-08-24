@@ -13,7 +13,7 @@ import torch.distributed
 from torch.utils.data import DataLoader, TensorDataset
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks.lr_logger import LearningRateLogger
-from pytorch_lightning.utilities import rank_zero_info
+from pytorch_lightning.utilities import rank_zero_info, rank_zero_only
 from transformers import (
     AutoConfig,
     AutoModelForSequenceClassification,
@@ -182,7 +182,7 @@ class BERTTransformer(pl.LightningModule):
             ),
         )
 
-    @pl.utilities.rank_zero_only
+    @rank_zero_only
     def on_save_checkpoint(self, checkpoint: Dict[str, Any]) -> None:
         save_path = self.output_dir.joinpath("best_model")
         save_path.mkdir(exist_ok=True)
@@ -236,7 +236,7 @@ class BERTTransformer(pl.LightningModule):
         parser.add_argument("--n_gpus", dest="gpus", type=int, default=-1)
         parser.add_argument("--do_train", action="store_true", help="Whether to run training.")
         parser.add_argument("--do_predict", action="store_true", help="Whether to run predictions on the test set.")
-        parser.add_argument("accumulate_grad_batches", type=int, default=1,
+        parser.add_argument("--accumulate_grad_batches", type=int, default=1,
                             help="Number of updates steps to accumulate before performing a backward/update pass.")
         parser.add_argument("--seed", type=int, default=42, help="random seed for initialization")
 
@@ -317,10 +317,11 @@ class LoggingCallback(pl.Callback):
 
 
 def get_trainer(model: pl.LightningModule, args: argparse.Namespace, logger=True):
-    # empty output_dir
-    if os.path.exists(model.hparams.output_dir):
-        shutil.rmtree(model.hparams.output_dir)
-    os.makedirs(model.hparams.output_dir, exist_ok=True)
+    if rank_zero_only.rank == 0:
+        # empty output_dir
+        if os.path.exists(model.hparams.output_dir):
+            shutil.rmtree(model.hparams.output_dir)
+        os.makedirs(model.hparams.output_dir, exist_ok=True)
 
     # checkpoint_callback
     checkpoint_callback = pl.callbacks.ModelCheckpoint(filepath=args.output_dir, monitor="val_loss", mode="min",
@@ -376,5 +377,6 @@ if __name__ == "__main__":
     model = BERTTransformer.load_from_checkpoint(ckpt)
     trainer.test(model)
     # delete checkpoints to save disk space
-    for ckpt in checkpoints:
-        os.remove(ckpt)
+    if rank_zero_only.rank == 0:
+        for ckpt in checkpoints:
+            os.remove(ckpt)
