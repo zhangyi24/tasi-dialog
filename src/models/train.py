@@ -71,6 +71,7 @@ class BERTTransformer(pl.LightningModule):
         self.batch_size_per_gpu = int(np.ceil(
             np.ceil(self.hparams.batch_size / self.hparams.accumulate_grad_batches) / self.n_gpu_used))
         self.effective_batch_size = self.batch_size_per_gpu * self.n_gpu_used * self.hparams.accumulate_grad_batches
+        self.num_workers = os.cpu_count() if torch.distributed.is_available() else 0
 
     def forward(self, **inputs):
         return self.model(**inputs)
@@ -115,13 +116,13 @@ class BERTTransformer(pl.LightningModule):
         return TensorDataset(all_input_ids, all_attention_mask, all_token_type_ids, all_labels)
 
     def train_dataloader(self):
-        return DataLoader(self.trainset, batch_size=self.batch_size_per_gpu, shuffle=True)
+        return DataLoader(self.trainset, batch_size=self.batch_size_per_gpu, shuffle=True, num_workers=self.num_workers)
 
     def val_dataloader(self):
-        return DataLoader(self.devset, batch_size=self.batch_size_per_gpu, shuffle=False)
+        return DataLoader(self.devset, batch_size=self.batch_size_per_gpu, shuffle=False, num_workers=self.num_workers)
 
     def test_dataloader(self):
-        return DataLoader(self.testset, batch_size=self.batch_size_per_gpu, shuffle=False)
+        return DataLoader(self.testset, batch_size=self.batch_size_per_gpu, shuffle=False, num_workers=self.num_workers)
 
     def training_step(self, batch, batch_idx):
         inputs = {"input_ids": batch[0], "attention_mask": batch[1], "labels": batch[3]}
