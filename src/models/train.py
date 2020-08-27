@@ -343,7 +343,7 @@ def get_trainer(model: pl.LightningModule, args: argparse.Namespace):
     if args.fp16:
         train_params["precision"] = 16
         train_params["amp_level"] = args.fp16_opt_level
-    if not torch.distributed.is_available():
+    if model.n_gpu_used <= 1 or not torch.distributed.is_available():
         train_params["distributed_backend"] = None
     if args.debug:
         train_params["weights_summary"] = "full"
