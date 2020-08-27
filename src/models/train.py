@@ -71,7 +71,7 @@ class BERTTransformer(pl.LightningModule):
         self.batch_size_per_gpu = int(np.ceil(
             np.ceil(self.hparams.batch_size / self.hparams.accumulate_grad_batches) / self.n_gpu_used))
         self.effective_batch_size = self.batch_size_per_gpu * self.n_gpu_used * self.hparams.accumulate_grad_batches
-        self.num_workers = os.cpu_count() if torch.distributed.is_available() else 0
+        self.num_workers = os.cpu_count() if torch.distributed.is_available() and self.hparams.distributed_backend != "ddp_spawn" else 0
 
     def forward(self, **inputs):
         return self.model(**inputs)
@@ -235,6 +235,7 @@ class BERTTransformer(pl.LightningModule):
                  "See details at https://nvidia.github.io/apex/amp.html",
         )
         parser.add_argument("--n_gpus", dest="gpus", type=int, default=-1)
+        parser.add_argument("--distributed_backend", type=str, default="ddp_spawn")
         parser.add_argument("--do_train", action="store_true", help="Whether to run training.")
         parser.add_argument("--do_predict", action="store_true", help="Whether to run predictions on the test set.")
         parser.add_argument("--accumulate_grad_batches", type=int, default=1,
@@ -266,7 +267,7 @@ class BERTTransformer(pl.LightningModule):
         )
 
         # train
-        parser.add_argument("--num_workers", default=4, type=int, help="kwarg passed to DataLoader")
+        parser.add_argument("--num_workers", default=0, type=int, help="kwarg passed to DataLoader")
         parser.add_argument("--max_epochs", default=3, type=int)
         parser.add_argument("--batch_size", default=32, type=int)
         parser.add_argument("--learning_rate", default=5e-5, type=float, help="The initial learning rate for Adam.")
@@ -339,7 +340,7 @@ def get_trainer(model: pl.LightningModule, args: argparse.Namespace, logger=True
         train_params["precision"] = 16
         train_params["amp_level"] = args.fp16_opt_level
     if torch.distributed.is_available() and model.n_gpu_used > 1:
-        train_params["distributed_backend"] = "ddp"
+        train_params["distributed_backend"] = args.distributed_backend
 
     trainer = pl.Trainer.from_argparse_args(
         args,
@@ -373,7 +374,7 @@ if __name__ == "__main__":
 
     # test
     checkpoints = glob.glob(os.path.join(args.output_dir, "epoch=*.ckpt"))
-    epoch_id_max = max(int(ckpt.rsplit("=", maxsplit=1)[-1].rstrip(".ckpt")) for ckpt in checkpoints)
+    epoch_id_max = max(int(ckpt.rsplit("=", maxsplit=1)[-1].rstrip(".ckpt")) for ckpt in checkpoints if not ckpt.endswith(".tmp_end.ckpt"))
     ckpt = os.path.join(args.output_dir, f"epoch={epoch_id_max}.ckpt")
     model = BERTTransformer.load_from_checkpoint(ckpt)
     trainer.test(model)

@@ -27,4 +27,3 @@ python $models_dir/train.py --task $task \
   --do_train \
   --do_predict
 
-while true; do sleep 1; done
