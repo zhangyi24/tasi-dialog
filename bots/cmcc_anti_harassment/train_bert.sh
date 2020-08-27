@@ -23,7 +23,4 @@ python $models_dir/train.py --task $task \
   --max_epochs 100 \
   --learning_rate 5e-5 \
   --warmup_prop 0.1 \
-  --seed 12345 \
-  --do_train \
-  --do_predict
-
+  --seed 12345

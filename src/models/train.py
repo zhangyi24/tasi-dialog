@@ -71,7 +71,6 @@ class BERTTransformer(pl.LightningModule):
         self.batch_size_per_gpu = int(np.ceil(
             np.ceil(self.hparams.batch_size / self.hparams.accumulate_grad_batches) / self.n_gpu_used))
         self.effective_batch_size = self.batch_size_per_gpu * self.n_gpu_used * self.hparams.accumulate_grad_batches
-        self.num_workers = os.cpu_count() if torch.distributed.is_available() and self.hparams.distributed_backend != "ddp_spawn" else 0
 
     def forward(self, **inputs):
         return self.model(**inputs)
@@ -116,13 +115,13 @@ class BERTTransformer(pl.LightningModule):
         return TensorDataset(all_input_ids, all_attention_mask, all_token_type_ids, all_labels)
 
     def train_dataloader(self):
-        return DataLoader(self.trainset, batch_size=self.batch_size_per_gpu, shuffle=True, num_workers=self.num_workers)
+        return DataLoader(self.trainset, batch_size=self.batch_size_per_gpu, shuffle=True)
 
     def val_dataloader(self):
-        return DataLoader(self.devset, batch_size=self.batch_size_per_gpu, shuffle=False, num_workers=self.num_workers)
+        return DataLoader(self.devset, batch_size=self.batch_size_per_gpu, shuffle=False)
 
     def test_dataloader(self):
-        return DataLoader(self.testset, batch_size=self.batch_size_per_gpu, shuffle=False, num_workers=self.num_workers)
+        return DataLoader(self.testset, batch_size=self.batch_size_per_gpu, shuffle=False)
 
     def training_step(self, batch, batch_idx):
         inputs = {"input_ids": batch[0], "attention_mask": batch[1], "labels": batch[3]}
@@ -216,6 +215,11 @@ class BERTTransformer(pl.LightningModule):
     def add_model_specific_args(parser):
         # generic
         parser.add_argument(
+            "--debug",
+            action="store_true",
+            help="Whether to switch to debug mode",
+        )
+        parser.add_argument(
             "--output_dir",
             default="output_dir",
             type=str,
@@ -234,7 +238,7 @@ class BERTTransformer(pl.LightningModule):
             help="For fp16: Apex AMP optimization level selected in ['O0', 'O1', 'O2', and 'O3']."
                  "See details at https://nvidia.github.io/apex/amp.html",
         )
-        parser.add_argument("--n_gpus", dest="gpus", type=int, default=-1)
+        parser.add_argument("--gpus", type=int, default=-1)
         parser.add_argument("--distributed_backend", type=str, default="ddp_spawn")
         parser.add_argument("--do_train", action="store_true", help="Whether to run training.")
         parser.add_argument("--do_predict", action="store_true", help="Whether to run predictions on the test set.")
@@ -318,7 +322,7 @@ class LoggingCallback(pl.Callback):
                     print(f"{key} = {metrics[key]}", file=f)
 
 
-def get_trainer(model: pl.LightningModule, args: argparse.Namespace, logger=True):
+def get_trainer(model: pl.LightningModule, args: argparse.Namespace):
     if rank_zero_only.rank == 0:
         # empty output_dir
         if os.path.exists(model.hparams.output_dir):
@@ -339,18 +343,19 @@ def get_trainer(model: pl.LightningModule, args: argparse.Namespace, logger=True
     if args.fp16:
         train_params["precision"] = 16
         train_params["amp_level"] = args.fp16_opt_level
-    if torch.distributed.is_available() and model.n_gpu_used > 1:
-        train_params["distributed_backend"] = args.distributed_backend
+    if not torch.distributed.is_available():
+        train_params["distributed_backend"] = None
+    if args.debug:
+        train_params["weights_summary"] = "full"
 
     trainer = pl.Trainer.from_argparse_args(
         args,
-        weights_summary=None,
+        default_root_dir=args.output_dir,
         callbacks=[logging_callback, LearningRateLogger()],
-        logger=logger,
         checkpoint_callback=checkpoint_callback,
         early_stop_callback=early_stop_callback,
         deterministic=True,
-        default_root_dir=args.output_dir,
+        sync_batchnorm=True,
         **train_params,
     )
 
@@ -359,7 +364,7 @@ def get_trainer(model: pl.LightningModule, args: argparse.Namespace, logger=True
 
 if __name__ == "__main__":
     assert torch.cuda.device_count() > 0, "No CUDA devices found"
-
+    # argparse
     parser = argparse.ArgumentParser()
     parser = BERTTransformer.add_model_specific_args(parser)
     args = parser.parse_args()
@@ -367,18 +372,18 @@ if __name__ == "__main__":
     # seed_everything
     pl.seed_everything(args.seed)
 
+    # init model and trainer
     model = BERTTransformer(args)
     trainer = get_trainer(model, args)
 
+    # fit
     trainer.fit(model)
 
     # test
-    checkpoints = glob.glob(os.path.join(args.output_dir, "epoch=*.ckpt"))
-    epoch_id_max = max(int(ckpt.rsplit("=", maxsplit=1)[-1].rstrip(".ckpt")) for ckpt in checkpoints if not ckpt.endswith(".tmp_end.ckpt"))
-    ckpt = os.path.join(args.output_dir, f"epoch={epoch_id_max}.ckpt")
-    model = BERTTransformer.load_from_checkpoint(ckpt)
-    trainer.test(model)
+    trainer.test()
+
     # delete checkpoints to save disk space
+    checkpoints = glob.glob(os.path.join(args.output_dir, "epoch=*.ckpt"))
     if rank_zero_only.rank == 0:
         for ckpt in checkpoints:
             os.remove(ckpt)
