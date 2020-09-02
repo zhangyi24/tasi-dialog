@@ -146,8 +146,7 @@ class BERTTransformer(pl.LightningModule):
     def test_step(self, batch, batch_nb):
         return self.validation_step(batch, batch_nb)
 
-    @staticmethod
-    def eval_epoch_end(outputs):
+    def eval_epoch_end(self, outputs):
         batches_size = torch.cat([x["batches_size"] for x in outputs])
         eval_loss = torch.cat([x["eval_loss"] for x in outputs])
         logits = torch.cat([x["logits"] for x in outputs])
@@ -155,6 +154,9 @@ class BERTTransformer(pl.LightningModule):
         eval_loss = eval_loss.matmul(batches_size).div(batches_size.sum())
         preds = torch.argmax(logits, dim=1)
         acc = accuracy(preds, out_label_ids)
+        if self.n_gpu_used > 1 and torch.distributed.is_available():
+            eval_loss = self.gather_tensor_across_gpus(eval_loss).mean()
+            acc = self.gather_tensor_across_gpus(acc).mean()
         return eval_loss, acc
 
     def validation_epoch_end(self, outputs) -> dict:
@@ -172,6 +174,13 @@ class BERTTransformer(pl.LightningModule):
         progress_bar = {"test_loss": test_loss, "acc": acc}
         result.update({"log": log, "progress_bar": progress_bar})
         return result
+
+    def gather_tensor_across_gpus(self, tensor):
+        if not tensor.size():
+            tensor.unsqueeze_(0)
+        tensor_list = [torch.empty_like(tensor) for _ in range(self.trainer.world_size)]
+        torch.distributed.all_gather(tensor_list, tensor)
+        return torch.cat(tensor_list)
 
     def get_feature_file_name(self, set_type):
         return os.path.join(
