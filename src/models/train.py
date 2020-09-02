@@ -72,8 +72,6 @@ class BERTTransformer(pl.LightningModule):
             np.ceil(self.hparams.batch_size / self.hparams.accumulate_grad_batches) / self.n_gpu_used))
         self.effective_batch_size = self.batch_size_per_gpu * self.n_gpu_used * self.hparams.accumulate_grad_batches
 
-        self.rank = torch.distributed.get_rank() if torch.distributed.is_available() else 0
-
     def forward(self, **inputs):
         return self.model(**inputs)
 
@@ -151,7 +149,7 @@ class BERTTransformer(pl.LightningModule):
         return self.validation_step(batch, batch_nb)
 
     @staticmethod
-    def eval_epoch(outputs):
+    def eval_epoch_end(outputs):
         batches_size = torch.cat([x["batches_size"] for x in outputs])
         eval_loss = torch.cat([x["eval_loss"] for x in outputs])
         logits = torch.cat([x["logits"] for x in outputs])
@@ -162,7 +160,7 @@ class BERTTransformer(pl.LightningModule):
         return eval_loss, acc
 
     def validation_epoch_end(self, outputs) -> dict:
-        val_loss, acc = self.eval_epoch(outputs)
+        val_loss, acc = self.eval_epoch_end(outputs)
         result = {"val_loss": val_loss, "acc": acc}
         log = {"val_loss": val_loss, "acc": acc}
         progress_bar = {"val_loss": val_loss, "acc": acc}
@@ -170,7 +168,7 @@ class BERTTransformer(pl.LightningModule):
         return result
 
     def test_epoch_end(self, outputs) -> dict:
-        test_loss, acc = self.eval_epoch(outputs)
+        test_loss, acc = self.eval_epoch_end(outputs)
         result = {"test_loss": test_loss, "acc": acc}
         log = {"test_loss": test_loss, "acc": acc}
         progress_bar = {"test_loss": test_loss, "acc": acc}
@@ -328,7 +326,7 @@ class LoggingCallback(pl.Callback):
 
 
 def get_trainer(model: pl.LightningModule, args: argparse.Namespace):
-    if model.rank == 0:
+    if rank_zero_only.rank == 0:
         # empty output_dir
         if os.path.exists(model.hparams.output_dir):
             shutil.rmtree(model.hparams.output_dir)
@@ -389,6 +387,6 @@ if __name__ == "__main__":
 
     # delete checkpoints to save disk space
     checkpoints = glob.glob(os.path.join(args.output_dir, "epoch=*.ckpt"))
-    if model.rank == 0:
+    if rank_zero_only.rank == 0:
         for ckpt in checkpoints:
             os.remove(ckpt)
