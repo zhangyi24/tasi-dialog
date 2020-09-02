@@ -66,7 +66,6 @@ class BERTTransformer(pl.LightningModule):
         tokenizer_class = TOKENIZERS.get(tokenizer_class, AutoTokenizer)
         self.tokenizer = tokenizer_class.from_pretrained(self.hparams.pretrained_model_name_or_path,
                                                          cache_dir=cache_dir)
-
         self.n_gpu_used = torch.cuda.device_count()
         self.batch_size_per_gpu = int(np.ceil(
             np.ceil(self.hparams.batch_size / self.hparams.accumulate_grad_batches) / self.n_gpu_used))
@@ -129,9 +128,8 @@ class BERTTransformer(pl.LightningModule):
             inputs["token_type_ids"] = batch[2] if self.config.model_type in ["bert", "xlnet", "albert"] else None
         outputs = self(**inputs)
         loss = outputs[0]
-        result = {"loss": loss}
-        log = {"loss": loss}
-        result.update({"log": log})
+        result = pl.TrainResult(loss)
+        result.log('train_loss', loss, prog_bar=True, sync_dist=True)
         return result
 
     def validation_step(self, batch, batch_idx):
