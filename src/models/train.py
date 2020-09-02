@@ -99,8 +99,8 @@ class BERTTransformer(pl.LightningModule):
         self.trainset = self.get_dataset("train")
         self.devset = self.get_dataset("dev")
         self.testset = self.get_dataset("test")
-        steps_per_epoch = (len(self.trainset) - 1) // self.effective_batch_size + 1
-        self.total_steps = steps_per_epoch * self.hparams.max_epochs
+        self.steps_per_epoch = (len(self.trainset) - 1) // self.effective_batch_size + 1
+        self.total_steps = self.steps_per_epoch * self.hparams.max_epochs
 
     def get_dataset(self, set_type):
         """Load datasets. Called after prepare data."""
@@ -128,8 +128,13 @@ class BERTTransformer(pl.LightningModule):
             inputs["token_type_ids"] = batch[2] if self.config.model_type in ["bert", "xlnet", "albert"] else None
         outputs = self(**inputs)
         loss = outputs[0]
-        result = pl.TrainResult(loss)
-        result.log('train_loss', loss, prog_bar=True, sync_dist=True)
+        loss_batch = loss.detach()
+        if self.n_gpu_used > 1 and torch.distributed.is_available():
+            loss_batch = self.gather_tensor_across_gpus(loss_batch).mean()
+        result = {"loss": loss}
+        progress_bar = {"train_loss": loss_batch}
+        result.update({"progress_bar": progress_bar})
+        self.logger.experiment.add_scalar("train_loss", loss_batch, self.steps_per_epoch * self.current_epoch + batch_idx)
         return result
 
     def validation_step(self, batch, batch_idx):
@@ -139,7 +144,6 @@ class BERTTransformer(pl.LightningModule):
             inputs["token_type_ids"] = batch[2] if self.config.model_type in ["bert", "xlnet", "albert"] else None
         outputs = self(**inputs)
         eval_loss_batch, logits = outputs[:2]
-
         result = {"eval_loss": eval_loss_batch.unsqueeze(0), "logits": logits, "target": inputs["labels"], "batches_size": batches_size.unsqueeze(0)}
         return result
 
