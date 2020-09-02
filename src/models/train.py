@@ -21,7 +21,7 @@ from transformers import (
     get_linear_schedule_with_warmup,
 )
 
-from utils import processors, convert_examples_to_features, compute_metrics, SEQUENCE_CLASSIFICATION_MODELS, TOKENIZERS
+from utils import processors, convert_examples_to_features, accuracy, SEQUENCE_CLASSIFICATION_MODELS, TOKENIZERS
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +72,8 @@ class BERTTransformer(pl.LightningModule):
             np.ceil(self.hparams.batch_size / self.hparams.accumulate_grad_batches) / self.n_gpu_used))
         self.effective_batch_size = self.batch_size_per_gpu * self.n_gpu_used * self.hparams.accumulate_grad_batches
 
+        self.rank = torch.distributed.get_rank() if torch.distributed.is_available() else 0
+
     def forward(self, **inputs):
         return self.model(**inputs)
 
@@ -115,62 +117,65 @@ class BERTTransformer(pl.LightningModule):
         return TensorDataset(all_input_ids, all_attention_mask, all_token_type_ids, all_labels)
 
     def train_dataloader(self):
-        return DataLoader(self.trainset, batch_size=self.batch_size_per_gpu, shuffle=True)
+        return DataLoader(self.trainset, batch_size=self.batch_size_per_gpu, shuffle=True, pin_memory=True)
 
     def val_dataloader(self):
-        return DataLoader(self.devset, batch_size=self.batch_size_per_gpu, shuffle=False)
+        return DataLoader(self.devset, batch_size=self.batch_size_per_gpu, shuffle=False, pin_memory=True)
 
     def test_dataloader(self):
-        return DataLoader(self.testset, batch_size=self.batch_size_per_gpu, shuffle=False)
+        return DataLoader(self.testset, batch_size=self.batch_size_per_gpu, shuffle=False, pin_memory=True)
 
     def training_step(self, batch, batch_idx):
         inputs = {"input_ids": batch[0], "attention_mask": batch[1], "labels": batch[3]}
-
         if self.config.model_type != "distilbert":
             inputs["token_type_ids"] = batch[2] if self.config.model_type in ["bert", "xlnet", "albert"] else None
-
         outputs = self(**inputs)
         loss = outputs[0]
-
-        tensorboard_logs = {"loss": loss}
-        return {"loss": loss, "log": tensorboard_logs}
+        result = {"loss": loss}
+        log = {"loss": loss}
+        result.update({"log": log})
+        return result
 
     def validation_step(self, batch, batch_idx):
         inputs = {"input_ids": batch[0], "attention_mask": batch[1], "labels": batch[3]}
-
+        batches_size = torch.tensor(batch[0].size()[0], dtype=torch.float, device=self.device)
         if self.config.model_type != "distilbert":
             inputs["token_type_ids"] = batch[2] if self.config.model_type in ["bert", "xlnet", "albert"] else None
-
         outputs = self(**inputs)
-        tmp_eval_loss, logits = outputs[:2]
-        preds = logits.detach().cpu().numpy()
-        out_label_ids = inputs["labels"].detach().cpu().numpy()
+        eval_loss_batch, logits = outputs[:2]
 
-        return {"val_loss": tmp_eval_loss.detach().cpu(), "pred": preds, "target": out_label_ids}
+        result = {"eval_loss": eval_loss_batch.unsqueeze(0), "logits": logits, "target": inputs["labels"], "batches_size": batches_size.unsqueeze(0)}
+        return result
 
     def test_step(self, batch, batch_nb):
         return self.validation_step(batch, batch_nb)
 
-    def _eval_end(self, outputs):
-        val_loss_mean = torch.stack([x["val_loss"] for x in outputs]).mean().detach().cpu()
-        preds = np.concatenate([x["pred"] for x in outputs], axis=0)
-        preds = np.argmax(preds, axis=1)
-        out_label_ids = np.concatenate([x["target"] for x in outputs], axis=0)
+    @staticmethod
+    def eval_epoch(outputs):
+        batches_size = torch.cat([x["batches_size"] for x in outputs])
+        eval_loss = torch.cat([x["eval_loss"] for x in outputs])
+        logits = torch.cat([x["logits"] for x in outputs])
+        out_label_ids = torch.cat([x["target"] for x in outputs])
+        eval_loss = eval_loss.matmul(batches_size).div(batches_size.sum())
+        preds = torch.argmax(logits, dim=1)
+        acc = accuracy(preds, out_label_ids)
+        return eval_loss, acc
 
-        results = {**{"val_loss": val_loss_mean}, **compute_metrics(["acc", "f1"], preds, out_label_ids)}
-        ret = {k: v for k, v in results.items()}
-        ret["log"] = results
-        return ret
-
-    def validation_epoch_end(self, outputs: list) -> dict:
-        ret = self._eval_end(outputs)
-        logs = ret["log"]
-        return {"val_loss": logs["val_loss"], "log": logs, "progress_bar": logs}
+    def validation_epoch_end(self, outputs) -> dict:
+        val_loss, acc = self.eval_epoch(outputs)
+        result = {"val_loss": val_loss, "acc": acc}
+        log = {"val_loss": val_loss, "acc": acc}
+        progress_bar = {"val_loss": val_loss, "acc": acc}
+        result.update({"log": log, "progress_bar": progress_bar})
+        return result
 
     def test_epoch_end(self, outputs) -> dict:
-        ret = self._eval_end(outputs)
-        logs = ret["log"]
-        return {"avg_test_loss": logs["val_loss"], "log": logs, "progress_bar": logs}
+        test_loss, acc = self.eval_epoch(outputs)
+        result = {"test_loss": test_loss, "acc": acc}
+        log = {"test_loss": test_loss, "acc": acc}
+        progress_bar = {"test_loss": test_loss, "acc": acc}
+        result.update({"log": log, "progress_bar": progress_bar})
+        return result
 
     def get_feature_file_name(self, set_type):
         return os.path.join(
@@ -323,7 +328,7 @@ class LoggingCallback(pl.Callback):
 
 
 def get_trainer(model: pl.LightningModule, args: argparse.Namespace):
-    if rank_zero_only.rank == 0:
+    if model.rank == 0:
         # empty output_dir
         if os.path.exists(model.hparams.output_dir):
             shutil.rmtree(model.hparams.output_dir)
@@ -384,6 +389,6 @@ if __name__ == "__main__":
 
     # delete checkpoints to save disk space
     checkpoints = glob.glob(os.path.join(args.output_dir, "epoch=*.ckpt"))
-    if rank_zero_only.rank == 0:
+    if model.rank == 0:
         for ckpt in checkpoints:
             os.remove(ckpt)

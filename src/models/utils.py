@@ -12,9 +12,7 @@ from transformers import (
     BertTokenizer,
     XLNetTokenizer
 )
-from scipy.stats import pearsonr, spearmanr
-from sklearn.metrics import f1_score
-
+import torch
 
 SEQUENCE_CLASSIFICATION_MODELS = {
     "bert": BertForSequenceClassification,
@@ -27,6 +25,7 @@ TOKENIZERS = {
 }
 
 logger = logging.getLogger(__name__)
+
 
 class DataProcessor(object):
     """Base class for data converters for sequence classification data sets."""
@@ -105,6 +104,7 @@ processors = {
     "intent": IntentProcessor
 }
 
+
 def convert_examples_to_features(examples, tokenizer, label_list, max_length=None):
     if max_length is None:
         max_length = tokenizer.max_len
@@ -140,19 +140,7 @@ def convert_examples_to_features(examples, tokenizer, label_list, max_length=Non
 
 
 def accuracy(preds, labels):
-    return (preds == labels).mean()
-
-
-def f1(preds, labels):
-    return f1_score(y_true=labels, y_pred=preds, average='micro')
-
-
-def pearson(preds, labels):
-    return pearsonr(preds, labels)[0]
-
-
-def spearman(preds, labels):
-    return spearmanr(preds, labels)[0]
+    return torch.eq(preds, labels).to(torch.float).mean()
 
 
 def compute_metrics(metrics_name, preds, labels):
@@ -161,12 +149,4 @@ def compute_metrics(metrics_name, preds, labels):
     for metric_name in metrics_name:
         if metric_name == "acc":
             metrics[metric_name] = accuracy(preds, labels)
-        elif metric_name == "f1":
-            metrics[metric_name] = f1(preds, labels)
-        elif metric_name == "pearson":
-            metrics[metric_name] = pearson(preds, labels)
-        elif metric_name == "spearman":
-            metrics[metric_name] = spearman(preds, labels)
     return metrics
-
-
