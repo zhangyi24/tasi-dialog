@@ -181,7 +181,7 @@ class BERTTransformer(pl.LightningModule):
 
     def gather_tensor_across_gpus(self, tensor):
         if not tensor.size():
-            tensor.unsqueeze_(0)
+            tensor = tensor.unsqueeze(0)
         tensor_list = [torch.empty_like(tensor) for _ in range(self.trainer.world_size)]
         torch.distributed.all_gather(tensor_list, tensor)
         return torch.cat(tensor_list)

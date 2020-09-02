@@ -25,4 +25,3 @@ python $models_dir/train.py --task $task \
   --warmup_prop 0.1 \
   --seed 12345
 
-while true; do sleep 1; done
