@@ -77,7 +77,7 @@ class BERTTransformer(pl.LightningModule):
     def prepare_data(self):
         """Called to initialize data. Use the call to construct features"""
         for set_type in ["train", "dev", "test"]:
-            logger.info("Creating features from dataset file at %s", args.data_dir)
+            logger.info("Creating features from dataset file at %s", self.hparams.data_dir)
 
             if set_type == "train":
                 examples = self.processor.get_train_examples()
@@ -88,7 +88,7 @@ class BERTTransformer(pl.LightningModule):
             features = convert_examples_to_features(
                 examples,
                 self.tokenizer,
-                max_length=args.max_seq_length,
+                max_length=self.hparams.max_seq_length,
                 label_list=self.labels
             )
             cached_features_file = self.get_feature_file_name(set_type)
@@ -235,7 +235,7 @@ class BERTTransformer(pl.LightningModule):
         )
         parser.add_argument(
             "--output_dir",
-            default="output_dir",
+            default=None,
             type=str,
             help="The output directory where the model predictions and checkpoints will be written.",
         )
@@ -265,7 +265,6 @@ class BERTTransformer(pl.LightningModule):
             "--pretrained_model_name_or_path",
             default=None,
             type=str,
-            required=True,
             help="Path to pretrained model or model identifier from huggingface.co/models",
         )
         parser.add_argument(
@@ -286,10 +285,10 @@ class BERTTransformer(pl.LightningModule):
 
         # train
         parser.add_argument("--num_workers", default=0, type=int, help="kwarg passed to DataLoader")
-        parser.add_argument("--max_epochs", default=3, type=int)
-        parser.add_argument("--batch_size", default=32, type=int)
-        parser.add_argument("--learning_rate", default=5e-5, type=float, help="The initial learning rate for Adam.")
-        parser.add_argument("--warmup_prop", default=0, type=float,
+        parser.add_argument("--max_epochs", default=None, type=int)
+        parser.add_argument("--batch_size", default=None, type=int)
+        parser.add_argument("--learning_rate", default=None, type=float, help="The initial learning rate for Adam.")
+        parser.add_argument("--warmup_prop", default=None, type=float,
                             help="The proportion of warmup steps to the total steps.")
         parser.add_argument("--max_grad_norm", dest="gradient_clip_val", default=1.0, type=float,
                             help="Max gradient norm")
@@ -297,17 +296,16 @@ class BERTTransformer(pl.LightningModule):
         # task
         parser.add_argument(
             "--max_seq_length",
-            default=128,
+            default=None,
             type=int,
             help="The maximum total input sequence length after tokenization. Sequences longer "
                  "than this will be truncated, sequences shorter will be padded.",
         )
-        parser.add_argument("--task", default="", type=str, required=True, help="The task to run")
+        parser.add_argument("--task", default=None, type=str, help="The task to run")
         parser.add_argument(
             "--data_dir",
             default=None,
             type=str,
-            required=True,
             help="The input data dir. Should contain the training files for the CoNLL-2003 NER task.",
         )
 
@@ -376,13 +374,13 @@ def get_trainer(model: pl.LightningModule, args: argparse.Namespace):
     return trainer
 
 
-if __name__ == "__main__":
-    assert torch.cuda.device_count() > 0, "No CUDA devices found"
-    # argparse
+def get_argparser():
     parser = argparse.ArgumentParser()
     parser = BERTTransformer.add_model_specific_args(parser)
-    args = parser.parse_args()
+    return parser
 
+
+def train(args):
     # seed_everything
     pl.seed_everything(args.seed)
 
