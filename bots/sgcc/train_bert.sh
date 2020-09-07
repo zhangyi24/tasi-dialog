@@ -24,4 +24,3 @@ python $models_dir/train.py --task $task \
   --learning_rate 5e-5 \
   --warmup_prop 0.1 \
   --seed 12345
-
