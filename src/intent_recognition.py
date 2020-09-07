@@ -9,7 +9,7 @@ import re
 import logging
 
 sys.path.append('..')
-from models.predict import Bert_Classifier
+from models.sentence_classifier.predict import Bert_Classifier
 from utils.str_process import expand_template, get_template_len, pattern_to_pinyin, hanzi_to_pinyin
 
 

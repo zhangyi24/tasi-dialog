@@ -278,7 +278,7 @@ class BERTTransformer(pl.LightningModule):
         )
         parser.add_argument(
             "--cache_dir",
-            default=os.path.join(os.path.dirname(__file__), "tfs_cache"),
+            default=os.path.join(os.path.dirname(__file__), "../tfs_cache"),
             type=str,
             help="Where do you want to store the pre-trained models downloaded from s3",
         )
