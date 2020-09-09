@@ -62,11 +62,11 @@ if __name__ == '__main__':
     if args.max_seq_length is None:
         args.max_seq_length = 64
     if args.batch_size is None:
-        args.batch_size = 32
+        args.batch_size = 64
     if args.max_epochs is None:
         args.max_epochs = 100
     if args.learning_rate is None:
-        args.learning_rate = 2e-5
+        args.learning_rate = 3e-5
     if args.warmup_prop is None:
         args.warmup_prop = 0.1
 
