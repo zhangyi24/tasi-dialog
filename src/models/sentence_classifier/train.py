@@ -380,7 +380,7 @@ def get_argparser():
     return parser
 
 
-def train(args):
+def train_and_test(args):
     # seed_everything
     pl.seed_everything(args.seed)
 

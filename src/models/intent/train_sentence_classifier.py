@@ -1,10 +1,12 @@
+import sys
 import os
 import shutil
 import random
 
 import torch
 
-from train import train, get_argparser
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
+from sentence_classifier.train import train_and_test, get_argparser
 from build_datasets import build_datasets
 
 PRETRAINED_MODEL_NAME_DICT = {
@@ -70,4 +72,4 @@ if __name__ == '__main__':
     if args.warmup_prop is None:
         args.warmup_prop = 0.1
 
-    train(args)
+    train_and_test(args)
