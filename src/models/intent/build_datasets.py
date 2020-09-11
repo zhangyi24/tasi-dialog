@@ -3,6 +3,7 @@
 """Build datasets."""
 
 # coding=utf-8
+import argparse
 import json
 import random
 import os
@@ -43,9 +44,13 @@ def save_dataset(dataset, set_type, datasets_dir):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--seed", default=12345, type=int)
+    args = parser.parse_args()
+
     datasets_dir = 'datasets/intent'
     os.makedirs(datasets_dir, exist_ok=True)
-    random.seed(12345)
+    random.seed(args.seed)
     samples_path = 'dialog_config/corpus/samples.json'
     if os.path.exists(samples_path):
         build_datasets(samples_path, datasets_dir)

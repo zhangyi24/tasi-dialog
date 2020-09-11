@@ -258,7 +258,7 @@ class BERTTransformer(pl.LightningModule):
         parser.add_argument("--do_predict", action="store_true", help="Whether to run predictions on the test set.")
         parser.add_argument("--accumulate_grad_batches", type=int, default=1,
                             help="Number of updates steps to accumulate before performing a backward/update pass.")
-        parser.add_argument("--seed", type=int, default=42, help="random seed for initialization")
+        parser.add_argument("--seed", type=int, default=None, help="random seed for initialization")
 
         # model
         parser.add_argument(

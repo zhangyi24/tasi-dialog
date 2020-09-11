@@ -51,12 +51,14 @@ if __name__ == '__main__':
     shutil.rmtree(ckpt_dir, ignore_errors=True)
     shutil.rmtree(data_dir, ignore_errors=True)
 
+    # build datasets
     os.makedirs(data_dir, exist_ok=True)
     random.seed(args.seed)
     samples_path = 'dialog_config/corpus/samples.json'
     if os.path.exists(samples_path):
         build_datasets(samples_path, data_dir)
 
+    # set args' default value
     if args.data_dir is None:
         args.data_dir = data_dir
     if args.output_dir is None:
@@ -71,5 +73,8 @@ if __name__ == '__main__':
         args.learning_rate = 3e-5
     if args.warmup_prop is None:
         args.warmup_prop = 0.1
+    if args.seed is None:
+        args.seed = 12345
 
+    # train_and_test
     train_and_test(args)

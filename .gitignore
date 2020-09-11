@@ -15,7 +15,7 @@ src/models/bert
 **/logs
 **/__pycache__
 **/DS_Store
-
+*.pkl
 
 # User-specific stuff
 .idea/**/workspace.xml

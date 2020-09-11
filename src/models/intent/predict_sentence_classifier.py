@@ -7,10 +7,10 @@ from transformers import (
     AutoTokenizer
 )
 
-from .utils import SEQUENCE_CLASSIFICATION_MODELS, TOKENIZERS
+from ..sentence_classifier.utils import SEQUENCE_CLASSIFICATION_MODELS, TOKENIZERS
 
 
-class Bert_Classifier(object):
+class Classifier(object):
     def __init__(self, model_path):
         self.config = AutoConfig.from_pretrained(model_path)
 

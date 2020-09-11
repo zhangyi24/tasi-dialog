@@ -9,7 +9,7 @@ import re
 import logging
 
 sys.path.append('..')
-from models.sentence_classifier.predict import Bert_Classifier
+from models.intent.predict_sentence_classifier import Classifier
 from utils.str_process import expand_template, get_template_len, pattern_to_pinyin, hanzi_to_pinyin
 
 
@@ -72,7 +72,7 @@ class IntentModelTemplate(IntentModel):
 class IntentModelBERT(IntentModel):
     def __init__(self, model_path):
         self.model_path = model_path
-        self.model = Bert_Classifier(model_path=self.model_path)
+        self.model = Classifier(model_path=self.model_path)
 
     def intent_recognition(self, user_utter):
         if not user_utter:
