@@ -10,6 +10,7 @@ import time
 import logging
 import sys
 import collections
+import yaml
 
 from nlu import NLUManager
 from dm import cond_judge
@@ -32,10 +33,11 @@ class ResultsTracker(object):
 
 
 class Bot(object):
-    def __init__(self, interruptable=True):
+    def __init__(self, interruptable=True, bot_config=None):
         # import config files
         # flows
         self.interruptable = interruptable
+        self.bot_config = {} if bot_config is None else bot_config
         self.flows = {}
         for file in glob.glob('dialog_config/flows/*.json'):
             flow_name = os.path.basename(file).split('.')[0]
@@ -100,21 +102,11 @@ class Bot(object):
                 results = json.load(f)
                 self.results_tracker = ResultsTracker(results['results_code'], results['init_results'])
 
-        # default thresholds
-        default_thresholds_file = os.path.join(os.path.dirname(__file__), 'config', 'thresholds.json')
-        with open(default_thresholds_file, 'r', encoding='utf-8') as f:
-            self.thresholds = json.load(f)
-        # custom thresholds
-        custom_thresholds_file = 'dialog_config/thresholds.json'
-        if os.path.exists(custom_thresholds_file):
-            with open(custom_thresholds_file, 'r', encoding='utf-8') as f:
-                self.thresholds.update(json.load(f))
-
         # init nlu_manager
-        checkpoints_dir = 'checkpoints/intent/bert/best_model'
-        self.nlu_manager = NLUManager(checkpoints_dir, self.templates, self.intents, self.value_sets,
-                                      self.stop_words, self.thresholds)
-        self.nlu_manager.intent_recognition('%%初始化%%')  # 第一次识别会比较慢，所以先识别一次。
+
+        self.nlu_manager = NLUManager(self.bot_config["intent_recognition"], self.templates, self.intents,
+                                      self.value_sets, self.stop_words)
+        self.nlu_manager.intent_recognition('%%初始化%%')  # 第一次识别分类模型和匹配模型都会比较慢，所以先识别一次。
 
         self.users = {}
 
@@ -249,15 +241,17 @@ class Bot(object):
                 node_info = node_stack[-1] if node_stack else main_flow_node
                 if 'slots_status' not in node_info:
                     node_info['slots_status'] = self.nlu_manager.slots_status_init(current_node['slots'])
-                slot_request, slots_filling_finish = self.nlu_manager.slots_filling(node_info['slots_status'], user_utter,
-                                                                         g_vars)
+                slot_request, slots_filling_finish = self.nlu_manager.slots_filling(node_info['slots_status'],
+                                                                                    user_utter,
+                                                                                    g_vars)
                 if slot_request is not None:
                     resp['content'] = response_process(slot_request, g_vars, builtin_vars)
                     continue
                 if not slots_filling_finish:
                     continue
                 else:
-                    slots_filling_success = any(slot['value'] is not None for slot in node_info['slots_status']['slots'])
+                    slots_filling_success = any(
+                        slot['value'] is not None for slot in node_info['slots_status']['slots'])
                     del node_info['slots_status']
                     if not slots_filling_success:
                         # 意图识别

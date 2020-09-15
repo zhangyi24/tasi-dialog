@@ -1,0 +1,10 @@
+bot:
+  intent_recognition:
+    similarity:
+      switch: True
+phone:
+  port: 59999
+  bot:
+    interruptable: False
+text:
+  port: 59998

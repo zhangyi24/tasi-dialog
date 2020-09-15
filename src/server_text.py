@@ -20,6 +20,7 @@ import tornado.web
 
 from agent import Bot
 from utils.logger import config_logger
+from utils.config import merge_config
 
 RESPONSE_BODY_9 = {
 	"ret": 0,
@@ -144,36 +145,28 @@ if __name__ == "__main__":
 	# config logger
 	config_logger('logs/text')
 
-	# parse sys.argv
-	parser = argparse.ArgumentParser()
-	parser.add_argument('-p', '--port', default=59998, type=int)
-	parser.add_argument('-c', '--config', default="config_text.yml", type=str)
-	args = parser.parse_args()
-
-	# builtin_conf
-	conf = {}
-	builtin_config_file = os.path.join(os.path.dirname(__file__), 'config', 'cfg_server_text.yml')
-	if os.path.exists(builtin_config_file):
-		with open(builtin_config_file, 'r', encoding='utf-8') as f:
+	# default config
+	default_config_file = os.path.join(os.path.dirname(__file__), 'config', 'config.yml')
+	if os.path.exists(default_config_file):
+		with open(default_config_file, 'r', encoding='utf-8') as f:
 			conf = yaml.safe_load(f)
 
 	# custom config
-	if os.path.exists(args.config):
-		with open(args.config, 'r', encoding='utf-8') as f:
+	custom_config_file = 'config.yml'
+	if os.path.exists(custom_config_file):
+		with open(custom_config_file, 'r', encoding='utf-8') as f:
 			custom_conf = yaml.safe_load(f)
-			conf.update(custom_conf)
-
-	# config port
-	conf.setdefault("port", args.port)
+	merge_config(conf, custom_conf)	# merge custom_conf to default_conf
+	conf_text = conf["text"]
 	
 	# bot
 	logging.info('loading bot...')
-	bot = Bot()
+	bot = Bot(bot_config=conf["bot"])
 	logging.info('bot loaded.')
 	# app
 	application = tornado.web.Application([
 		(r"/", MainHandler, dict(bot=bot)),
 	])
-	application.listen(conf['port'])
-	logging.info('listening on 127.0.0.1:%s...' % conf['port'])
+	application.listen(conf_text['port'])
+	logging.info('listening on 127.0.0.1:%s...' % conf_text['port'])
 	tornado.ioloop.IOLoop.current().start()

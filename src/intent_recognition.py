@@ -10,6 +10,7 @@ import logging
 
 sys.path.append('..')
 from models.intent.predict_sentence_classifier import Classifier
+from models.intent.predict_sentence_similarity import SimilarityModel
 from utils.str_process import expand_template, get_template_len, pattern_to_pinyin, hanzi_to_pinyin
 
 
@@ -46,8 +47,9 @@ class IntentModelTemplate(IntentModel):
                 template_hit = template
                 break
         if result:
-            logging.info('intent recognition result(regex): (user_input: "%s", intent: %s, template: %s, template_raw: %s)' % (
-            user_utter, result, template_hit, self.templates_info[template_hit]["template_raw"]))
+            logging.info(
+                'intent recognition result(regex): (user_input: "%s", intent: %s, template: %s, template_raw: %s)' % (
+                    user_utter, result, template_hit, self.templates_info[template_hit]["template_raw"]))
         else:
             logging.info('intent recognition result(regex): (user_input: "%s", intent: %s)' % (user_utter, result))
         return result
@@ -62,14 +64,16 @@ class IntentModelTemplate(IntentModel):
                 template_hit = template
                 break
         if result:
-            logging.info('intent recognition result(regex_pinyin): (user_input: "%s", intent: %s, template: %s, template_raw: %s)' % (
-            user_utter, result, template_hit, self.templates_info[template_hit]["template_raw"]))
+            logging.info(
+                'intent recognition result(regex_pinyin): (user_input: "%s", intent: %s, template: %s, template_raw: %s)' % (
+                    user_utter, result, template_hit, self.templates_info[template_hit]["template_raw"]))
         else:
-            logging.info('intent recognition result(regex_pinyin): (user_input: "%s", intent: %s)' % (user_utter, result))
+            logging.info(
+                'intent recognition result(regex_pinyin): (user_input: "%s", intent: %s)' % (user_utter, result))
         return result
 
 
-class IntentModelBERT(IntentModel):
+class IntentModelClassify(IntentModel):
     def __init__(self, model_path):
         self.model_path = model_path
         self.model = Classifier(model_path=self.model_path)
@@ -79,7 +83,27 @@ class IntentModelBERT(IntentModel):
             intent_name, confidence = None, 1.0
         else:
             intent_name, confidence = self.model.predict(user_utter)
-            logging.info('intent recognition result(%s): ("%s", %s, %s)' % (self.model.config.model_type, user_utter, intent_name, confidence))
+            logging.info('intent recognition result(classifier): (user_utter: "%s", intent: %s, confidence: %s)' % (
+                user_utter, intent_name, confidence))
             if intent_name == 'others':
                 intent_name = None
         return intent_name, confidence
+
+
+class IntentModelSimilarity(IntentModel):
+    def __init__(self, model_path, samples_embedding_path):
+        self.model_path = model_path
+        self.samples_embedding_path = samples_embedding_path
+        self.model = SimilarityModel(model_path=self.model_path, samples_embedding_path=self.samples_embedding_path)
+
+    def intent_recognition(self, user_utter):
+        if not user_utter:
+            intent_name, similarity = None, 1.0
+        else:
+            intent_name, sample, similarity = self.model.predict(user_utter)
+            logging.info(
+                'intent recognition result(similarity): (user_utter: "%s", intent: %s, similarity: %s, sample: %s)' % (
+                    user_utter, intent_name, similarity, sample))
+            if intent_name == 'others':
+                intent_name = None
+        return intent_name, similarity

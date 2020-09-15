@@ -8,28 +8,31 @@ This script outputs for various queries the top 5 most similar sentences in the 
 """
 import os
 import sys
-import csv
 import json
-import random
-import logging
 import pickle
-import time
-import argparse
-import shutil
 
-import scipy.spatial
-import numpy as np
+import yaml
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
 from sentence_encoder.sentence_transformers.SentenceTransformer import SentenceTransformer
 from sentence_encoder.sentence_transformers import sentence_transformer_checkpoints_path
 
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", ".."))
+from utils.config import merge_config
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--model_name", "-m", default="bert-base-chinese-mean-cmnli", type=str)
-    parser.add_argument("--seed", "-s", default=12345, type=int)
-    args = parser.parse_args()
+    # builtin_conf
+    builtin_config_file = os.path.join(os.path.dirname(__file__), "..", "..", 'config', 'config.yml')
+    if os.path.exists(builtin_config_file):
+        with open(builtin_config_file, 'r', encoding='utf-8') as f:
+            conf = yaml.safe_load(f)
+
+    # custom config
+    custom_config_file_path = "config.yml"
+    if os.path.exists(custom_config_file_path):
+        with open(custom_config_file_path, 'r', encoding='utf-8') as f:
+            custom_conf = yaml.safe_load(f)
+    merge_config(conf, custom_conf)
 
     # get samples
     samples_path = 'dialog_config/corpus/samples.json'
@@ -39,18 +42,20 @@ if __name__ == '__main__':
     samples = []
     labels = []
     for intent in samples_dict:
-        samples.extend(samples_dict[intent]["samples"])
-        labels.extend([intent] * len(samples))
+        samples_per_intent = samples_dict[intent]["samples"]
+        samples.extend(samples_per_intent)
+        labels.extend([intent] * len(samples_per_intent))
     samples_embedding = {"embeddings": None, "samples": samples, "labels": labels}
 
     # load model
-    model_path = os.path.join(sentence_transformer_checkpoints_path, args.model_name)
-    print('loading model: %s ...' % args.model_name)
+    model_name = conf["bot"]["intent_recognition"]["similarity"]["model"]
+    model_path = os.path.join(sentence_transformer_checkpoints_path, model_name)
+    print('loading model: %s ...' % model_name)
     model = SentenceTransformer(model_path)
 
     # encode samples
     print('encoding samples...')
-    samples_embedding["embeddings"] = model.encode(samples, show_progress_bar=True)
+    samples_embedding["embeddings"] = model.encode(samples, batch_size=128, show_progress_bar=True)
 
     # save samples_embedding
     samples_embedding_pkl_path = 'samples_embedding.pkl'

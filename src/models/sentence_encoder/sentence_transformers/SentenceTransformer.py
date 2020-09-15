@@ -119,7 +119,8 @@ class SentenceTransformer(nn.Sequential):
         else:
             sentences_tokenized = [self.tokenize(sen) for sen in sentences]
 
-        length_sorted_idx = np.argsort([len(sen) for sen in sentences])
+        # 从长到短排序
+        length_sorted_idx = np.argsort([-len(sen) for sen in sentences])
 
         iterator = range(0, len(sentences), batch_size)
         if show_progress_bar:

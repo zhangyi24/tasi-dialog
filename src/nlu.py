@@ -5,27 +5,57 @@
 import collections
 import re
 import os
+import logging
 
 from utils.str_process import expand_template, get_template_len, pattern_to_pinyin
 from slot_filling import slots_filling, slots_status_init
-from intent_recognition import IntentModelBERT, IntentModelTemplate
+from intent_recognition import IntentModelClassify, IntentModelTemplate, IntentModelSimilarity
 
 
 class NLUManager(object):
-	def __init__(self, checkpoints_dir, templates, intents, value_sets, stop_words, thresholds):
-		self.checkpoints_dir = checkpoints_dir
+	def __init__(self, intent_recognition_config, templates, intents, value_sets, stop_words):
+		self.intent_recognition_config = intent_recognition_config
 		self.templates = templates
 		self.intents = intents
 		self.value_sets = value_sets
 		self.preprocess_value_sets()
 		self.stop_words = stop_words
-		self.thresholds = thresholds
-		self.intent_model_bert = None
-		if os.path.exists(self.checkpoints_dir):
-			self.intent_model_bert = IntentModelBERT(self.checkpoints_dir)
+
+		# intent_model_classify
+		self.classifier_conf = self.intent_recognition_config["classifier"]
+		if self.classifier_conf["switch"]:
+			intent_model_classify_path = 'checkpoints/intent/%s/best_model' % self.classifier_conf["model"]
+			if os.path.exists(intent_model_classify_path):
+				self.intent_model_classify = IntentModelClassify(intent_model_classify_path)
+				logging.info("intent_model_classify(%s) loaded." % self.classifier_conf["model"])
+			else:
+				self.intent_model_classify = None
+				logging.info("No such directory: %s. No intent_model_classify loaded." % intent_model_classify_path)
+		else:
+			self.intent_model_classify = None
+			logging.info("config.bot.intent_recognition.classifier.on is set to False, no intent_model_classify loaded.")
+
+		# intent_model_similarity
+		self.similarity_conf = self.intent_recognition_config["similarity"]
+		if self.similarity_conf["switch"]:
+			similarity_model_path = os.path.join(os.path.dirname(__file__), "models/sentence_encoder/sentence_transformers/checkpoints", self.similarity_conf["model"])
+			samples_embedding_path = "samples_embedding.pkl"
+			if not os.path.exists(similarity_model_path):
+				self.intent_model_similarity = None
+				logging.info("No such directory: %s. No intent_model_classify loaded." % similarity_model_path)
+			elif not os.path.exists(samples_embedding_path):
+				self.intent_model_similarity = None
+				logging.info("No such file: %s. No intent_model_classify loaded." % samples_embedding_path)
+			else:
+				self.intent_model_similarity = IntentModelSimilarity(model_path=similarity_model_path, samples_embedding_path=samples_embedding_path)
+				logging.info("intent_model_similarity(%s) loaded." % self.similarity_conf["model"])
+		else:
+			self.intent_model_similarity = None
+			logging.info("config.bot.intent_recognition.similarity.on is set to False, no intent_model_similarity loaded.")
+
+		# intent_model_template
 		self.intent_model_template = IntentModelTemplate(self.templates)
 
-	
 	def preprocess_value_sets(self):
 		"""1.编译regex型的正则表达式。2.把dict型的别名按长度从长到短排序"""
 		for value_set_from in self.value_sets:
@@ -59,10 +89,10 @@ class NLUManager(object):
 	
 	def intent_recognition(self, user_utter):
 		intent = None
-		# bert分类模型
-		if self.intent_model_bert:
-			intent, confidence = self.intent_model_bert.intent_recognition(user_utter)
-			if confidence < self.thresholds['intent_bert']:
+		# 多分类模型
+		if self.intent_model_classify:
+			intent, confidence = self.intent_model_classify.intent_recognition(user_utter)
+			if confidence < self.classifier_conf['min_confidence']:
 				intent = None
 		# 模板匹配
 		if not intent:
@@ -70,11 +100,16 @@ class NLUManager(object):
 		# 模板拼音匹配
 		if not intent:
 			intent = self.intent_model_template.intent_recognition_pinyin(user_utter)
+		# 相似度模型
+		if self.intent_model_similarity and not intent:
+			intent, similarity = self.intent_model_similarity.intent_recognition(user_utter)
+			if similarity < self.similarity_conf['min_similarity']:
+				intent = None
 		return intent
 	
 	def slots_filling(self, slots_status, user_utter, g_vars):
 		return slots_filling(slots_status, user_utter, self.intents, self.value_sets, g_vars)
-	
+
 	def slots_status_init(self, slots):
 		return slots_status_init(slots)
 	

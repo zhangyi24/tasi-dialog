@@ -24,6 +24,7 @@ from utils.mysql import MySQLWrapper
 from utils.postgresql import PostgreSQLWrapper
 from utils.logger import config_logger
 from utils.str_process import replace_space
+from utils.config import merge_config
 
 RESPONSE_BODY_9 = {
     "ret": 0,
@@ -380,66 +381,44 @@ if __name__ == "__main__":
     # config logger
     config_logger('logs/phone')
 
-    # parse sys.argv
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--port', default=59999, type=int)
-    # set 2 to enable Interact Mode
-    parser.add_argument('-i', '--interruptable', action='store_true',
-                        help='whether the user can interrupt when bot is speaking')
-    parser.add_argument('-l', '--lock_before_fwd', action='store_true',
-                        help='Whether to lock the queue of agent before call forwarding')
-    parser.add_argument('-c', '--config', default="config_phone.yml", type=str)
-    args = parser.parse_args()
-
     # builtin_conf
-    conf = {}
-    builtin_config_file = os.path.join(os.path.dirname(__file__), 'config', 'cfg_server_phone.yml')
+    builtin_config_file = os.path.join(os.path.dirname(__file__), 'config', 'config.yml')
     if os.path.exists(builtin_config_file):
         with open(builtin_config_file, 'r', encoding='utf-8') as f:
             conf = yaml.safe_load(f)
 
     # custom config
-    if os.path.exists(args.config):
-        with open(args.config, 'r', encoding='utf-8') as f:
+    custom_config_file_path = "config.yml"
+    if os.path.exists(custom_config_file_path):
+        with open(custom_config_file_path, 'r', encoding='utf-8') as f:
             custom_conf = yaml.safe_load(f)
-            conf.update(custom_conf)
-
-    # config port
-    conf.setdefault("port", args.port)
+    merge_config(conf, custom_conf)
+    conf_phone = conf["phone"]
 
     # config db
     db = None
-    if 'postgresql' not in conf:
+    if 'postgresql' not in conf_phone:
         logging.warning('postgresql database config is not available.')
         db = None
     else:
         for _ in range(5):
             try:
-                db = PostgreSQLWrapper(conf['postgresql'])
+                db = PostgreSQLWrapper(conf_phone['postgresql'])
                 logging.info('connect to the postgresql database successfully.')
                 break
             except:
                 logging.warning('fail to connect to the postgresql database.')
                 time.sleep(0.5)
 
-
-    # config bot
-    conf.setdefault('bot', {})
-    conf['bot'].setdefault('interruptable', args.interruptable)
-    conf['bot'].setdefault('lock_before_fwd', args.lock_before_fwd)
-
-    # config asr
-    conf.setdefault('asr', {})
-
     # load bot
     logging.info('loading bot...')
-    bot = Bot(interruptable=conf['bot']['interruptable'])
+    bot = Bot(interruptable=conf_phone['bot']['interruptable'], bot_config=conf["bot"])
     logging.info('bot loaded.')
 
     # app
     application = tornado.web.Application([
-        (r"/", MainHandler, dict(bot=bot, db=db, bot_conf=conf['bot'], asr_conf=conf['asr'])),
+        (r"/", MainHandler, dict(bot=bot, db=db, bot_conf=conf_phone['bot'], asr_conf=conf_phone['asr'])),
     ])
-    application.listen(conf['port'])
-    logging.info('listening on 127.0.0.1:%s...' % conf['port'])
+    application.listen(conf_phone['port'])
+    logging.info('listening on 127.0.0.1:%s...' % conf_phone['port'])
     tornado.ioloop.IOLoop.current().start()
