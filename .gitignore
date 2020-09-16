@@ -8,6 +8,7 @@
 
 
 src/models/tfs_cache
+src/models/ltp/ltp.model
 src/models/bert
 **/checkpoints
 **/datasets
@@ -16,6 +17,7 @@ src/models/bert
 **/__pycache__
 **/DS_Store
 *.pkl
+*.dump
 
 # User-specific stuff
 .idea/**/workspace.xml

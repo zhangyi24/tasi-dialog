@@ -103,10 +103,10 @@ class Bot(object):
                 self.results_tracker = ResultsTracker(results['results_code'], results['init_results'])
 
         # init nlu_manager
-
         self.nlu_manager = NLUManager(self.bot_config["intent_recognition"], self.templates, self.intents,
-                                      self.value_sets, self.stop_words)
-        self.nlu_manager.intent_recognition('%%初始化%%')  # 第一次识别分类模型和匹配模型都会比较慢，所以先识别一次。
+                                      self.value_sets, self.stop_words, self.bot_config["kg"])
+        self.nlu_manager.intent_recognition('测试意图识别')  # 第一次识别分类模型和匹配模型都会比较慢，所以先识别一次。
+        self.nlu_manager.qa('好的')  # 测试QA。
 
         self.users = {}
 
@@ -152,8 +152,13 @@ class Bot(object):
         g_vars = self.users[user_id]['g_vars']
         builtin_vars = self.users[user_id]['builtin_vars']
         if resp['content'] is None:
-            # 兜底话术
-            resp['content'] = response_process(self.service_language['pardon'], g_vars, builtin_vars)
+            # todo: 从头到尾查一下在加了QA之后，有没有逻辑错误
+            qa_answer = self.nlu_manager.qa(user_utter)
+            if qa_answer is None:
+                # 兜底话术
+                resp['content'] = response_process(self.service_language['pardon'], g_vars, builtin_vars)
+            else:
+                resp['content'] = qa_answer
         return resp, call_status
 
     def get_response(self, user_id, user_utter):

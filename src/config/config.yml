@@ -8,6 +8,11 @@ bot:
       switch: False
       model: bert-base-chinese-cls-cmnli
       min_similarity: 0.9
+  kg:
+    switch: False
+    min_score: 15
+    es: null
+    neo4j: null
 phone:
   port: 59999
   postgresql:

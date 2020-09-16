@@ -10,16 +10,18 @@ import logging
 from utils.str_process import expand_template, get_template_len, pattern_to_pinyin
 from slot_filling import slots_filling, slots_status_init
 from intent_recognition import IntentModelClassify, IntentModelTemplate, IntentModelSimilarity
+from kg.search import KG
 
 
 class NLUManager(object):
-	def __init__(self, intent_recognition_config, templates, intents, value_sets, stop_words):
+	def __init__(self, intent_recognition_config, templates, intents, value_sets, stop_words, kg_config):
 		self.intent_recognition_config = intent_recognition_config
 		self.templates = templates
 		self.intents = intents
 		self.value_sets = value_sets
 		self.preprocess_value_sets()
 		self.stop_words = stop_words
+		self.kg_config = kg_config
 
 		# intent_model_classify
 		self.classifier_conf = self.intent_recognition_config["classifier"]
@@ -55,6 +57,15 @@ class NLUManager(object):
 
 		# intent_model_template
 		self.intent_model_template = IntentModelTemplate(self.templates)
+
+		# kg
+		if self.kg_config["switch"]:
+			self.kg_model = KG(self.kg_config["es"], self.kg_config["neo4j"])
+			logging.info("KG loaded.")
+		else:
+			self.kg_model = None
+			logging.info("No KG loaded.")
+
 
 	def preprocess_value_sets(self):
 		"""1.编译regex型的正则表达式。2.把dict型的别名按长度从长到短排序"""
@@ -106,7 +117,27 @@ class NLUManager(object):
 			if similarity < self.similarity_conf['min_similarity']:
 				intent = None
 		return intent
-	
+
+	def qa(self, user_utter):
+		if self.kg_model is None:
+			return None
+		es_search_results = self.kg_model.es_search(user_utter)
+		q_id = None
+		if len(es_search_results) > 0:
+			label = es_search_results[0]["label"]
+			score = es_search_results[0]["score"]
+			print("QA(KG): user_utter: %s, label: %s, score: %s" % (user_utter, label, score))
+			if es_search_results[0]["score"] > self.kg_config["min_score"]:
+				q_id = es_search_results[0]["id"]
+			else:
+				# todo: 加上log
+				pass
+		if q_id is None:
+			return None
+		neo4j_search_result = self.kg_model.neo4j_match_question_id(q_id)
+		answer = neo4j_search_result.get('content', None)
+		return answer
+
 	def slots_filling(self, slots_status, user_utter, g_vars):
 		return slots_filling(slots_status, user_utter, self.intents, self.value_sets, g_vars)
 

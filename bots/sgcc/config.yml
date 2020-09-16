@@ -1,7 +1,18 @@
 bot:
   intent_recognition:
     similarity:
-      switch: True
+      switch: False
+  kg:
+    switch: True
+    min_score: 15
+    es:
+      address: '127.0.0.1:9200'
+      index: '95598'
+      table: 'question'
+    neo4j:
+      address: 'http://127.0.0.1:7474'
+      username: 'neo4j'
+      password: '123456'
 phone:
   port: 59999
   bot:
