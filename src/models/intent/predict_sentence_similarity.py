@@ -44,7 +44,7 @@ class SimilarityModel(object):
 
     @torch.no_grad()
     def predict(self, text):
-        query_embeddings = self.model.encode([text])
+        query_embeddings = self.model.encode([text], show_progress_bar=False)
         distances = scipy.spatial.distance.cdist(query_embeddings, self.samples_embedding, "cosine")[0]
         pred_idx = np.argmin(distances, axis=0)
         label = self.samples_label[pred_idx]

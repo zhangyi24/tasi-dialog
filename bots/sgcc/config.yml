@@ -2,6 +2,7 @@ bot:
   intent_recognition:
     similarity:
       switch: False
+      min_similarity: 0.93
   kg:
     switch: True
     min_score: 15
