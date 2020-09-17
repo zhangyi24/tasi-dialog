@@ -113,7 +113,7 @@
     },
     "5": {
       "type": "function",
-      "funcName": "verify_consumer_by_name",
+      "funcName": "verify_consumer_name",
       "dm": [
         {
           "cond": {
