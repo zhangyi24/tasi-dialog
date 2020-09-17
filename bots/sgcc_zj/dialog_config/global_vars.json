@@ -1,11 +1,9 @@
 {
   "g_vars": {
-    "address": "杭州市xx区xx小区xx号楼xxx",
+    "address": "杭州市凤起饭店",
     "consumer_number": 1234567890,
     "owe": 50.00
   },
   "g_vars_need_init": [
-    "address",
-    "owe"
   ]
 }
