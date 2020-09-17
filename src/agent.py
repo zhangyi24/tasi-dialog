@@ -154,6 +154,7 @@ class Bot(object):
         if resp['content'] is None:
             # todo: 从头到尾查一下在加了QA之后，有没有逻辑错误
             qa_answer = self.nlu_manager.qa(user_utter)
+
             if qa_answer is None:
                 # 兜底话术
                 resp['content'] = response_process(self.service_language['pardon'], g_vars, builtin_vars)
@@ -194,7 +195,7 @@ class Bot(object):
         # 执行流程，直到得到response
         while not resp['content']:
             # get current node
-            # print(g_vars, node_stack)
+            # logging.info(g_vars, node_stack)
             current_flow_name, current_flow, current_node = self.get_current_flow_and_node(node_stack, main_flow_node,
                                                                                            verbose=True)
             if current_flow_name is None:

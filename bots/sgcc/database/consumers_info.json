@@ -52,19 +52,64 @@
     ],
     "readPqLists": [
       {
+        "amtYm": "202001",
+        "actualYmd": "20200111",
+        "thisRead": 13.98
+      },
+      {
+        "amtYm": "202002",
+        "actualYmd": "20200211",
+        "thisRead": 23.98
+      },
+      {
         "amtYm": "202003",
-        "actualYmd": "20190311",
-        "thisRead": 73.98
+        "actualYmd": "20200311",
+        "thisRead": 33.98
       },
       {
         "amtYm": "202004",
         "actualYmd": "20200411",
-        "thisRead": 73.98
+        "thisRead": 43.98
       },
       {
         "amtYm": "202005",
         "actualYmd": "20200511",
+        "thisRead": 53.98
+      },
+      {
+        "amtYm": "202006",
+        "actualYmd": "20200611",
+        "thisRead": 63.98
+      },
+      {
+        "amtYm": "202007",
+        "actualYmd": "20200711",
         "thisRead": 73.98
+      },
+      {
+        "amtYm": "202008",
+        "actualYmd": "20200811",
+        "thisRead": 83.98
+      },
+      {
+        "amtYm": "202009",
+        "actualYmd": "20200911",
+        "thisRead": 93.98
+      },
+      {
+        "amtYm": "202010",
+        "actualYmd": "20201011",
+        "thisRead": 103.98
+      },
+      {
+        "amtYm": "202011",
+        "actualYmd": "20201111",
+        "thisRead": 113.98
+      },
+      {
+        "amtYm": "202012",
+        "actualYmd": "20201211",
+        "thisRead": 123.98
       }
     ],
     "levelInfo": {

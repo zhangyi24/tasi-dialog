@@ -13,6 +13,9 @@ bot:
     min_score: 15
     es: null
     neo4j: null
+    recommend:
+      switch: False
+      max_items: 3
 phone:
   port: 59999
   postgresql:

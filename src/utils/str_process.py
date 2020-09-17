@@ -2,10 +2,34 @@
 # Copyright 2020 Tsinghua University, Author: Yi Zhang
 """Utils for string processing."""
 
+import time
 import re
 from itertools import product
+from io import StringIO
+from html.parser import HTMLParser
 
 from pypinyin import pinyin, lazy_pinyin, Style
+
+
+class MLStripper(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.reset()
+        self.strict = False
+        self.convert_charrefs = True
+        self.text = StringIO()
+
+    def handle_data(self, d):
+        self.text.write(d)
+
+    def get_data(self):
+        return self.text.getvalue()
+
+
+def strip_html_tags(html):
+    s = MLStripper()
+    s.feed(html)
+    return s.get_data()
 
 
 def expand_template(template):
@@ -21,8 +45,8 @@ def expand_template(template):
     """
     res = []
     pattern = r'\(.*?\)|\[.*?\]'
-    matches = re.findall(pattern, template)     # 取出模式为()或[]包括其来的子串
-    template_with_placeholders = re.sub(pattern, '%s', template)    # 把子串替换成占位符%s
+    matches = re.findall(pattern, template)  # 取出模式为()或[]包括其来的子串
+    template_with_placeholders = re.sub(pattern, '%s', template)  # 把子串替换成占位符%s
     options_list = []
     for match in matches:
         if match[0] == '(':
@@ -31,7 +55,7 @@ def expand_template(template):
             options_list.append(match[1:-1].split('|'))
             options_list[-1].append('')
     for values in product(*options_list):
-        res.append(template_with_placeholders % values)     # 用搭配替换占位符，得到一个扩展出来的句子。
+        res.append(template_with_placeholders % values)  # 用搭配替换占位符，得到一个扩展出来的句子。
     return res
 
 
@@ -76,5 +100,7 @@ def replace_space(string):
 
 
 if __name__ == '__main__':
-    string = '嗯嗯 \n 好的  打扰了 再见 '
-    print(replace_space(string))
+    start = time.time()
+    string = '<HTML>登录支付宝账户，点击生活缴费，点击电费按钮，输入十位客户编号选择我已阅读并同意，点击下一步，核实客户户号、户名、地址、当前余额等，输入充值金额，点击立即缴费，输入支付密码，提示支付成功即可。<br><img src="edoc/1583738724276.gif"></HTML>'
+    print(strip_html_tags(string))
+    print(time.time() - start)

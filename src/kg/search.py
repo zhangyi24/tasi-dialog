@@ -13,6 +13,8 @@ class KG(object):
 
     def es_search(self, query):
         # todo:搞一搞逻辑
+        if not query:
+            return []
         results = self.es.search(query)
         if len(results) == 0:
             words, hidden = self.ltp.get_segmentor(query)

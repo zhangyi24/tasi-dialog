@@ -5,7 +5,10 @@ bot:
       min_similarity: 0.93
   kg:
     switch: True
-    min_score: 15
+    min_score: 16
+    recommend:
+      switch: True
+      max_items: 4
     es:
       address: '127.0.0.1:9200'
       index: '95598'
