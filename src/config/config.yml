@@ -29,7 +29,9 @@ phone:
   bot:
     interruptable: False
     lock_before_fwd: False
-    result_save_url: "http://39.99.186.66:8001/api/robot/resultSave"
+    save_result:
+      switch: False
+      url: "http://39.99.186.66:8001/api/robot/resultSave"
   asr:
     record_dir: 'https://tasi-callcenter-audio-record.oss-cn-beijing.aliyuncs.com/ASR/'
 text:

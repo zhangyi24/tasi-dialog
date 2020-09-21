@@ -20,7 +20,6 @@ import tornado.web
 import requests
 
 from agent import Bot
-from utils.mysql import MySQLWrapper
 from utils.postgresql import PostgreSQLWrapper
 from utils.logger import config_logger
 from utils.str_process import replace_space
@@ -246,7 +245,8 @@ class MainHandler(tornado.web.RequestHandler):
             threading.Thread(target=self.save_results, args=(user,), name='call_post_process').start()
 
     def save_results(self, user):
-        if 'result_save_url' in self.bot_conf:
+        save_result_conf = self.bot_conf["save_result"]
+        if save_result_conf['switch'] is True:
             req_body = {
                 "callid": "",
                 "entranceId": "",
@@ -272,7 +272,7 @@ class MainHandler(tornado.web.RequestHandler):
             for i in range(len(extend)):
                 req_body.update({'col%d' % (i + 1): extend[i]})
             req_body = [req_body]
-            resp = requests.post(self.bot_conf['result_save_url'],
+            resp = requests.post(save_result_conf["url"],
                                  data=json.dumps(req_body, ensure_ascii=False, separators=(',', ':')).encode('utf-8'))
             logging.info('[save_result] req_headers: %s' % resp.request.headers)
             logging.info('[save_result] req_body: %s' % resp.request.body.decode('utf-8'))

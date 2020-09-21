@@ -106,7 +106,7 @@ class Bot(object):
         self.nlu_manager = NLUManager(self.bot_config["intent_recognition"], self.templates, self.intents,
                                       self.value_sets, self.stop_words, self.bot_config["kg"])
         self.nlu_manager.intent_recognition('测试意图识别')  # 第一次识别分类模型和匹配模型都会比较慢，所以先识别一次。
-        self.nlu_manager.qa('好的')  # 测试QA。
+        self.nlu_manager.qa('测试图谱')  # 测试QA。
 
         self.users = {}
 

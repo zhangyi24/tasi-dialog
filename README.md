@@ -11,11 +11,15 @@
 
 ## python依赖
 
-- tensorflow==1.11
+- torch
 - tornado
 - psycopg2
 - pyyaml
 - requests
+- ltp
+- scipy
+- py2neo
+- elasticsearch
 
 如不想自行安装python依赖，可参考README_docker.md，用docker提供tasi_dialog的运行环境。
 
@@ -24,7 +28,7 @@
 ### 安装
 
 ```
-git clone http://gitlab.tasitech.com.cn/bot/tasi_dialog.git
+git clone -b torch http://gitlab.tasitech.com.cn/bot/tasi_dialog.git
 cd tasi_dialog
 ```
 
@@ -42,7 +46,7 @@ tasi_dialog提供文字版和电话版两种对话接口，分别可用于文本
 
 如果要使用基于BERT的意图识别模型，启动对话系统之前需要下载BERT预训练和finetune得到的模型。
 
-- BERT预训练模型在oss://tasi-callcenter-audio-record/engine/model/bert/chinese_L-12_H-768_A-12/。下载后需放在src/models/bert/chinese_L-12_H-768_A-12目录下。
+- 预训练模型在oss://tasi-callcenter-audio-record/engine/model/bert/chinese_L-12_H-768_A-12/。下载后需放在src/models/bert/chinese_L-12_H-768_A-12目录下。
 - finetune模型在oss://tasi-callcenter-audio-record/engine/model/bert/checkpoints/{bot_name}/intent/。下载后需放在对话系统的bots/{bot_name}/checkpoints/intent/下。如需要重新训练意图识别模型见[训练意图识别模型](#意图识别模型)。
 
 启动文字版对话系统服务端，默认端口是59998。
