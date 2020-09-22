@@ -152,6 +152,7 @@ if __name__ == "__main__":
 			conf = yaml.safe_load(f)
 
 	# custom config
+	custom_conf = {}
 	custom_config_file = 'config.yml'
 	if os.path.exists(custom_config_file):
 		with open(custom_config_file, 'r', encoding='utf-8') as f:

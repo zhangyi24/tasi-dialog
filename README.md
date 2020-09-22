@@ -28,7 +28,7 @@
 ### 安装
 
 ```
-git clone -b torch http://gitlab.tasitech.com.cn/bot/tasi_dialog.git
+git clone http://gitlab.tasitech.com.cn/bot/tasi_dialog.git
 cd tasi_dialog
 ```
 
@@ -44,12 +44,10 @@ cd bots/{bot_name}
 
 tasi_dialog提供文字版和电话版两种对话接口，分别可用于文本形式和电话形式的对话系统。文字版和电话版的区别在于文字版对话机器人回复给用户的是文字，电话版对话机器人回复给用户的是语音。文字能瞬间展现给用户，语音的播放需要一段时间，因此电话版对话机器人有打断和非打断两种模式，打断模式是指在机器人说话时用户如果插话机器人会停止播放语音去听用户说的话。
 
-如果要使用基于BERT的意图识别模型，启动对话系统之前需要下载BERT预训练和finetune得到的模型。
+如果要使用相似度模型，启动对话系统之前需要下载已训练的相似度模型。下载地址为oss://tasi-callcenter-audio-record/engine/model/torch/sentence_transformers/checkpoints/bert-base-chinese-cls-cmnli。下载后需放在src/models/sentence_encoder/sentence_transformers/checkpoints目录下。
+如果要使用训练过的意图识别分类模型，需下载模型后放到对话系统的bots/{bot_name}/checkpoints/intent/下。下载地址为oss://tasi-callcenter-audio-record/engine/model/torch/bots/checkpoints/{bot_name}/intent/。如需要重新训练意图识别模型见[训练意图识别模型](#意图识别模型)。
 
-- 预训练模型在oss://tasi-callcenter-audio-record/engine/model/bert/chinese_L-12_H-768_A-12/。下载后需放在src/models/bert/chinese_L-12_H-768_A-12目录下。
-- finetune模型在oss://tasi-callcenter-audio-record/engine/model/bert/checkpoints/{bot_name}/intent/。下载后需放在对话系统的bots/{bot_name}/checkpoints/intent/下。如需要重新训练意图识别模型见[训练意图识别模型](#意图识别模型)。
-
-启动文字版对话系统服务端，默认端口是59998。
+启动文字版对话系统服务端，默认端口是49999。
 
 ```python
 bash run_server_text.sh
@@ -316,7 +314,7 @@ cond字段的三种情况：
 
 值集合是槽可取值的集合，比如中国所有的城市。在配置意图时，为意图中的每个槽指定一个值集合，值集合中的词是对应槽的取值范围。
 
-配置文件：lexicon.json
+配置文件：value_sets.json
 
 - name：词典名称
 - chineseName：词典中文名。选填。
@@ -356,7 +354,7 @@ cond字段的三种情况：
 
 ##### 2.6 函数
 
-在functions.py中写自定义函数，供对话流的函数节点调用。函数的输入为最近一轮用户输入和全局变量。函数的返回值会被赋值给全局变量builtin.func_return。
+在functions.py中写函数，供对话流的函数节点调用。函数的输入为最近一轮用户输入和全局变量。函数的返回值会被赋值给全局变量builtin.func_return。
 
 ```python
 # 预处理代码
@@ -393,7 +391,7 @@ def func2(user_utter, global_vars):
 
 ### 意图识别模型
 
-#### 1. 基于BERT的意图识别模型
+#### 1. 基于分类的意图识别模型
 
 在dialog_config/corpus/samples.json中放置训练样本。数据类型为字典。每个意图至少配置20句以上的样本，越多越好。有一个特殊意图为’others‘，表示不属于任何其他意图，可用来配置反例。
 
@@ -420,17 +418,15 @@ def func2(user_utter, global_vars):
 }
 ```
 
-准备好训练样本后，我们可以训练意图识别模型了，但是在训练模型之前我们需要下载BERT预训练模型。BERT预训练模型在oss://tasi-callcenter-audio-record/engine/model/bert/chinese_L-12_H-768_A-12/。下载后需放在src/models/bert/chinese_L-12_H-768_A-12目录下。
-
-在bots/{bot_name}文件夹下，运行以下命令即可训练意图识别模型。
-
+准备好训练样本后，我们就可以利用这些样本训练意图识别分类模型了。在bots/{bot_name}文件夹下，运行以下命令即可训练意图识别分类模型。
 ```
-bash train_bert.sh
+bash train_intent_sentence_classifier.sh
 ```
+预训练模型可选择"bert", "roberta", "albert", "xlnet"。如果要使用bert，则在train_intent_sentence_classifier.sh中用model_type=bert指定预训练模型，其他模型同理。
 
-#### 2. 基于匹配的意图识别
+#### 2. 基于模板匹配的意图识别
 
-除了可以使用训练得到的模型进行意图识别，还可以通过正则匹配进行意图识别。在dialog_config/corpus/templates.json中放置匹配模板。模板中可用选择框和通配符增强泛化能力：
+除了可以使用训练得到的模型进行意图识别，还可以通过模板匹配进行意图识别。在dialog_config/corpus/templates.json中放置匹配模板。模板中可用选择框和通配符增强泛化能力：
 - 选项框：选项框有[]和()两种，[]是可选框，()是必选框，在选项框中填入各选项并用“|”隔开。比如```[帮我|给我](查|报)一下天气```这个模板可匹配“查一下天气”，但不能匹配“帮我一下天气”。
 - 通配符：.{n,m}代表n~m个字，n和m是数字。比如```查.{0,3}快递```这个模板可匹配“查一下快递”，但不能匹配“查一下那个快递”。
 
@@ -455,8 +451,15 @@ bash train_bert.sh
   ...
 }
 ```
+#### 3. 基于相似度的意图识别
 
-在识别用户意图时，机器人先用BERT模型识别一次，如果识别结果不为others，且置信度高于一个阈值，则把BERT模型的识别结果作为用户意图，否则以正则匹配的结果作为用户意图。置信度阈值默认为0.93，可通过dialog_config/thresholds.json中的intent_bert字段更改阈值。
+[基于分类的意图识别模型](#1. 基于分类的意图识别模型)有个问题：训练分类模型时需要把样本分成训练集和验证集。验证集用来进行早停，没有用于训练，因此这部分样本被浪费了。另外，模型在训练集的准确率有时无法达到100%。这两点导致对话系统开发者在测试中发现一个bad case时，无法通过往样本集里添加样本来纠正模型。我们用基于相似度的意图识别模型解决这个问题。我们用一个通用的句子编码器对用户语句和每个样本进行编码，得到语义向量，然后计算用户语句和每个样本的语义向量的余弦距离，得到用户语句和每个样本的相似度，最后选择相似度最高的样本，把该样本的意图作为用户语句的意图。
+每当更改了对话样本集dialog_config/corpus/samples.json后，都要运行encode_samples.sh对样本集重新编码，使得新样本在意图识别时生效。
+
+#### 意图识别逻辑
+1. 在识别用户意图时，机器人先用分类模型进行意图识别，如果识别结果不为others，且置信度高于设定的阈值（阈值设置见[配置机器人参数](#配置机器人参数)），则把分类模型的识别结果作为用户意图。否则执行2步。
+2. 模板匹配。如果有匹配结果，把匹配到的模板的意图作为用户意图，否则执行第3步。
+3. 用相似度模型进行意图识别，如果最相似的样本与用户语句的相似度高于设定的阈值（阈值设置见[配置机器人参数](#配置机器人参数)），则把该样本的意图作为用户意图，否则未识别到用户意图。
 
 ---
 
@@ -485,52 +488,71 @@ python ../../src/client_text.py
 python ../../src/server_phone.py
 ```
 
-##### 4. 意图识别模型训练脚本：train_bert.sh
+##### 4. 意图识别模型训练脚本：train_intent_sentence_classifier.sh
 
-```
+```shell
 #!/bin/bash
-ckpt_dir=checkpoints/intent
-data_dir=datasets/intent
-bert_dir=../../src/models/bert
-pretrained_ckpt_dir=$bert_dir/chinese_L-12_H-768_A-12
-python ../../src/models/build_datasets.py
-
-rm -rf $ckpt_dir
-
-python $bert_dir/run_classifier.py \
-  --task_name=intent \
-  --do_train=true \
-  --do_eval=true \
-  --do_predict=true \
-  --data_dir=$data_dir \
-  --vocab_file=$pretrained_ckpt_dir/vocab.txt \
-  --bert_config_file=$pretrained_ckpt_dir/bert_config.json \
-  --init_checkpoint=$pretrained_ckpt_dir/bert_model.ckpt \
-  --max_seq_length=64 \
-  --train_batch_size=32 \
-  --learning_rate=2e-5 \
-  --num_train_epochs=10.0 \
-  --output_dir=$ckpt_dir
+model_type=bert
+python ../../src/models/intent/train_sentence_classifier.py --model_type $model_type
 ```
+model_type可选"bert", "albert", "roberta", "xlnet"
+train_sentence_classifier.py后面可以加的参数包括
+
+- learning_rate(学习率)
+- batch_size(批大小)
+- max_epochs(训练最多进行的epoch数)
+- max_seq_length(句子的最长长度，超过这个长度的句子会被截断)
+
+例如：
+
+```shell
+#!/bin/bash
+python ../../src/models/intent/train_sentence_classifier.py --model_type bert --learning_rate 3e-5 --batch_size 64 --max_max_epochs 100 --max_seq_length 64
+```
+
+上面这个例子中的各参数都选用了默认值。可根据bots/{bot_name}/checkpoints/intent/{model_type}/test_results.txt中记录的模型在测试集上的准确率来调整超参数。
 
 
 ### 配置机器人参数
 
-##### 1. 文字版机器人参数配置文件：config_text.yml
-
+默认的参数设置为
+```yaml
+bot: # 机器人相关配置
+  intent_recognition: # 意图识别
+    classifier: # 分类模型
+      switch: True # 是否启用
+      model: bert # 使用的预训练模型
+      min_confidence: 0.93 # 置信度阈值
+    similarity: # 相似度模型
+      switch: False # 是否启用
+      min_similarity: 0.9 # 相似度阈值
+phone: # 电话版对话系统相关配置
+  port: 49999 # 端口号
+  bot: # 机器人
+    interruptable: False # 电话交互过程中机器人是否可被用户打断
+text: # 文本版对话系统相关配置
+  port: 59999 # 端口号
 ```
-port: 59998 # 服务端端口。默认为59998
-```
+#### 一些字段的可选项
+bot.intent_recognition.classifier.model可选择的模型包括：bert, roberta, albert, xlnet。
 
-##### 2. 电话版机器人参数配置文件：config_phone.yml
-
+#### 修改方法
+开发者如需要修改默认设置，可以在bots/{bot_name}新建config.yml文件，指定需要修改的内容。比如如果要把文本版对话系统的端口号改为59998，则在config.yml文件中输入：
+```yaml
+text:
+  port: 59998
 ```
-port: 59999 # 服务端端口。默认为59999
+如果要同时把分类模型置信度阈值改为0.95，启用相似度模型，把电话版对话系统的端口号改为49998，那么config.yml的内容为
+```yaml
 bot:
-  interruptable: False # 机器人说话时，用户是否可以打断。默认为False
+  intent_recognition:
+    classifier:
+      min_confidence: 0.95
+    similarity:
+      switch: True
+phone:
+  port: 49998
 ```
-
----
 
 
 

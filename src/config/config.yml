@@ -17,7 +17,7 @@ bot:
       switch: False
       max_items: 3
 phone:
-  port: 59999
+  port: 49999
   postgresql:
     host: "47.93.120.246"
     port: "5432"
@@ -35,4 +35,4 @@ phone:
   asr:
     record_dir: 'https://tasi-callcenter-audio-record.oss-cn-beijing.aliyuncs.com/ASR/'
 text:
-  port: 59998
+  port: 59999
