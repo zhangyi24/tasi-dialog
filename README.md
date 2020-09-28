@@ -10,12 +10,13 @@
 - [API](#API)
 
 ## python依赖
-
+- python3
 - torch
 - tornado
-- psycopg2
+- psycopg2-binary
 - pyyaml
 - requests
+- pypinyin
 - ltp
 - scipy
 - py2neo
@@ -157,6 +158,7 @@ bash run_server_phone.sh
                     "name": "",	# 槽的名称，例如出发时间。
                     "global_variable": "",	# 与槽绑定的全局变量名。填完槽后，将把该槽的值赋给绑定的全局变量
                     "response": "",	# 机器人询问用户的话，例如“您想订几点的车票”。
+                    "max_request_num", # 槽没有填上时的最大询问次数。应该设为一个正整数，不设置时默认为2
                     "response_before_filling": true/false	# 在询问用户之前，系统是否用最近一轮用户说的话尝试填槽。比如查天气这个意图中有城市这个槽，在询问用户想查询的城市之前用户可能已经说了城市，比如“北京的天气怎么样”。可以先尝试填槽，如果没填上就回复给用户“response”。选填，不填的时候默认为false。
                 }
             ],

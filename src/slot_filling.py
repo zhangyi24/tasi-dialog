@@ -32,7 +32,12 @@ def slots_status_init(slots):
         if 'response_before_filling' not in slot:
             slot['response_before_filling'] = True
         # max_request_num
-        slot['max_request_num'] = MAX_REQUEST_NUM if 'response' in slot else 0
+        if 'response' in slot:
+            slot['max_request_num'] = slot.get('max_request_num', MAX_REQUEST_NUM)
+            if type(slot['max_request_num']) is not int or slot['max_request_num'] < 0:
+                slot['max_request_num'] = MAX_REQUEST_NUM
+        else:
+            slot['max_request_num'] = 0
         slots_status['slots'].append(slot)
     return slots_status
 
