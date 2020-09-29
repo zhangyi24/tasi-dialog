@@ -60,7 +60,7 @@ RUN conda install -y pytorch-lightning \
 RUN python -m pip install -i $PIP_MIRROR --no-cache-dir --upgrade pip setuptools && \
     python -m pip install -i $PIP_MIRROR --no-cache-dir transformers pypinyin
 
-EXPOSE 59998
+EXPOSE 49999
 EXPOSE 59999
 
 WORKDIR /opt/dialog

@@ -11,12 +11,15 @@
 
 ## python依赖
 - python3
-- torch
+- torch==1.6.0
+- pytorch-lightning==0.9.0
 - tornado
 - psycopg2-binary
-- pyyaml
+- PyYAML
 - requests
+- scikit-learn
 - pypinyin
+- transformers==3.1.0
 - ltp
 - scipy
 - py2neo
