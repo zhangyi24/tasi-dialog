@@ -18,8 +18,8 @@ bot:
       username: 'neo4j'
       password: '123456'
 phone:
-  port: 59999
+  port: 49999
   bot:
     interruptable: False
 text:
-  port: 59998
+  port: 59999

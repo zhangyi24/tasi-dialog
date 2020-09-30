@@ -1,5 +1,5 @@
 phone:
-  port: 59999
+  port: 49998
   bot:
     interruptable: False
 text:
