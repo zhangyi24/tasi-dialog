@@ -27,7 +27,7 @@
     "name": "meter_number",
     "chineseName": "电表号",
     "type": "regex",
-    "regex": "[0-9]{10}"
+    "regex": "[0-9]{3}"
   },
   "cellphone_number": {
     "name": "cellphone_number",
