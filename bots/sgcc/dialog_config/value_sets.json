@@ -3,7 +3,7 @@
     "name": "consumer_number",
     "chineseName": "户号",
     "type": "regex",
-    "regex": "[0-9]{10}"
+    "regex": "[0-9]{5}"
   },
   "pay_to": {
     "name": "pay_to",
