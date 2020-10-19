@@ -49,7 +49,7 @@ cd bots/{bot_name}
 tasi_dialog提供文字版和电话版两种对话接口，分别可用于文本形式和电话形式的对话系统。文字版和电话版的区别在于文字版对话机器人回复给用户的是文字，电话版对话机器人回复给用户的是语音。文字能瞬间展现给用户，语音的播放需要一段时间，因此电话版对话机器人有打断和非打断两种模式，打断模式是指在机器人说话时用户如果插话机器人会停止播放语音去听用户说的话。
 
 如果要使用相似度模型，启动对话系统之前需要下载已训练的相似度模型。下载地址为oss://tasi-callcenter-audio-record/engine/model/torch/sentence_transformers/checkpoints/bert-base-chinese-cls-cmnli。下载后需放在src/models/sentence_encoder/sentence_transformers/checkpoints目录下。
-如果要使用训练过的意图识别分类模型，需下载模型后放到对话系统的bots/{bot_name}/checkpoints/intent/下。下载地址为oss://tasi-callcenter-audio-record/engine/model/torch/bots/checkpoints/{bot_name}/intent/。如需要重新训练意图识别模型见[训练意图识别模型](#意图识别模型)。
+如果要使用训练过的意图识别分类模型，需下载模型后放到对话系统的bots/{bot_name}/checkpoints下。下载地址为oss://tasi-callcenter-audio-record/engine/model/torch/bots/checkpoints/{bot_name}/intent/。如需要重新训练意图识别模型见[训练意图识别模型](#意图识别模型)。
 
 启动文字版对话系统服务端，默认端口是49999。
 
@@ -76,7 +76,7 @@ bash run_server_phone.sh
 对话机器人是一个能和人用自然语言交流的计算机系统。创建对话机器人的过程分为4步：
 
 1. 按照业务流程[配置对话机器人](#配置对话机器人)，让机器人按您希望的方式回答用户。
-2. [训练意图识别模型](#意图识别模型)，让机器人更好地理解用户说的话。
+2. 训练[意图识别模型](#意图识别模型)，让机器人更好地理解用户说的话。
 3. [编写运行脚本](#编写运行脚本)，方便启动对话机器人。
 4. [配置机器人参数](#配置机器人参数)，配置对话机器人的参数。
 
@@ -428,6 +428,8 @@ def func2(user_utter, global_vars):
 bash train_intent_sentence_classifier.sh
 ```
 预训练模型可选择"bert", "roberta", "albert", "xlnet"。如果要使用bert，则在train_intent_sentence_classifier.sh中用model_type=bert指定预训练模型，其他模型同理。
+
+备注：第一次用某种预训练模型时，程序会下载模型参数，如果没有机器没有联网，可以先下载预训练模型，放在src/models目录下。下载地址：oss://tasi-callcenter-audio-record/engine/model/torch/tfs_cache。
 
 #### 2. 基于模板匹配的意图识别
 
