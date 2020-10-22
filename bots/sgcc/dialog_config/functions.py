@@ -188,7 +188,7 @@ def meter_reading_inquiry(user_utter, global_vars):
 	if not global_vars['consumer_info']['readPqLists']:
 		response = '未查询到您的抄表信息。'
 	elif global_vars['meter_reading_month'] is None:
-		read = global_vars['consumer_info']['readPqLists'][0]
+		read = global_vars['consumer_info']['readPqLists'][-1]
 		response = '您的抄表周期为%s，%s月份的抄表时间是%s，示数为%.4f。' % \
 		           (global_vars['consumer_info']['meter_read_cycle'], read['amtYm'][-2:], read['actualYmd'], read['thisRead'])
 	else:

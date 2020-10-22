@@ -49,6 +49,7 @@
         {
           "name": "查询抄表数据.month",
           "global_variable": "meter_reading_month",
+          "response_before_filling": false,
           "response": "请问您想查询哪个月的抄表示数?"
         }
       ],
