@@ -180,17 +180,19 @@ class Bot(object):
             intent_recognition_done = True
             # 根据意图识别结果调整node_stack
             if intent is not None:
-                if not node_stack or (
-                        intent in self.intent_flow_mapping and self.intent_flow_mapping[intent] != node_stack[0][
-                    'flow_name']):
-                    # 清空node_stack，把识别到的意图的对应流程压入node_stack
-                    node_stack.clear()
-                    node_stack.append({'flow_name': self.intent_flow_mapping[intent], 'node_id': '0'})
-                    # 清空main_flow_node的除'node_id'外的其他信息
-                    if main_flow_node:
-                        main_flow_node_id = main_flow_node['node_id']
-                        main_flow_node.clear()
-                        main_flow_node['node_id'] = main_flow_node_id
+                if intent not in self.intent_flow_mapping:
+                    logging.warning("There is no flow that can be triggered by intent '%s'" % intent)
+                else:
+                    if not node_stack or self.intent_flow_mapping[intent] != node_stack[0]['flow_name']:
+                        # 清空node_stack，把识别到的意图的对应流程压入node_stack
+                        if self.flows[self.intent_flow_mapping[intent]].get("forget", True):
+                            node_stack.clear()
+                        node_stack.append({'flow_name': self.intent_flow_mapping[intent], 'node_id': '0'})
+                        # 清空main_flow_node的除'node_id'外的其他信息
+                        if main_flow_node:
+                            main_flow_node_id = main_flow_node['node_id']
+                            main_flow_node.clear()
+                            main_flow_node['node_id'] = main_flow_node_id
 
         # 执行流程，直到得到response
         while not resp['content']:
@@ -208,9 +210,13 @@ class Bot(object):
                     intent_recognition_done = True
                     if intent is None:
                         break
+                    elif intent not in self.intent_flow_mapping:
+                        logging.warning("There is no flow that can be triggered by intent '%s'" % intent)
+                        break
                     else:
                         # 清空node_stack，把识别到的意图的对应流程压入node_stack
-                        node_stack.clear()
+                        if self.flows[self.intent_flow_mapping[intent]].get("forget", True):
+                            node_stack.clear()
                         node_stack.append({'flow_name': self.intent_flow_mapping[intent], 'node_id': '0'})
                         continue
 
@@ -265,10 +271,15 @@ class Bot(object):
                         builtin_vars['intent'] = intent
                         intent_recognition_done = True
                         if intent is not None:
-                            # 清空node_stack，把识别到的意图的对应流程压入node_stack
-                            node_stack.clear()
-                            node_stack.append({'flow_name': self.intent_flow_mapping[intent], 'node_id': '0'})
-                            continue
+                            if intent in self.intent_flow_mapping:
+                                # 清空node_stack，把识别到的意图的对应流程压入node_stack
+                                if self.flows[self.intent_flow_mapping[intent]].get("forget", True):
+                                    node_stack.clear()
+                                node_stack.append({'flow_name': self.intent_flow_mapping[intent], 'node_id': '0'})
+                                continue
+                            else:
+                                logging.warning("There is no flow that can be triggered by intent '%s'" % intent)
+
 
             # function
             elif current_node['type'] == 'function':

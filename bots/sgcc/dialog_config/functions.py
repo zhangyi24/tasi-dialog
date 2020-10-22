@@ -36,12 +36,13 @@ def verify_cellphone_number(user_utter, global_vars):
 
 
 def electricity_bill_inquiry(user_utter, global_vars):
-	response = '截止到%s年%s月%s日，您的用电量是%s度，电费是%.2f元' % (
+	response = '截止到%s年%s月%s日，您的用电量是%s度，电费是%.2f元。' % (
 		global_vars['consumer_info']['rcvblInfoLists'][0]['releaseDate'][: 4],
 		global_vars['consumer_info']['rcvblInfoLists'][0]['releaseDate'][4: 6].lstrip('0'),
 		global_vars['consumer_info']['rcvblInfoLists'][0]['releaseDate'][6:].lstrip('0'),
 		global_vars['consumer_info']['rcvblInfoLists'][0]['totalPq'],
 		global_vars['consumer_info']['rcvblInfoLists'][0]['rcvblAmt'])
+	response += '余额为%.2f元。' % global_vars['consumer_info']['availableBalance']
 	return response
 
 
@@ -107,13 +108,13 @@ def repeat_payment_reponse(user_utter, global_vars):
 	if not len(pay_list):
 		response += '您本月没有缴费记录。'
 	else:
-		response += '您本月的有%d条缴费记录。分别在' % len(pay_list)
+		response += '您本月的有%d条缴费记录：' % len(pay_list)
 		for pay in pay_list:
 			response += pay['chargeDate']
 			if pay['chargeEmpName'][:3] == 'zfb':
-				response += '通过支付宝'
+				response += '用支付宝'
 			else:
-				response += '通过现金'
+				response += '用现金'
 			response += '缴纳了%s元；' % pay['rcvblAmt']
 		response.rstrip('；')
 	response += '。如果您有其他缴费行为，建议您向第三方支付平台咨询。'
@@ -166,6 +167,18 @@ def amount_differ_reponse(user_utter, global_vars):
 	pay = pay_list[0]
 	response = '经查询您最近一次的缴费记录为：于%s，缴费%s元，如有异议建议您到当时的缴费点进行核对下缴费金额。' % \
 	           (pay['chargeDate'], pay['rcvblAmt'])
+	return response
+
+
+def pay_info_inquiry(user_utter, global_vars):
+	import datetime
+	today = datetime.datetime.today()
+	pay_list = global_vars['consumer_info']['payFlowLists']
+	if not len(pay_list):
+		response = '未查询到您的缴费信息，建议您向缴费点或第三方支付平台核实。'
+		return response
+	pay = pay_list[0]
+	response = '您最近一次的缴费记录为：于%s，缴费%s元。' % (pay['chargeDate'], pay['rcvblAmt'])
 	return response
 
 

@@ -1,6 +1,6 @@
 {
-  "name": "购电金额与实际金额不一致",
-  "intent": "购电金额与实际金额不一致",
+  "name": "查欠费",
+  "intent": "查欠费",
   "nodes": {
     "0": {
       "type": "branch",
@@ -45,18 +45,29 @@
     },
     "2": {
       "type": "function",
-      "funcName": "amount_differ_reponse",
+      "funcName": "get_available_balance",
       "dm": [
         {
-          "cond": true,
+          "cond": {
+            "<": [
+              {
+                "var": "global.available_balance"
+              },
+              0
+            ]
+          },
           "nextNode": "99",
-          "response": "[%builtin.func_return%]"
+          "response": "您当前显示欠费停电，余额为[%global.available_balance%]元。建议您及时缴清电费。"
+        },
+        {
+          "cond": "else",
+          "nextNode": "99",
+          "response": "您当前没有欠费，余额为[%global.available_balance%]元。"
         }
       ]
     },
     "99": {
       "type": "return"
     }
-  },
-  "version": "0.1"
+  }
 }

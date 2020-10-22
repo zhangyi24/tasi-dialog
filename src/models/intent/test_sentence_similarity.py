@@ -41,7 +41,7 @@ def get_dataset(dataset_path):
 
 def evaluate(corpus_embeddings, corpus_labels, queries, queries_labels):
     print('encoding queries...')
-    query_embeddings = model.encode(queries, show_progress_bar=True)
+    query_embeddings = model.encode(queries, batch_size=128, show_progress_bar=True)
     # Find the closest 5 sentences of the corpus for each query sentence based on cosine similarity
     print('KNN...')
     distances_matrix = scipy.spatial.distance.cdist(query_embeddings, corpus_embeddings, "cosine")
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     # encode trainset
     corpus = train_sents
     print('encoding trainset...')
-    trainset_embeddings = model.encode(corpus, show_progress_bar=True)
+    trainset_embeddings = model.encode(corpus, batch_size=128, show_progress_bar=True)
 
     # evaluete on devset
     print('\nevalueting on devset:')

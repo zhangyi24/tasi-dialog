@@ -1,0 +1,21 @@
+{
+  "name": "重述",
+  "intent": "重述意图",
+  "forget": false,
+  "nodes": {
+    "0": {
+      "type": "response",
+      "response": "[%builtin.last_response%]",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "1"
+        }
+      ]
+    },
+    "1": {
+      "type": "return"
+    }
+  },
+  "version": "0.1"
+}

@@ -1,6 +1,6 @@
 {
-  "name": "重复缴费",
-  "intent": "重复缴费",
+  "name": "查询交费信息",
+  "intent": "查询交费信息",
   "nodes": {
     "0": {
       "type": "branch",
@@ -35,7 +35,7 @@
               null
             ]
           },
-          "nextNode": "3"
+          "nextNode": "99"
         },
         {
           "cond": "else",
@@ -45,16 +45,16 @@
     },
     "2": {
       "type": "function",
-      "funcName": "repeat_payment_reponse",
+      "funcName": "pay_info_inquiry",
       "dm": [
         {
           "cond": true,
-          "nextNode": "3",
+          "nextNode": "99",
           "response": "[%builtin.func_return%]"
         }
       ]
     },
-    "3": {
+    "99": {
       "type": "return"
     }
   },
