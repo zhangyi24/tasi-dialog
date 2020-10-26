@@ -16,6 +16,9 @@ bot:
     recommend:
       switch: False
       max_items: 3
+  fwd:
+    switch: False
+    patient: 3
 text:
   port: 59999
 phone:

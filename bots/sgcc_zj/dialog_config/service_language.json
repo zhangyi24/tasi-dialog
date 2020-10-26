@@ -1,4 +1,5 @@
 {
   "greeting": "喂，您好，我这边是萧山供电有限公司，您在[%global.address%]的房子电费已经欠费[%global.owe%]，请您这边及时交清电费，可以嘛。",
-  "pardon": "您在[%global.address%]的房子电费已经欠费[%global.owe%]，请您这边及时交清电费。"
+  "pardon": "您在[%global.address%]的房子电费已经欠费[%global.owe%]，请您这边及时交清电费。",
+  "fwd": "正在为您转接至人工，请稍候。"
 }

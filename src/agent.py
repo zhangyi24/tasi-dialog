@@ -68,7 +68,7 @@ class Bot(object):
             with open(custom_value_sets_config_path, 'r', encoding='utf-8') as f:
                 self.value_sets['user'] = json.load(f)
         # builtin_vars
-        self.builtin_vars = {'intent': None, 'func_return': None, 'last_response': None}
+        self.builtin_vars = {'intent': None, 'func_return': None, 'last_response': None, 'cnt_no_answer_succession': 0}
         # global_vars
         self.g_vars = {}
         self.g_vars_need_init = []
@@ -152,14 +152,22 @@ class Bot(object):
         g_vars = self.users[user_id]['g_vars']
         builtin_vars = self.users[user_id]['builtin_vars']
         if resp['content'] is None:
-            # todo: 从头到尾查一下在加了QA之后，有没有逻辑错误
             qa_answer = self.nlu_manager.qa(user_utter)
-
-            if qa_answer is None:
-                # 兜底话术
-                resp['content'] = response_process(self.service_language['pardon'], g_vars, builtin_vars)
-            else:
+            if qa_answer is not None:
                 resp['content'] = qa_answer
+                builtin_vars["cnt_no_answer_succession"] = 0
+            else:
+                builtin_vars["cnt_no_answer_succession"] += 1
+                if self.bot_config["fwd"]["switch"] and builtin_vars["cnt_no_answer_succession"] >= self.bot_config["fwd"]["patient"]:
+                    builtin_vars["cnt_no_answer_succession"] = 0
+                    resp['content'] = self.service_language['fwd']
+                    call_status = self.users[user_id]['call_status'] = 'fwd'
+                else:
+                    # 兜底话术
+                    resp['content'] = response_process(self.service_language['pardon'], g_vars, builtin_vars)
+        else:
+            builtin_vars["cnt_no_answer_succession"] = 0
+
         return resp, call_status
 
     def get_response(self, user_id, user_utter):
