@@ -135,26 +135,29 @@ class Bot(object):
     def greeting(self, user_id):
         user = self.users[user_id]
         # generate response
-        resp = {'content': None, 'allow_interrupt': self.interruptable, 'input_channel': '10'}
+        resp = {'content': None, 'allow_interrupt': self.interruptable, 'input_channel': '10', 'src': ''}
         # return first response in main flow as the bot's response
         if 'main' in self.flows:
-            resp, user['call_status'] = self.get_response(user_id, user_utter=None)
+            resp, user['call_status'] = self.get_response_flow(user_id, user_utter=None)
+            resp['src'] = 'flow'
         # return greeting as the bot's response
         if not resp['content']:
             resp['content'] = response_process(self.service_language['greeting'], self.users[user_id]['g_vars'],
                                                self.users[user_id]['builtin_vars'])
+            resp['src'] = 'greeting'
         self.users[user_id]['builtin_vars']['last_response'] = resp['content']
         return resp, user['call_status']
 
     def response(self, user_id, user_utter):
         """生成机器人回复"""
-        resp, call_status = self.get_response(user_id, user_utter)
+        resp, call_status = self.get_response_flow(user_id, user_utter)
         g_vars = self.users[user_id]['g_vars']
         builtin_vars = self.users[user_id]['builtin_vars']
         if resp['content'] is None:
             qa_answer = self.nlu_manager.qa(user_utter)
             if qa_answer is not None:
                 resp['content'] = qa_answer
+                resp['src'] = 'kb'
                 builtin_vars["cnt_no_answer_succession"] = 0
             else:
                 builtin_vars["cnt_no_answer_succession"] += 1
@@ -165,15 +168,17 @@ class Bot(object):
                 else:
                     # 兜底话术
                     resp['content'] = response_process(self.service_language['pardon'], g_vars, builtin_vars)
+                resp['src'] = 'no_answer'
         else:
             builtin_vars["cnt_no_answer_succession"] = 0
+            resp['src'] = 'flow'
 
         return resp, call_status
 
-    def get_response(self, user_id, user_utter):
+    def get_response_flow(self, user_id, user_utter):
         """生成除了兜底话术之外的机器人正常回复"""
         user = self.users[user_id]
-        resp = {'content': None, 'allow_interrupt': self.interruptable, 'input_channel': '10'}
+        resp = {'content': None, 'allow_interrupt': self.interruptable, 'input_channel': '10', 'src': ''}
         g_vars = self.users[user_id]['g_vars']
         builtin_vars = self.users[user_id]['builtin_vars']
         node_stack = self.users[user_id]['node_stack']

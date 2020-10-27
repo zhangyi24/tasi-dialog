@@ -31,6 +31,7 @@ RESPONSE_BODY_9 = {
 		"inter_idx": "",
 		"model_type": "",
 		"prompt_text": "",
+		"prompt_src": "",
 		"timeout": ""
 	}
 }
@@ -75,10 +76,10 @@ class MainHandler(tornado.web.RequestHandler):
 			bot_resp, user['call_status'] = self.bot.greeting(user_id=self.req_body['userid'])
 			# 正常交互
 			if user['call_status'] == 'on':
-				resp_body = self.generate_resp_body_interact(user, bot_resp['content'])
+				resp_body = self.generate_resp_body_interact(user, bot_resp)
 			# 机器人发起挂断或转人工
 			else:
-				resp_body = self.generate_resp_body_interact(user, bot_resp['content'], input=False)
+				resp_body = self.generate_resp_body_interact(user, bot_resp, input=False)
 				user['resp_queue'].append(self.generate_resp_body_hangup(user))
 		
 		elif self.req_body['inaction'] == 9:
@@ -102,11 +103,11 @@ class MainHandler(tornado.web.RequestHandler):
 				bot_resp, user['call_status'] = self.bot.response(self.req_body['userid'], input)
 				# 正常交互
 				if user['call_status'] == 'on':
-					resp_body = self.generate_resp_body_interact(user, bot_resp['content'])
+					resp_body = self.generate_resp_body_interact(user, bot_resp)
 				
 				# 机器人发起挂断或转人工
 				else:
-					resp_body = self.generate_resp_body_interact(user, bot_resp['content'], input=False)
+					resp_body = self.generate_resp_body_interact(user, bot_resp, input=False)
 					user['resp_queue'].append(self.generate_resp_body_hangup(user))
 
 		
@@ -117,14 +118,15 @@ class MainHandler(tornado.web.RequestHandler):
 		logging.info('resp_headers: %s' % dict(self._headers))
 		logging.info('resp_body: %s' % resp_body)
 	
-	def generate_resp_body_interact(self, user, prompt, input=True, timeout='5'):
+	def generate_resp_body_interact(self, user, bot_resp, input=True, timeout='5'):
 		resp_body = copy.deepcopy(RESPONSE_BODY_9)
 		resp_body.update({"userid": self.req_body['userid']})
 		resp_body["outparams"].update({
 			"call_id": user["call_info"].get('call_id', ''),
 			"inter_idx": user['inter_idx'],
 			"model_type": '11' if input else '10',
-			"prompt_text": prompt,
+			"prompt_text": bot_resp['content'],
+			"prompt_src": bot_resp['src'],
 			"timeout": timeout if input else '0'
 		})
 		return resp_body
