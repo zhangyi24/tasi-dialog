@@ -11,18 +11,16 @@ except:
 	print(index, '不存在')
 #创建索引
 mappings = {
-		"question": {
-			"properties": {
-				"label": {
-					"type": "text",
-					"analyzer": "ik_max_word",
-					"index_options": "docs" 
-				},
-				"id": {
-					"type": "text"
-				}
-			}
+	"properties": {
+		"label": {
+			"type": "text",
+			"analyzer": "ik_max_word",
+			"index_options": "docs"
+		},
+		"id": {
+			"type": "text"
 		}
+	}
 }
 # print(mappings)
 

@@ -17,6 +17,7 @@ import tornado.ioloop
 import tornado.httpclient
 import tornado.escape
 import tornado.web
+from elasticsearch import Elasticsearch
 
 from agent import Bot
 from utils.logger import config_logger
@@ -24,8 +25,10 @@ from utils.config import merge_config
 
 
 class KbHandler(tornado.web.RequestHandler):
-    def initialize(self, es=None):
-        self.es = es
+    def initialize(self, kb_file_path, conf_es):
+        self.kb_file_path = kb_file_path
+        self.es_addr = conf_es["addr"]
+        self.es_index = os.path.basename(os.path.abspath('.'))
 
     def prepare(self):
         logging.info('req_headers: %s' % dict(self.request.headers))
@@ -39,72 +42,84 @@ class KbHandler(tornado.web.RequestHandler):
     def post(self):
         resp_body = None
         if "action" not in self.req_body:
-            self.set_status(400, reason="The specified parameter 'action' is missing.")
-            raise tornado.web.Finish()
+            self.throw_error(400, reason="The specified parameter 'action' is missing.")
+        elif "params" not in self.req_body:
+            self.throw_error(400, reason="The specified parameter 'params' is missing.")
         elif self.req_body["action"] == "query_categories":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            self.throw_error(500, reason="Interface not implemented yet.")
         elif self.req_body["action"] == "describe_category":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            self.throw_error(500, reason="Interface not implemented yet.")
         elif self.req_body["action"] == "create_category":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            self.throw_error(500, reason="Interface not implemented yet.")
         elif self.req_body["action"] == "update_category":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            self.throw_error(500, reason="Interface not implemented yet.")
         elif self.req_body["action"] == "delete_category":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            self.throw_error(500, reason="Interface not implemented yet.")
         elif self.req_body["action"] == "query_core_words":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            self.throw_error(500, reason="Interface not implemented yet.")
         elif self.req_body["action"] == "describe_core_word":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            self.throw_error(500, reason="Interface not implemented yet.")
         elif self.req_body["action"] == "create_core_word":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            self.throw_error(500, reason="Interface not implemented yet.")
         elif self.req_body["action"] == "update_core_word":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            self.throw_error(500, reason="Interface not implemented yet.")
         elif self.req_body["action"] == "delete_core_word":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            self.throw_error(500, reason="Interface not implemented yet.")
         elif self.req_body["action"] == "add_synonym":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            self.throw_error(500, reason="Interface not implemented yet.")
         elif self.req_body["action"] == "remove_synonym":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            self.throw_error(500, reason="Interface not implemented yet.")
 
         elif self.req_body["action"] == "query_knowledges":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            self.throw_error(500, reason="Interface not implemented yet.")
         elif self.req_body["action"] == "describe_knowledge":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            self.throw_error(500, reason="Interface not implemented yet.")
         elif self.req_body["action"] == "create_knowledge":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            params = self.req_body["params"]
+            for required_param in ["knowledge_id", "knowledge_title"]:
+                if required_param not in params:
+                    self.throw_error(400, reason=f"The specified parameter {required_param} is missing.")
         elif self.req_body["action"] == "update_knowledge":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            self.throw_error(500, reason="Interface not implemented yet.")
         elif self.req_body["action"] == "delete_knowledge":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            self.throw_error(500, reason="Interface not implemented yet.")
         elif self.req_body["action"] == "publish_knowledge":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            self.throw_error(500, reason="Interface not implemented yet.")
         elif self.req_body["action"] == "disable_knowledge":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            self.throw_error(500, reason="Interface not implemented yet.")
         elif self.req_body["action"] == "move_knowledge_category":
-            self.set_status(500, reason="Interface not implemented yet.")
-            raise tornado.web.Finish()
+            self.throw_error(500, reason="Interface not implemented yet.")
+        elif self.req_body["action"] == "clear_kb":
+            es = Elasticsearch(self.es_addr)
+            if not es.ping():
+                self.throw_error(500, reason="can not connect to elasticsearch engine.")
+            try:
+                res = es.indices.delete(index=self.index)
+            except:
+                print('不存在')
+            # 创建索引
+            mappings = {
+                "question": {
+                    "properties": {
+                        "label": {
+                            "type": "text",
+                            "analyzer": "ik_max_word",
+                            "index_options": "docs"
+                        },
+                        "id": {
+                            "type": "text"
+                        }
+                    }
+                }
+            }
+            # print(mappings)
+
+            result = es.indices.create(index=index, body=mappings, ignore=400)
+            with open(self.kb_file_path, "w", encoding="utf-8") as f:
+                json.dump(dict(), f)
+
         else:
-            self.set_status(400, reason="Invalid action: %s" % self.req_body["action"])
-            raise tornado.web.Finish()
+            self.throw_error(400, reason="Invalid action: %s" % self.req_body["action"])
         if resp_body is not None:
             self.write(self.json_encode(resp_body))
             logging.info('resp_headers: %s' % dict(self._headers))
@@ -113,6 +128,9 @@ class KbHandler(tornado.web.RequestHandler):
     def json_encode(self, obj):
         return json.dumps(obj, ensure_ascii=False, separators=(',', ':')).encode('utf-8')
 
+    def throw_error(self, status_code, reason):
+        self.set_status(status_code, reason=reason)
+        raise tornado.web.Finish()
 
 if __name__ == "__main__":
     # config logger
@@ -132,12 +150,13 @@ if __name__ == "__main__":
             custom_conf = yaml.safe_load(f)
     merge_config(conf, custom_conf)  # merge custom_conf to default_conf
     conf_admin = conf["admin"]
+    conf_es = conf["es"]
 
-    # es
-    
+    # kb_file_path
+    kb_file_path = "kb/knowlwdges.json"
     # app
     application = tornado.web.Application([
-        (r"/kb", KbHandler),
+        (r"/kb", KbHandler, dict(kb_file_path=kb_file_path, conf_es=conf_es)),
     ])
     application.listen(conf_admin['port'])
     logging.info('listening on 127.0.0.1:%s...' % conf_admin['port'])

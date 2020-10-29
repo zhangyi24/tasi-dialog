@@ -3,7 +3,7 @@ bot:
     classifier:
       switch: True
       model: bert
-      min_confidence: 0.88
+      min_confidence: 0.93
     similarity:
       switch: False
       model: bert-base-chinese-mean-csts
@@ -16,6 +16,9 @@ bot:
     recommend:
       switch: False
       max_items: 3
+  kb:
+    switch: False
+    min_score: 15
   fwd:
     switch: False
     patient: 3
@@ -41,3 +44,11 @@ phone:
     record_dir: 'https://tasi-callcenter-audio-record.oss-cn-beijing.aliyuncs.com/ASR/'
 admin:
   port: 39999
+es:
+  addr: '127.0.0.1:9200'
+crs:
+  port: 29999
+  route:
+    "01": "http://127.0.0.1:49999"
+    "02": "http://127.0.0.1:49998"
+    "03": "http://127.0.0.1:49997"

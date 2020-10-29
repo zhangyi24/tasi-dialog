@@ -153,8 +153,10 @@ class MainHandler(tornado.web.RequestHandler):
 
         elif self.req_body['inaction'] == 9:
             if self.req_body['userid'] not in self.bot.users:
-                logging.info('[dialog] there is no user whose user_id is \'%s\'.' % self.req_body['userid'])
-                return
+                error_info = '[dialog] there is no user whose user_id is \'%s\'.' % self.req_body['userid']
+                logging.info(error_info)
+                self.set_status(400, reason=error_info)
+                raise tornado.web.Finish()
             # 根据user_id获取用户信息
             user = self.bot.users[self.req_body['userid']]
             # 用户主动挂断
