@@ -403,6 +403,9 @@ if __name__ == "__main__":
     if 'postgresql' not in conf_phone:
         logging.warning('postgresql database config is not available.')
         db = None
+    elif not conf_phone['postgresql'].get('switch', False):
+        logging.warning("postgresql database config 'switch': False.")
+        db = None
     else:
         for _ in range(5):
             try:
