@@ -3,6 +3,7 @@ import requests
 import copy
 
 userid = '25044006'
+entrance_id = "02"
 local_server_url = 'http://127.0.0.1:29999'
 remote_server_url = 'http://101.6.68.40:29999'
 url = local_server_url
@@ -14,7 +15,7 @@ req_body_8 = {
         'call_sor_id': '15652310112',
         'call_dst_id': '053267774615',
         'start_time': '2020-03-14 22:22:37767',
-        'entrance_id': '2',
+        'entrance_id': entrance_id,
         'flow': 'root.xml',
         'queue_id': '52',
         'extend': '01#杭州市#60',

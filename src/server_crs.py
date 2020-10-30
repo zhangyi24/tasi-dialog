@@ -44,7 +44,7 @@ class MainHandler(tornado.web.RequestHandler):
         assert self.req_body['inaction'] in [8, 9, 11, 0]
         if self.req_body['inaction'] == 8:
             # todo:获取场景id
-            scene_id = self.req_body['inparams']['extend'].split('#')[0]
+            scene_id = self.req_body['inparams']['entrance_id']
             if scene_id not in self.conf_crs["route"]:
                 self.throw_error(400, f"[crs] There is no bot that corresponds to 'scene_id': {scene_id}.")
             bot_url = self.conf_crs["route"][scene_id]
