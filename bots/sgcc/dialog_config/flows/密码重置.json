@@ -71,7 +71,7 @@
         {
           "name": "密码重置.cellphone_number",
           "global_variable": "cellphone_number",
-          "response": "请提供您开户时预留的手机号"
+          "response": {"content": "请提供您开户时预留的手机号", "input_channel": "keyboard"}
         }
       ],
       "dm": [

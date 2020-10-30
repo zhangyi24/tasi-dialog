@@ -7,7 +7,7 @@
         {
           "name": "查户号.consumer_number",
           "global_variable": "consumer_number",
-          "response": "请您提供您的客户编号"
+          "response": {"content": "请您提供您的客户编号", "input_channel": "keyboard"}
         }
       ],
       "dm": [
@@ -62,7 +62,7 @@
       "slots": [
         {
           "name": "查户号.meter_number",
-          "response": "请您提供准确的电表号，我试着帮您查询客户编号",
+          "response": {"content": "请您提供准确的电表号，我试着帮您查询客户编号", "input_channel": "keyboard"},
           "global_variable": "meter_number"
         }
       ],

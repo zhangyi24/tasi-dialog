@@ -31,7 +31,6 @@ class ResultsTracker(object):
         codes = [self.results_code[res] for res in results]
         return codes
 
-
 class Bot(object):
     def __init__(self, interruptable=True, bot_config=None):
         # import config files
@@ -110,6 +109,11 @@ class Bot(object):
 
         self.users = {}
 
+        self.input_channel_code_map = {
+            "asr": "10",
+            "keyboard": "01"
+        }
+
     def init(self, user_id, user_info, call_info, task_id=-1):
         self.users[user_id] = {
             "user_id": user_id,
@@ -135,7 +139,7 @@ class Bot(object):
     def greeting(self, user_id):
         user = self.users[user_id]
         # generate response
-        resp = {'content': None, 'allow_interrupt': self.interruptable, 'input_channel': '10', 'src': ''}
+        resp = {'content': None, 'allow_interrupt': self.interruptable, 'input_channel': self.input_channel_code_map["asr"], 'src': ''}
         # return first response in main flow as the bot's response
         if 'main' in self.flows:
             resp, user['call_status'] = self.get_response_flow(user_id, user_utter=None)
@@ -178,7 +182,7 @@ class Bot(object):
     def get_response_flow(self, user_id, user_utter):
         """生成除了兜底话术之外的机器人正常回复"""
         user = self.users[user_id]
-        resp = {'content': None, 'allow_interrupt': self.interruptable, 'input_channel': '10', 'src': ''}
+        resp = {'content': None, 'allow_interrupt': self.interruptable, 'input_channel': self.input_channel_code_map["asr"], 'src': ''}
         g_vars = self.users[user_id]['g_vars']
         builtin_vars = self.users[user_id]['builtin_vars']
         node_stack = self.users[user_id]['node_stack']
@@ -249,7 +253,13 @@ class Bot(object):
 
             # response
             elif current_node['type'] == 'response':
-                resp['content'] = response_process(current_node['response'], g_vars, builtin_vars)
+                resp_content = ''
+                if type(current_node['response']) == str:
+                    resp_content = current_node['response']
+                elif type(current_node['response']) == dict:
+                    resp_content = current_node['response']["content"]
+                    resp['input_channel'] = self.input_channel_code_map[current_node['response'].get("input_channel", "asr")]
+                resp['content'] = response_process(resp_content, g_vars, builtin_vars)
 
             # flow
             elif current_node['type'] == 'flow':
@@ -270,7 +280,13 @@ class Bot(object):
                                                                                     user_utter,
                                                                                     g_vars)
                 if slot_request is not None:
-                    resp['content'] = response_process(slot_request, g_vars, builtin_vars)
+                    resp_content = ''
+                    if type(slot_request) == str:
+                        resp_content = slot_request
+                    elif type(slot_request) == dict:
+                        resp_content = slot_request["content"]
+                        resp['input_channel'] = self.input_channel_code_map[slot_request.get("input_channel", "asr")]
+                    resp['content'] = response_process(resp_content, g_vars, builtin_vars)
                     continue
                 if not slots_filling_finish:
                     continue
@@ -342,7 +358,13 @@ class Bot(object):
 
                     # 处理response
                     if 'response' in case:
-                        resp['content'] = response_process(case['response'], g_vars, builtin_vars)
+                        resp_content = ''
+                        if type(case['response']) == str:
+                            resp_content = case['response']
+                        elif type(case['response']) == dict:
+                            resp_content = case['response']["content"]
+                            resp['input_channel'] = self.input_channel_code_map[case['response'].get("input_channel", "asr")]
+                        resp['content'] = response_process(resp_content, g_vars, builtin_vars)
                     break
         builtin_vars['last_response'] = resp['content']
         return resp, user['call_status']

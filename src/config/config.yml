@@ -52,3 +52,6 @@ crs:
     "01": "http://127.0.0.1:49999"
     "02": "http://127.0.0.1:49998"
     "03": "http://127.0.0.1:49997"
+text-sgcc:
+  port: 19999
+  keyboard_access: True

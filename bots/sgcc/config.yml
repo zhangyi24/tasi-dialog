@@ -23,3 +23,6 @@ phone:
     interruptable: False
 text:
   port: 59999
+text-sgcc:
+  port: 19999
+  keyboard_access: True
