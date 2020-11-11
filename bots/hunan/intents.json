@@ -1,0 +1,91 @@
+{
+  "查户号": {
+    "name": "查户号",
+    "description": "",
+    "slots": {
+      "consumer_number": {
+        "name": "consumer_number",
+        "chineseName": "户号",
+        "valueSet": "user.consumer_number"
+      },
+      "pay_to": {
+        "name": "pay_to",
+        "chineseName": "交费地点",
+        "valueSet": "user.pay_to"
+      },
+      "meter_number": {
+        "name": "meter_number",
+        "chineseName": "电表号",
+        "valueSet": "user.meter_number"
+      }
+    }
+  },
+  "查电费": {
+    "name": "查电费",
+    "description": "",
+    "slots": {}
+  },
+  "电价标准": {
+    "name": "电价标准",
+    "description": "",
+    "slots": {}
+  },
+  "密码重置": {
+    "name": "密码重置",
+    "description": "",
+    "slots": {
+      "cellphone_number": {
+        "name": "cellphone_number",
+        "chineseName": "手机号码",
+        "valueSet": "user.cellphone_number"
+      }
+    }
+  },
+  "查询抄表数据": {
+    "name": "查询抄表数据",
+    "chineseName": "查询抄表数据",
+    "description": "查询抄表数据",
+    "slots": {
+      "month": {
+        "name": "month",
+        "chineseName": "月份",
+        "valueSet": "builtin.month"
+      }
+    }
+  },
+  "停电": {
+    "name": "停电",
+    "description": "",
+    "slots": {
+      "trip": {
+        "name": "trip",
+        "chineseName": "跳闸",
+        "valueSet": "builtin.yes_or_no"
+      },
+      "electricity_meter_displays_normally": {
+        "name": "electricity_meter_displays_normally",
+        "chineseName": "电表显示正常",
+        "valueSet": "builtin.yes_or_no"
+      }
+    }
+  },
+  "bye": {
+    "name": "bye",
+    "chineseName": "再见",
+    "description": "再见",
+    "slots": {}
+  },
+  "转人工": {
+    "name": "转人工",
+    "description": "转人工",
+    "slots": {}
+  },
+  "重述意图": {
+    "name": "重述意图",
+    "description": "重述",
+    "slots": {}
+  }
+}
+
+
+

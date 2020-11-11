@@ -262,7 +262,7 @@ cond字段的三种情况：
 
 全局变量目前只支持null、字符串、数字、bool。
 
-对话系统有2个内置全局变量：intent（最近一次意图识别结果），func_return（最近一次函数的返回），last_response（上一轮机器人的回复）。内置的全局变量以builtin开头，用户自定义的全局变量以global开头。
+对话系统有3个内置全局变量：intent（最近一次意图识别结果），func_return（最近一次函数的返回），last_response（上一轮机器人的回复）。内置的全局变量以builtin开头，用户自定义的全局变量以global开头。
 
 
 ##### 2.3 意图
