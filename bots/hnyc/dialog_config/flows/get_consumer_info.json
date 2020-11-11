@@ -1,0 +1,116 @@
+{
+  "name": "get_consumer_info",
+  "nodes": {
+    "0": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "order_info.phone_no",
+          "global_variable": "phone_no",
+          "response": {"content": "请提供您的手机号", "input_channel": "keyboard"}
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_number"
+              },
+              null
+            ]
+          },
+          "nextNode": "1"
+        },
+        {
+          "cond": "else",
+          "nextNode": "80"
+        }
+      ]
+    },
+    "1": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "order_info.cert_no",
+          "response": {"content": "请提供您的专卖证号", "input_channel": "keyboard"},
+          "global_variable": "cert_no"
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.pay_to"
+              },
+              null
+            ]
+          },
+          "nextNode": "70"
+        },
+        {
+          "cond": "else",
+          "nextNode": "5",
+          "response": "先生/女士，对不起，由于您的电费不是交给国家电网，所以您不属于国家电网的直供户，如果您有任何用电需求请您与您所属的产权单位（物业）联系，感谢您的配合。"
+        }
+      ]
+    },
+    "70": {
+      "type": "response",
+      "response": "抱歉，由于您无法提供或提供了错误的手机号和专卖证号，无法为您查询。",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "99"
+        }
+      ]
+    },
+    "80": {
+      "type": "function",
+      "funcName": "consumer_info_access_by_phone_no",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "builtin.func_return"
+              },
+              true
+            ]
+          },
+          "nextNode": "99"
+        },
+        {
+          "cond": "else",
+          "nextNode": "1"
+        }
+      ]
+    },
+    "81": {
+      "type": "function",
+      "funcName": "verify_consumer_name",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "builtin.func_return"
+              },
+              true
+            ]
+          },
+          "nextNode": "5"
+        },
+        {
+          "cond": "else",
+          "nextNode": "5",
+          "response": "很抱歉，您提供的户主姓名不正确。"
+        }
+      ]
+    },
+    "99": {
+      "type": "return"
+    }
+  }
+}

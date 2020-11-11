@@ -1,0 +1,12 @@
+{
+  "phone_no": {
+    "name": "phone_no",
+    "type": "regex",
+    "regex": "[0-9]{11}"
+  },
+  "cert_no": {
+    "name": "cert_no",
+    "type": "regex",
+    "regex": "[0-9]{3}"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "order_info": {
+    "name": "order_info",
+    "description": "",
+    "slots": {
+      "phone_no": {
+        "name": "phone_no",
+        "valueSet": "user.phone_no"
+      },
+      "cert_no": {
+        "name": "cert_no",
+        "valueSet": "user.cert_no"
+      }
+    }
+  }
+}
