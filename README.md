@@ -640,11 +640,12 @@ phone:
 | **参数**    | 数据类型 | **描述**                                                     |
 | ----------- | -------- | ------------------------------------------------------------ |
 | call_id     | str      | 呼叫唯一标识                                                 |
-| call_sor_id | str      | 机器人唯一标识                                               |
-| call_dst_id | str      | 用户唯一标识                                                 |
+| call_sor_id | str      | 机器人号码                                                   |
+| call_dst_id | str      | 用户号码                                                     |
 | start_time  | str      | 对话开始时间                                                 |
 | queue_id    | str      | 呼叫转移队列唯一标识                                         |
 | extend      | str      | 用户信息。用‘#’隔开，参数内容为[全局变量](#全局变量)配置文件中g_vars_need_init字段中变量列表的变量值。 |
+| entrance_id | str      | 呼叫路由标识                                                 |
 
 ##### inaction=9（正常交互）时的inparams如下表：
 
