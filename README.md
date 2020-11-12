@@ -586,6 +586,7 @@ phone:
 | call_sor_id | str      | 用户唯一标识                                                 |
 | start_time  | str      | 对话开始时间                                                 |
 | user_info   | str      | 用户信息。用‘#’隔开，参数内容为[全局变量](#全局变量)配置文件中g_vars_need_init字段中变量列表的变量值。 |
+| entrance_id | str      | 呼叫路由标识                                                 |
 
 ##### inaction=9（正常交互）时的inparams如下表：
 
