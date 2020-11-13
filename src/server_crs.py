@@ -44,17 +44,17 @@ class MainHandler(tornado.web.RequestHandler):
         assert self.req_body['inaction'] in [8, 9, 11, 0]
         if self.req_body['inaction'] == 8:
             # todo:获取场景id
-            scene_id = self.req_body['inparams']['entrance_id']
-            if scene_id not in self.conf_crs["route"]:
-                self.throw_error(400, f"[crs] There is no bot that corresponds to 'scene_id': {scene_id}.")
-            bot_url = self.conf_crs["route"][scene_id]
+            entrance_id = self.req_body['inparams']['entrance_id']
+            if entrance_id not in self.conf_crs["route"]:
+                self.throw_error(400, f"[crs] There is no bot that corresponds to 'entrance_id': {entrance_id}.")
+            bot_url = self.conf_crs["route"][entrance_id]
             self.users.update({self.req_body['userid']: {"bot_url": bot_url}})
             # 尝试获取resp
             resp_body = self.post_to_bot(url=bot_url, req_body=self.req_body)
             self.write_resp(resp_body)
         else:
             if self.req_body['userid'] not in self.users:
-                self.throw_error(400, f"[crs] There is no user whose user_id is {self.req_body['userid']}.")
+                self.throw_error(400, f"[crs] There is no user whose userid is {self.req_body['userid']}.")
             # 根据user_id获取用户信息
             user = self.users[self.req_body['userid']]
             bot_url = user["bot_url"]
@@ -62,7 +62,8 @@ class MainHandler(tornado.web.RequestHandler):
             resp_body = self.post_to_bot(url=bot_url, req_body=self.req_body)
             self.write_resp(resp_body)
         if resp_body['outaction'] == '10':
-            self.users.clear()
+            if self.req_body["userid"] in self.users:
+                self.users.pop(self.req_body["userid"])
 
     def throw_error(self, status_code, reason):
         logging.info(reason)

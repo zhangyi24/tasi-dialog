@@ -12,7 +12,6 @@ class KG(object):
         self.ltp = LtpProcess()
 
     def es_search(self, query):
-        # todo:搞一搞逻辑
         if not query:
             return []
         results = self.es.search(query)

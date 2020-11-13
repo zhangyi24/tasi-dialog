@@ -103,9 +103,10 @@ class Bot(object):
 
         # init nlu_manager
         self.nlu_manager = NLUManager(self.bot_config["intent_recognition"], self.templates, self.intents,
-                                      self.value_sets, self.stop_words, self.bot_config["kg"])
+                                      self.value_sets, self.stop_words, self.bot_config["kb"], self.bot_config["kg"])
         self.nlu_manager.intent_recognition('测试意图识别')  # 第一次识别分类模型和匹配模型都会比较慢，所以先识别一次。
-        self.nlu_manager.qa('测试图谱')  # 测试QA。
+        self.nlu_manager.qa_kb('测试QA(KB)')  # 测试QA(KB)。
+        self.nlu_manager.qa_kg('测试QA(KG)')  # 测试QA(KG)。
 
         self.users = {}
 
@@ -157,26 +158,31 @@ class Bot(object):
         resp, call_status = self.get_response_flow(user_id, user_utter)
         g_vars = self.users[user_id]['g_vars']
         builtin_vars = self.users[user_id]['builtin_vars']
-        if resp['content'] is None:
-            qa_answer = self.nlu_manager.qa(user_utter)
-            if qa_answer is not None:
-                resp['content'] = qa_answer
-                resp['src'] = 'kb'
-                builtin_vars["cnt_no_answer_succession"] = 0
-            else:
-                builtin_vars["cnt_no_answer_succession"] += 1
-                if self.bot_config["fwd"]["switch"] and builtin_vars["cnt_no_answer_succession"] >= self.bot_config["fwd"]["patient"]:
-                    builtin_vars["cnt_no_answer_succession"] = 0
-                    resp['content'] = self.service_language['fwd']
-                    call_status = self.users[user_id]['call_status'] = 'fwd'
-                else:
-                    # 兜底话术
-                    resp['content'] = response_process(self.service_language['pardon'], g_vars, builtin_vars)
-                resp['src'] = 'no_answer'
-        else:
+        if resp['content'] is not None:
             builtin_vars["cnt_no_answer_succession"] = 0
             resp['src'] = 'flow'
-
+        if resp['content'] is None:
+            qa_kb_response, _ = self.nlu_manager.qa_kb(user_utter)
+            if qa_kb_response is not None:
+                resp['content'] = qa_kb_response
+                resp['src'] = 'kb'
+                builtin_vars["cnt_no_answer_succession"] = 0
+        if resp['content'] is None:
+            qa_kg_answer = self.nlu_manager.qa_kg(user_utter)
+            if qa_kg_answer is not None:
+                resp['content'] = qa_kg_answer
+                resp['src'] = 'kg'
+                builtin_vars["cnt_no_answer_succession"] = 0
+        if resp['content'] is None:
+            builtin_vars["cnt_no_answer_succession"] += 1
+            if self.bot_config["fwd"]["switch"] and builtin_vars["cnt_no_answer_succession"] >= self.bot_config["fwd"]["patient"]:
+                builtin_vars["cnt_no_answer_succession"] = 0
+                resp['content'] = self.service_language['fwd']
+                call_status = self.users[user_id]['call_status'] = 'fwd'
+            else:
+                # 兜底话术
+                resp['content'] = response_process(self.service_language['pardon'], g_vars, builtin_vars)
+            resp['src'] = 'no_answer'
         return resp, call_status
 
     def get_response_flow(self, user_id, user_utter):

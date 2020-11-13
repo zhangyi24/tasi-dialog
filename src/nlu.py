@@ -6,21 +6,24 @@ import collections
 import re
 import os
 import logging
+import math
 
 from utils.str_process import expand_template, get_template_len, pattern_to_pinyin, strip_html_tags
 from slot_filling import slots_filling, slots_status_init
 from intent_recognition import IntentModelClassify, IntentModelTemplate, IntentModelSimilarity
 from kg.search import KG
+from kbqa.es import ES
 
 
 class NLUManager(object):
-    def __init__(self, intent_recognition_config, templates, intents, value_sets, stop_words, kg_config):
+    def __init__(self, intent_recognition_config, templates, intents, value_sets, stop_words, kb_config, kg_config):
         self.intent_recognition_config = intent_recognition_config
         self.templates = templates
         self.intents = intents
         self.value_sets = value_sets
         self.preprocess_value_sets()
         self.stop_words = stop_words
+        self.kb_config = kb_config
         self.kg_config = kg_config
 
         # intent_model_classify
@@ -63,13 +66,15 @@ class NLUManager(object):
         # intent_model_template
         self.intent_model_template = IntentModelTemplate(self.templates)
 
+        # kb
+        index = self.kb_config["es_index_prefix"] + "-" + os.path.basename(os.getcwd())
+        self.kb_module = ES(self.kb_config["es_addr"], index=index) if self.kb_config["switch"] else None
+        logging.info("KBQA switch: %s" % self.kb_config["switch"])
+
         # kg
-        if self.kg_config["switch"]:
-            self.kg_model = KG(self.kg_config["es"], self.kg_config["neo4j"])
-            logging.info("KG loaded.")
-        else:
-            self.kg_model = None
-            logging.info("No KG loaded.")
+        self.kg_module = KG(self.kg_config["es"], self.kg_config["neo4j"]) if self.kg_config["switch"] else None
+        logging.info("KG switch: %s" % self.kg_config["switch"])
+
 
     def preprocess_value_sets(self):
         """1.编译regex型的正则表达式。2.把dict型的别名按长度从长到短排序"""
@@ -122,10 +127,37 @@ class NLUManager(object):
                 intent = None
         return intent
 
-    def qa(self, user_utter):
-        if self.kg_model is None:
+    def qa_kb(self, user_utter):
+        if self.kb_module is None:
+            return None, None
+        hit = self.kb_module.retrieve(user_utter)
+        if hit is None:
+            logging.info(f"KBQA(BM25): user_utter: '{user_utter}', hit_question: {{}}, score: 0")
+            return None, None
+        hit_question = hit["hit_question"]
+        score = hit["score"]
+        num_questions = hit["num_questions"]
+        average_question_length = hit["average_question_length"]
+        threshold = max(self.kb_config["threshold"] * math.log(1 + num_questions) * average_question_length * 0.25, 1.01)
+        logging.info(f"KBQA(BM25): user_utter: '{user_utter}', hit_question: {hit_question}, score: {score}, threshold:{threshold}")
+        if hit is None:
+            return None, None
+        if score < threshold:
+            return None, None
+        question = hit["doc"]["standard_question"]
+        answer = hit["doc"]["answers"][0]
+        recommend = ""
+        if self.kb_config["recommend"]["switch"]:
+            related_questions = hit["doc"]["related_questions"][: self.kb_config["recommend"]["max_items"]]
+            if len(related_questions):
+                recommend = "\n您是不是还想问：\n" + "\n".join(related_questions)
+        response = f"{question}\n{answer}{recommend}"
+        return response, hit
+
+    def qa_kg(self, user_utter):
+        if self.kg_module is None:
             return None
-        es_search_results = self.kg_model.es_search(user_utter)
+        es_search_results = self.kg_module.es_search(user_utter)
         q_id = None
         if len(es_search_results) > 0:
             label = es_search_results[0]["label"]
@@ -138,7 +170,7 @@ class NLUManager(object):
                 pass
         if q_id is None:
             return None
-        neo4j_search_result = self.kg_model.neo4j_match_question_id(q_id)
+        neo4j_search_result = self.kg_module.neo4j_match_question_id(q_id)
         answer = neo4j_search_result.get('content', None)
         if type(answer) is str:
             answer = strip_html_tags(answer)

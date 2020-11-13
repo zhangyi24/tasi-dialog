@@ -18,7 +18,12 @@ bot:
       max_items: 3
   kb:
     switch: False
-    min_score: 15
+    es_addr: "http://127.0.0.1:9200"
+    es_index_prefix: "kbqa"
+    threshold: 1.0
+    recommend:
+      switch: False
+      max_items: 10
   fwd:
     switch: False
     patient: 3
@@ -43,10 +48,6 @@ phone:
       url: "http://39.99.186.66:8001/api/robot/resultSave"
   asr:
     record_dir: 'https://tasi-callcenter-audio-record.oss-cn-beijing.aliyuncs.com/ASR/'
-admin:
-  port: 39999
-es:
-  addr: '127.0.0.1:9200'
 crs:
   port: 29999
   route:

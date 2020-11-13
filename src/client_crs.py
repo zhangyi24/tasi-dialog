@@ -3,9 +3,9 @@ import requests
 import copy
 
 userid = '25044006'
-entrance_id = "02"
-local_server_url = 'http://127.0.0.1:29999'
-remote_server_url = 'http://101.6.68.40:29999'
+entrance_id = "bot114-text"
+local_server_url = 'http://127.0.0.1:59999'
+remote_server_url = 'http://101.6.68.40:59999'
 url = local_server_url
 req_body_8 = {
     'userid': userid,
@@ -16,6 +16,7 @@ req_body_8 = {
         'call_dst_id': '053267774615',
         'start_time': '2020-03-14 22:22:37767',
         'entrance_id': entrance_id,
+        'user_info': '',
         'flow': 'root.xml',
         'queue_id': '52',
         'extend': '01#杭州市#60',
@@ -36,7 +37,6 @@ req_body_tts = {
         'input': '',
         'inter_no': '2020-03-14 22:22:37909',
         'org': '',
-        'grammar': '',
         'newsess': '',
         'res_node_lst': '',
         'res_parse_mode': '',
@@ -78,24 +78,23 @@ req_body_tts_asr = {
 }
 
 req_body_user_hangup = {
-	'userid': userid,
-	'inaction': 9,
-	'inparams': {
-		'call_id': userid,
-		'inter_idx': '交互序号',
-		"begin_play": "放音开始时间",
-		"end_play": "放音结束时间",
-		"result_time": "结果产生时间",
-		"flow_result_type": '3',
-		'input': 'hangup',
-		"inter_no": "识别标识",
-		"org": "语义资源包",
-		"grammar": "语法文件名",
-		"newsess": "清空上下文标志",
-		"res_node_lst": "小包资源名称",
-		"res_parse_mode": "确定资源的优先级",
-		"extended_field": "扩展字段，后继新增字段在此字段中拼接"
-	}
+    'userid': userid,
+    'inaction': 9,
+    'inparams': {
+        'call_id': userid,
+        'inter_idx': '交互序号',
+        "begin_play": "放音开始时间",
+        "end_play": "放音结束时间",
+        "result_time": "结果产生时间",
+        "flow_result_type": '3',
+        'input': 'hangup',
+        "inter_no": "识别标识",
+        "org": "语义资源包",
+        "grammar": "语法文件名",
+        "newsess": "清空上下文标志",
+        "res_parse_mode": "确定资源的优先级",
+        "extended_field": "扩展字段，后继新增字段在此字段中拼接"
+    }
 }
 
 req_body_11 = {
@@ -121,6 +120,7 @@ req_body_0 = {
     }
 }
 
+
 def get_req_body_tts_asr(user_utter):
     req_body = copy.deepcopy(req_body_tts_asr)
     req_body['inparams'].update({'input': user_utter})
@@ -133,7 +133,6 @@ def post(url, req_body):
         print(resp.elapsed, resp.json() if resp.content else {})
     except requests.exceptions.ConnectionError as e:
         print(e)
-
 
 
 if __name__ == '__main__':
@@ -151,4 +150,3 @@ if __name__ == '__main__':
         req_body = get_req_body_tts_asr(user_utter)
         post(url, req_body)
     post(url, req_body_user_hangup)
-

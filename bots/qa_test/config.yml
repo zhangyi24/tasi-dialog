@@ -1,0 +1,13 @@
+phone:
+  port: 49998
+  bot:
+    interruptable: False
+text:
+  port: 59998
+bot:
+  kb:
+    switch: True
+    threshold: 1.0
+    recommend:
+      switch: True
+      max_items: 10
