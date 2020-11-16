@@ -18,12 +18,20 @@ bot:
       max_items: 3
   kb:
     switch: False
-    es_addr: "http://127.0.0.1:9200"
-    es_index_prefix: "kbqa"
+    es:
+      addr: "http://127.0.0.1:9200"
+      index_prefix: "kbqa"
+    mysql:
+      host: "127.0.0.1"
+      port: "3306"
+      user: "root"
+      password: "123456"
+      database: "kbqa"
     threshold: 1.0
     recommend:
       switch: False
       max_items: 10
+    sync_period: 10
   fwd:
     switch: False
     patient: 3

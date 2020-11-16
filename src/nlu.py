@@ -67,8 +67,8 @@ class NLUManager(object):
         self.intent_model_template = IntentModelTemplate(self.templates)
 
         # kb
-        index = self.kb_config["es_index_prefix"] + "-" + os.path.basename(os.getcwd())
-        self.kb_module = ES(self.kb_config["es_addr"], index=index) if self.kb_config["switch"] else None
+        index = self.kb_config["es"]["index_prefix"] + "_" + os.path.basename(os.getcwd())
+        self.kb_module = ES(self.kb_config["es"]["addr"], index=index) if self.kb_config["switch"] else None
         logging.info("KBQA switch: %s" % self.kb_config["switch"])
 
         # kg

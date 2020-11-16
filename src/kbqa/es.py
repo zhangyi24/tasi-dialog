@@ -10,10 +10,10 @@ from elasticsearch import Elasticsearch
 
 
 class ES(object):
-    def __init__(self, address, index, synonyms=None):
-        self.address = address
+    def __init__(self, addr, index, synonyms=None):
+        self.addr = addr
         self.index = index
-        self.es = Elasticsearch(self.address)
+        self.es = Elasticsearch(self.addr)
         if synonyms is None:
             synonyms = []
         self.index_settings = {
@@ -67,15 +67,15 @@ class ES(object):
                 }
             }
         }
-        if not self.es.ping():
-            logging.info(f"Can not connect to elasticsearch cluster: {self.address}")
+        if not self.ping():
+            logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
             return
         if not self.es.indices.exists(index=self.index):
             self.es.indices.create(index=self.index, body=self.index_settings)
 
     def index_doc(self, file):
-        if not self.es.ping():
-            logging.info(f"Can not connect to elasticsearch cluster: {self.address}")
+        if not self.ping():
+            logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
             return
         if self.es.indices.exists(index=self.index):
             res = self.es.indices.delete(index=self.index)
@@ -101,8 +101,8 @@ class ES(object):
         # success, _ = bulk(es, ACTIONS, index=index, raise_on_error=True)
 
     def retrieve(self, query, explain=True):
-        if not self.es.ping():
-            logging.info(f"Can not connect to elasticsearch cluster: {self.address}")
+        if not self.ping():
+            logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
             return None
         try:
             hits = self.search(query, explain=explain)
@@ -191,13 +191,27 @@ class ES(object):
         avgdl = tf[4]["value"]
         return num_docs, avgdl
 
+    def ping(self):
+        try:
+            ping_result = self.es.ping()
+        except Exception as e:
+            ping_result = False
+        return ping_result
+
+    def get_ids(self):
+        if not self.ping():
+            logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
+            return []
+        hits = self.es.search(body={"query": {"match_all": {}}, "_source": ["id"]}, index=self.index)["hits"]["hits"]
+        return [doc["_source"]["id"] for doc in hits]
+
 
 if __name__ == "__main__":
     address = 'http://127.0.0.1:9200'
     index = 'qa'
 
     es = ES(address, index)
-    # es.index_doc("kb.json")
+    es.index_doc("kb.json")
     # es.search("类似问")
-    es.search("类似问的", full=False)
+    # es.search("类似问的", full=False)
 
