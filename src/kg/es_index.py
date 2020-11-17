@@ -1,5 +1,6 @@
 from elasticsearch import Elasticsearch
 import json
+import logging
 # todo: 读取config
 index = '95598'
 doc_type = 'question'
@@ -8,7 +9,7 @@ es = Elasticsearch(address)
 try:
 	res = es.indices.delete(index=index)
 except:
-	print(index, '不存在')
+	logging.info(index, '不存在')
 #创建索引
 mappings = {
 	"properties": {

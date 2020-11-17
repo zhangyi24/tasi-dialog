@@ -36,8 +36,6 @@ class Synchonizer(object):
         self.last_sync_time = datetime.datetime(1970, 1, 1)
 
     def sync_from_mysql(self):
-
-
         if not self.es.ping():
             logging.info(f"Can not connect to elasticsearch cluster: {self.es.addr}")
             return
@@ -81,7 +79,8 @@ class Synchonizer(object):
             "standard_question": record["standard_question"],
             "questions": questions,
             "related_questions": json.loads(record["related_questions"]),
-            "answers": json.loads(record["answers"])
+            "answers": json.loads(record["answers"]),
+            "is_published": bool(record["is_published"])
         }
         self.es.es.index(index=self.index, body=doc, id=record["id"])
 

@@ -96,7 +96,7 @@ class KbHandler(tornado.web.RequestHandler):
             try:
                 res = es.indices.delete(index=self.index)
             except:
-                print('不存在')
+                logging.info('不存在')
             # 创建索引
             mappings = {
                 "question": {

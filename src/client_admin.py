@@ -1,10 +1,11 @@
 # coding=utf-8
 import requests
 import copy
+import logging
 
 def post(url, req_body):
     resp = requests.post(url=url, json=req_body)
-    print(resp.elapsed, resp.json() if resp.content else {})
+    logging.info(resp.elapsed, resp.json() if resp.content else {})
 
 
 if __name__ == '__main__':

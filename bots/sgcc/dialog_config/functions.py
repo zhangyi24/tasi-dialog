@@ -67,12 +67,13 @@ def elec_price_inquiry(user_utter, global_vars):
 				return price
 	
 	def get_volt_kV(volt_string):
+		import logging
 		if volt_string[-2:] == 'kV':
 			volt_kV = float(volt_string[: -2])
 		elif volt_string[-1:] == 'V':
 			volt_kV = float(volt_string[: -1]) / 1000
 		else:
-			print('Invalid voltCode: %s.' % volt_string)
+			logging.info('Invalid voltCode: %s.' % volt_string)
 		return volt_kV
 	
 	response = '经查询，'

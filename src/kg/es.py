@@ -1,6 +1,6 @@
 # coding=utf-8
 from elasticsearch import Elasticsearch
-import os, json, codecs, sys
+import os, json, codecs, sys, logging
 
 sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
 
@@ -60,7 +60,7 @@ class ElasticSearch(object):
                 tmp = {'score': score, 'label': label, 'id': _id}
                 arrs.append(tmp)
         except Exception as e:
-            print(e)
-            print('error')
+            logging.info(e)
+            logging.info('error')
 
         return arrs

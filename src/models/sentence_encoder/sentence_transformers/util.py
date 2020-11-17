@@ -4,6 +4,7 @@ from typing import Tuple, List
 from tqdm import tqdm
 import sys
 import importlib
+import logging
 
 
 def batch_to_device(batch, target_device: device):
@@ -28,7 +29,7 @@ def http_get(url, path):
     with open(path, "wb") as file_binary:
         req = requests.get(url, stream=True)
         if req.status_code != 200:
-            print("Exception when trying to download {}. Response {}".format(url, req.status_code), file=sys.stderr)
+            logging.info("Exception when trying to download {}. Response {}".format(url, req.status_code), file=sys.stderr)
             req.raise_for_status()
 
         content_length = req.headers.get('Content-Length')

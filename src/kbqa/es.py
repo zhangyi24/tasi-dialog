@@ -61,6 +61,9 @@ class ES(object):
                     "answers": {
                         "type": "text"
                     },
+                    "is_published": {
+                        "type": "boolean"
+                    },
                     "id": {
                         "type": "keyword"
                     }
@@ -79,9 +82,9 @@ class ES(object):
             return
         if self.es.indices.exists(index=self.index):
             res = self.es.indices.delete(index=self.index)
-            # print(f"indices_delete result: {res}")
+            # logging.info(f"indices_delete result: {res}")
         result = self.es.indices.create(index=self.index, body=self.index_settings)
-        # print(f"indices_create result: {result}")
+        # logging.info(f"indices_create result: {result}")
         # 添加索引
         items = []
         if os.path.exists(file):
@@ -94,10 +97,10 @@ class ES(object):
                 question["is_standard"] = False
             item["questions"].append({"question": item["standard_question"], "is_standard": True, "id": item["id"]})
             res = self.es.index(index=self.index, body=item, id=item["id"])
-            # print(f"index result: {res}")
+            # logging.info(f"index result: {res}")
         self.es.indices.refresh(index=self.index)
-        # print(self.es.search(body={"query": {"match_all": {}}}, index=es.index))
-        # print(self.es.get(id="0",index=self.index))
+        # logging.info(self.es.search(body={"query": {"match_all": {}}}, index=es.index))
+        # logging.info(self.es.get(id="0",index=self.index))
         # success, _ = bulk(es, ACTIONS, index=index, raise_on_error=True)
 
     def retrieve(self, query, explain=True):
@@ -110,21 +113,22 @@ class ES(object):
                 try:
                     hits = self.search(query, full=False, explain=explain)
                 except Exception as e:
-                    print(e)
+                    logging.info(e)
                     return None
             hits = hits["hits"]["hits"]
             if not hits:
                 return None
             else:
                 hit = hits[0]
-                num_questions, avgdl = self.get_num_questions_and_avgdl(hit["_explanation"])
+                num_docs = self.get_num_docs(hit["_explanation"])
+                avg_len = self.get_avg_len(hit["_explanation"])
                 return {"score": hit["_score"],
                         "hit_question": hit["inner_hits"]["questions"]["hits"]["hits"][0]["_source"],
                         "doc": hit["_source"],
-                        "num_questions": num_questions,
-                        "average_question_length": avgdl}
+                        "num_questions": num_docs,
+                        "average_question_length": avg_len}
         except Exception as e:
-            print(e)
+            logging.info(e)
             return None
 
     def search(self, query, full=True, explain=True):
@@ -157,39 +161,23 @@ class ES(object):
             }
         query_body = {
             "query": {
-                "nested": {
-                    "path": "questions",
-                    "query": query_body_core,
-                    "score_mode": "max",
-                    "inner_hits": {}
+                "bool": {
+                    "must": {
+                        "nested": {
+                            "path": "questions",
+                            "query": query_body_core,
+                            "score_mode": "max",
+                            "inner_hits": {}
+                        }
+                    },
+                    "filter": [
+                        {"term": {"is_published": True}},
+                    ]
                 }
             }
         }
         hits = self.es.search(body=query_body, index=self.index, explain=explain)
         return hits
-
-    def get_num_questions(self):
-        agg_body = {
-            "size": 0,
-            "aggs": {
-                "cnt_questions": {
-                    "sum": {
-                        "script": {
-                            "source": "params._source.questions.size()"
-                        }
-                    }
-                }
-            }
-        }
-        agg_result = self.es.search(body=agg_body, index=self.index)
-        return agg_result['aggregations']['cnt_questions']['value']
-
-    def get_num_questions_and_avgdl(self, explanation):
-        idf = explanation["details"][0]["details"][0]["details"][0]["details"][1]["details"]
-        tf = explanation["details"][0]["details"][0]["details"][0]["details"][2]["details"]
-        num_docs = idf[0]["details"][1]["value"]
-        avgdl = tf[4]["value"]
-        return num_docs, avgdl
 
     def ping(self):
         try:
@@ -205,6 +193,20 @@ class ES(object):
         hits = self.es.search(body={"query": {"match_all": {}}, "_source": ["id"]}, index=self.index)["hits"]["hits"]
         return [doc["_source"]["id"] for doc in hits]
 
+    def get_num_docs(self, explanation):
+        for child in explanation["details"]:
+            value_child = self.get_num_docs(child)
+            if value_child is not None:
+                return value_child
+        return explanation["value"] if explanation["description"] == "N, total number of documents with field" else None
+
+    def get_avg_len(self, explanation):
+        for child in explanation["details"]:
+            value_child = self.get_avg_len(child)
+            if value_child is not None:
+                return value_child
+        return explanation["value"] if explanation["description"] == "avgdl, average length of field" else None
+
 
 if __name__ == "__main__":
     address = 'http://127.0.0.1:9200'
@@ -214,4 +216,3 @@ if __name__ == "__main__":
     es.index_doc("kb.json")
     # es.search("类似问")
     # es.search("类似问的", full=False)
-

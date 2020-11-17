@@ -138,7 +138,7 @@ class NLUManager(object):
         score = hit["score"]
         num_questions = hit["num_questions"]
         average_question_length = hit["average_question_length"]
-        threshold = max(self.kb_config["threshold"] * math.log(1 + num_questions) * average_question_length * 0.25, 1.01)
+        threshold = max(self.kb_config["threshold"] * math.log(1 + num_questions) * math.sqrt(average_question_length) * 0.33, 1.01)
         logging.info(f"KBQA(BM25): user_utter: '{user_utter}', hit_question: {hit_question}, score: {score}, threshold:{threshold}")
         if hit is None:
             return None, None
