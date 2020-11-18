@@ -148,7 +148,9 @@ class NLUManager(object):
         answer = hit["doc"]["answers"][0]
         recommend = ""
         if self.kb_config["recommend"]["switch"]:
-            related_questions = hit["doc"]["related_questions"][: self.kb_config["recommend"]["max_items"]]
+            related_question_ids = hit["doc"]["related_questions"]
+            related_question_docs = self.kb_module.query_by_ids(related_question_ids)[: self.kb_config["recommend"]["max_items"]]
+            related_questions = [doc["_source"]["standard_question"] for doc in related_question_docs]
             if len(related_questions):
                 recommend = "\n您是不是还想问：\n" + "\n".join(related_questions)
         response = f"{question}\n{answer}{recommend}"

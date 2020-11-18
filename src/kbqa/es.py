@@ -193,6 +193,25 @@ class ES(object):
         hits = self.es.search(body={"query": {"match_all": {}}, "_source": ["id"]}, index=self.index)["hits"]["hits"]
         return [doc["_source"]["id"] for doc in hits]
 
+    def query_by_ids(self, ids):
+        if not self.ping():
+            logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
+            return []
+        query_body = {
+            "query": {
+                "bool": {
+                    "filter": [
+                        {"terms": {"id": ids}},
+                        {"term": {"is_published": True}}
+                    ]
+                }
+            }
+        }
+        hits = self.es.search(body=query_body, index=self.index)
+        return hits["hits"]["hits"]
+
+
+
     def get_num_docs(self, explanation):
         for child in explanation["details"]:
             value_child = self.get_num_docs(child)
