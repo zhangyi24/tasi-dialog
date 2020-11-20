@@ -28,7 +28,7 @@ bot:
       database: "es_db"
     threshold: 1.0
     recommend:
-      switch: False
+      switch: True
       max_items: 10
     sync_period: 10
   fwd:

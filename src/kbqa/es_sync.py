@@ -84,7 +84,6 @@ if __name__ == "__main__":
     synchonizer = Synchonizer(conf_kb)
 
     logging.info("KBQA switch: %s" % conf_kb["switch"])
-    if conf_kb["switch"]:
-        tornado.ioloop.PeriodicCallback(synchonizer.sync_from_mysql, conf_kb["sync_period"] * 1000).start()  # start scheduler 每隔2s执行一次f2s
-        logging.info('qa synchonizer started.')
-        tornado.ioloop.IOLoop.current().start()
+    tornado.ioloop.PeriodicCallback(synchonizer.sync_from_mysql, conf_kb["sync_period"] * 1000).start()  # start scheduler 每隔2s执行一次f2s
+    logging.info('qa synchonizer started.')
+    tornado.ioloop.IOLoop.current().start()
