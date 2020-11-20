@@ -9,18 +9,9 @@ class TestFlow(unittest.TestCase):
         self.conf = conf
         self.user_id = 1
         self.bot.init(self.user_id, {}, None, -1)
-        
-    # def test_greeting(self):
-    #     print(f"{self.bot.users}")
-    #     resp, status = self.bot.greeting(user_id=self.user_id)
-    #     print(f"resp={resp}.status={status}")
-    #
-    # def test_response(self):
-    #     input = "我要订货"
-    #     resp, status = self.bot.response(self.user_id, input)
-    #     print(f"resp={resp}.status={status}")
 
 def test_flow_generator(filepath):
+    filename = os.path.basename(filepath)
     f = open(filepath, 'r') 
     lines = f.readlines()
     lines = [re.sub("^bot:[\t ]*|^user:[\t ]*|\n",'',l) for l in lines]
@@ -33,10 +24,10 @@ def test_flow_generator(filepath):
             response = lines.pop(0)
             resp, status = self.bot.response(self.user_id, ask)
             line_index = i*2 + 3
-            self.assertEqual(resp['content'], response, msg=f"Response at line {line_index} failed")
+            self.assertEqual(resp['content'], response, msg=f"Response at {filename} line {line_index} failed")
     return test
 
-case_dir = os.path.realpath(os.path.realpath(__file__) + '/../cases/*.txt')
+case_dir = os.path.realpath(os.path.realpath(__file__) + '/../cases/cert-order.txt')
 for f in glob.glob(case_dir):
     test_name = 'test_flow_%s' % os.path.basename(f)
     test = test_flow_generator(f)
