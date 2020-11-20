@@ -24,6 +24,7 @@ class NLUManager(object):
         self.preprocess_value_sets()
         self.stop_words = stop_words
         self.kb_config = kb_config
+        self.bot_name = os.path.basename(os.getcwd())
         self.kg_config = kg_config
 
         # intent_model_classify
@@ -67,8 +68,7 @@ class NLUManager(object):
         self.intent_model_template = IntentModelTemplate(self.templates)
 
         # kb
-        index = self.kb_config["es"]["index_prefix"] + "_" + os.path.basename(os.getcwd())
-        self.kb_module = ES(self.kb_config["es"]["addr"], index=index) if self.kb_config["switch"] else None
+        self.kb_module = ES(self.kb_config["es"]["addr"]) if self.kb_config["switch"] else None
         logging.info("KBQA switch: %s" % self.kb_config["switch"])
 
         # kg
@@ -130,7 +130,7 @@ class NLUManager(object):
     def qa_kb(self, user_utter):
         if self.kb_module is None:
             return None, None
-        hit = self.kb_module.retrieve(user_utter)
+        hit = self.kb_module.retrieve(user_utter, self.bot_name)
         if hit is None:
             logging.info(f"KBQA(BM25): user_utter: '{user_utter}', hit_question: {{}}, score: 0")
             return None, None
@@ -144,16 +144,16 @@ class NLUManager(object):
             return None, None
         if score < threshold:
             return None, None
-        question = hit["doc"]["standard_question"]
-        answer = hit["doc"]["answers"][0]
+        if not hit["qa"]:
+            return None, None
+        standard_question = hit["qa"]["standard_question"]
+        answer = hit["qa"]["answer"]
         recommend = ""
         if self.kb_config["recommend"]["switch"]:
-            related_question_ids = hit["doc"]["related_questions"]
-            related_question_docs = self.kb_module.query_by_ids(related_question_ids)[: self.kb_config["recommend"]["max_items"]]
-            related_questions = [doc["_source"]["standard_question"] for doc in related_question_docs]
+            related_questions = hit["related_questions"][: self.kb_config["recommend"]["max_items"]]
             if len(related_questions):
                 recommend = "\n您是不是还想问：\n" + "\n".join(related_questions)
-        response = f"{question}\n{answer}{recommend}"
+        response = f"{standard_question}\n{answer}{recommend}"
         return response, hit
 
     def qa_kg(self, user_utter):

@@ -17,16 +17,15 @@ bot:
       switch: False
       max_items: 3
   kb:
-    switch: False
+    switch: True
     es:
       addr: "http://127.0.0.1:9200"
-      index_prefix: "kbqa"
     mysql:
-      host: "127.0.0.1"
+      host: "118.190.53.158"
       port: "3306"
       user: "root"
-      password: "123456"
-      database: "kbqa"
+      password: "rbjf_DEV123"
+      database: "es_db"
     threshold: 1.0
     recommend:
       switch: False

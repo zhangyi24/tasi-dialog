@@ -5,66 +5,111 @@ import os
 import logging
 
 import jieba.posseg as pseg
-import tqdm
 from elasticsearch import Elasticsearch
 
 
 class ES(object):
-    def __init__(self, addr, index, synonyms=None):
+    def __init__(self, addr, synonyms=None):
         self.addr = addr
-        self.index = index
         self.es = Elasticsearch(self.addr)
         if synonyms is None:
             synonyms = []
-        self.index_settings = {
-            "settings": {
-                "analysis": {
-                    "filter": {
-                        "synonym": {
-                            "type": "synonym",
-                            "synonyms": synonyms
-                        }
-                    },
-                    "analyzer": {
-                        "ik_max_word_synonym": {
-                            "type": "custom",
-                            "tokenizer": "ik_max_word",
-                            "filter": ["synonym"]
-                        }
+        self.settings = {
+            "analysis": {
+                "filter": {
+                    "synonym": {
+                        "type": "synonym",
+                        "synonyms": synonyms
+                    }
+                },
+                "analyzer": {
+                    "ik_max_word_synonym": {
+                        "type": "custom",
+                        "tokenizer": "ik_max_word",
+                        "filter": ["synonym"]
                     }
                 }
-            },
-            "mappings": {
+            }
+        }
+        self.mappings = {
+            "kbqa_qa": {
                 "properties": {
+                    "id": {
+                        "type": "keyword"
+                    },
                     "standard_question": {
-                        "type": "text",
-                        "analyzer": "ik_max_word_synonym"
-                    },
-                    "questions": {
-                        "type": "nested",
-                        "properties": {
-                            "question": {
-                                "type": "text",
-                                "analyzer": "ik_max_word_synonym"
-                            },
-                            "is_standard": {
-                                "type": "boolean"
-                            },
-                            "id": {
-                                "type": "keyword"
-                            }
-                        }
-                    },
-                    "related_questions": {
                         "type": "text"
                     },
                     "answers": {
                         "type": "text"
                     },
-                    "is_published": {
-                        "type": "boolean"
+                    "category_id": {
+                        "type": "keyword"
                     },
+                    "is_published": {
+                        "type": "keyword"
+                    }
+                }
+            },
+            "kbqa_questions": {
+                "properties": {
                     "id": {
+                        "type": "keyword"
+                    },
+                    "question": {
+                        "type": "text",
+                        "analyzer": "ik_max_word_synonym"
+                    },
+                    "standard_question_id": {
+                        "type": "keyword"
+                    },
+                    "is_standard": {
+                        "type": "keyword"
+                    }
+                }
+            },
+            "kbqa_related_questions": {
+                "properties": {
+                    "id": {
+                        "type": "keyword"
+                    },
+                    "standard_question_id": {
+                        "type": "keyword"
+                    },
+                    "related_question_id": {
+                        "type": "keyword"
+                    }
+                }
+            },
+            "kbqa_knowledge_categories": {
+                "properties": {
+                    "id": {
+                        "type": "keyword"
+                    },
+                    "name": {
+                        "type": "text"
+                    }
+                }
+            },
+            "kbqa_bots": {
+                "properties": {
+                    "id": {
+                        "type": "keyword"
+                    },
+                    "name": {
+                        "type": "text"
+                    }
+                }
+            },
+            "kbqa_categories_bots_mapping": {
+                "properties": {
+                    "id": {
+                        "type": "keyword"
+                    },
+                    "category_id": {
+                        "type": "keyword"
+                    },
+                    "bot_id": {
                         "type": "keyword"
                     }
                 }
@@ -73,66 +118,72 @@ class ES(object):
         if not self.ping():
             logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
             return
-        if not self.es.indices.exists(index=self.index):
-            self.es.indices.create(index=self.index, body=self.index_settings)
+        for index, mappings in self.mappings.items():
+            if not self.es.indices.exists(index=index):
+                self.es.indices.create(index=index, body={"settings": self.settings, "mappings": mappings})
 
-    def index_doc(self, file):
-        if not self.ping():
-            logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
-            return
-        if self.es.indices.exists(index=self.index):
-            res = self.es.indices.delete(index=self.index)
-            # logging.info(f"indices_delete result: {res}")
-        result = self.es.indices.create(index=self.index, body=self.index_settings)
-        # logging.info(f"indices_create result: {result}")
-        # 添加索引
-        items = []
-        if os.path.exists(file):
-            with open(file, 'r', encoding='utf-8') as f:
-                items = json.load(f)
-        for item in tqdm.tqdm(items, desc="indexing qa"):
-            item["questions"] = item.pop("similar_questions")
-            questions = item["questions"]
-            for question in questions:
-                question["is_standard"] = False
-            item["questions"].append({"question": item["standard_question"], "is_standard": True, "id": item["id"]})
-            res = self.es.index(index=self.index, body=item, id=item["id"])
-            # logging.info(f"index result: {res}")
-        self.es.indices.refresh(index=self.index)
-        # logging.info(self.es.search(body={"query": {"match_all": {}}}, index=es.index))
-        # logging.info(self.es.get(id="0",index=self.index))
-        # success, _ = bulk(es, ACTIONS, index=index, raise_on_error=True)
-
-    def retrieve(self, query, explain=True):
+    def get_bot_id(self, bot_name):
         if not self.ping():
             logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
             return None
-        try:
-            hits = self.search(query, explain=explain)
-            if not hits["hits"]["hits"]:
-                try:
-                    hits = self.search(query, full=False, explain=explain)
-                except Exception as e:
-                    logging.info(e)
-                    return None
-            hits = hits["hits"]["hits"]
-            if not hits:
-                return None
-            else:
-                hit = hits[0]
-                num_docs = self.get_num_docs(hit["_explanation"])
-                avg_len = self.get_avg_len(hit["_explanation"])
-                return {"score": hit["_score"],
-                        "hit_question": hit["inner_hits"]["questions"]["hits"]["hits"][0]["_source"],
-                        "doc": hit["_source"],
-                        "num_questions": num_docs,
-                        "average_question_length": avg_len}
-        except Exception as e:
-            logging.info(e)
-            return None
+        index = "kbqa_bots"
+        query_body = {
+            "query": {
+                "bool": {
+                    "filter": [
+                        {"term": {"name": bot_name}}
+                    ]
+                }
+            }
+        }
+        hits = self.es.search(body=query_body, index=index)["hits"]["hits"]
+        return hits[0]["_source"]["id"] if hits else None
 
-    def search(self, query, full=True, explain=True):
-        field = "questions.question"
+    def get_knowledge_category_ids(self, bot_name):
+        if not self.ping():
+            logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
+            return []
+        index = "kbqa_categories_bots_mapping"
+        bot_id = self.get_bot_id(bot_name)
+        query_body = {
+            "query": {
+                "bool": {
+                    "filter": [
+                        {"term": {"bot_id": bot_id}}
+                    ]
+                }
+            }
+        }
+        hits = self.es.search(body=query_body, index=index)["hits"]["hits"]
+        return list(set(hit["_source"]["category_id"] for hit in hits))
+
+    def get_standard_question_ids(self, bot_name):
+        if not self.ping():
+            logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
+            return []
+        index = "kbqa_qa"
+        knowledge_category_ids = self.get_knowledge_category_ids(bot_name)
+        query_body = {
+            "query": {
+                "bool": {
+                    "filter": [
+                        {"terms": {"category_id": knowledge_category_ids}},
+                        {"term": {"is_published": 1}}
+                    ]
+                }
+            }
+        }
+        hits = self.es.search(body=query_body, index=index)["hits"]["hits"]
+        return list(set(hit["_source"]["id"] for hit in hits))
+
+    def search_standard_question(self, query, cand_standard_question_ids, full=True, explain=True):
+        if not query:
+            return []
+        if not self.ping():
+            logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
+            return []
+        index = "kbqa_questions"
+        field = "question"
         if full:
             query_body_core = {
                 "match_phrase": {
@@ -154,6 +205,8 @@ class ES(object):
                             }
                         }
                     })
+            if not should:
+                return []
             query_body_core = {
                 "bool": {
                     "should": should
@@ -162,22 +215,89 @@ class ES(object):
         query_body = {
             "query": {
                 "bool": {
-                    "must": {
-                        "nested": {
-                            "path": "questions",
-                            "query": query_body_core,
-                            "score_mode": "max",
-                            "inner_hits": {}
-                        }
-                    },
+                    "must":  query_body_core,
                     "filter": [
-                        {"term": {"is_published": True}},
+                        {"terms": {"standard_question_id": cand_standard_question_ids}},
                     ]
                 }
             }
         }
-        hits = self.es.search(body=query_body, index=self.index, explain=explain)
+        hits = self.es.search(body=query_body, index=index, explain=explain)["hits"]["hits"]
         return hits
+
+    def get_qa(self, standard_question_id):
+        if not self.ping():
+            logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
+            return None
+        index = "kbqa_qa"
+        try:
+            qa = self.es.get(index, standard_question_id)["_source"]
+        except Exception as e:
+            logging.info(e)
+            qa = {}
+        return qa
+
+    def get_related_question_ids(self, standard_question_id):
+        if not self.ping():
+            logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
+            return []
+        index = "kbqa_related_questions"
+        query_body = {
+            "query": {
+                "bool": {
+                    "filter": [
+                        {"term": {"standard_question_id": standard_question_id}},
+                    ]
+                }
+            }
+        }
+        hits = self.es.search(body=query_body, index=index)
+        return list(set(hit["_source"]["related_question_id"] for hit in hits["hits"]["hits"]))
+
+    def get_related_questions(self, related_question_ids):
+        if not self.ping():
+            logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
+            return []
+        index = "kbqa_qa"
+        query_body = {
+            "query": {
+                "bool": {
+                    "filter": [
+                        {"terms": {"id": related_question_ids}},
+                        {"term": {"is_published": 1}}
+                    ]
+                }
+            }
+        }
+        hits = self.es.search(body=query_body, index=index)["hits"]["hits"]
+        related_questions = [hit["_source"]["standard_question"] for hit in hits]
+        print(related_questions)
+        return related_questions
+
+
+    def retrieve(self, query, bot_name, explain=True):
+        if not self.ping():
+            logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
+            return None
+        cand_standard_question_ids = self.get_standard_question_ids(bot_name)
+        hits = self.search_standard_question(query, cand_standard_question_ids, explain=explain)
+        if not hits:
+            hits = self.search_standard_question(query, cand_standard_question_ids, full=False, explain=explain)
+            if not hits:
+                return None
+        hit = hits[0]
+        num_docs = self.get_num_docs(hit["_explanation"])
+        avg_len = self.get_avg_len(hit["_explanation"])
+        hit_standard_question_id = hit["_source"]['standard_question_id']
+        qa = self.get_qa(hit_standard_question_id)
+        related_question_ids = self.get_related_question_ids(hit_standard_question_id)
+        related_questions = self.get_related_questions(related_question_ids)
+        return {"score": hit["_score"],
+                "hit_question": hit["_source"],
+                "qa": qa,
+                "related_questions": related_questions,
+                "num_questions": num_docs,
+                "average_question_length": avg_len}
 
     def ping(self):
         try:
@@ -186,31 +306,12 @@ class ES(object):
             ping_result = False
         return ping_result
 
-    def get_ids(self):
+    def get_ids(self, index):
         if not self.ping():
             logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
             return []
-        hits = self.es.search(body={"query": {"match_all": {}}, "_source": ["id"]}, index=self.index)["hits"]["hits"]
+        hits = self.es.search(body={"query": {"match_all": {}}, "_source": ["id"]}, index=index)["hits"]["hits"]
         return [doc["_source"]["id"] for doc in hits]
-
-    def query_by_ids(self, ids):
-        if not self.ping():
-            logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
-            return []
-        query_body = {
-            "query": {
-                "bool": {
-                    "filter": [
-                        {"terms": {"id": ids}},
-                        {"term": {"is_published": True}}
-                    ]
-                }
-            }
-        }
-        hits = self.es.search(body=query_body, index=self.index)
-        return hits["hits"]["hits"]
-
-
 
     def get_num_docs(self, explanation):
         for child in explanation["details"]:
@@ -229,9 +330,8 @@ class ES(object):
 
 if __name__ == "__main__":
     address = 'http://127.0.0.1:9200'
-    index = 'qa'
 
-    es = ES(address, index)
-    es.index_doc("kb.json")
-    # es.search("类似问")
-    # es.search("类似问的", full=False)
+    es = ES(address)
+    print(es.retrieve(query="加班", bot_name="qa_test"))
+    # print(es.get_qa(1))
+
