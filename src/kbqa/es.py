@@ -9,24 +9,29 @@ from elasticsearch import Elasticsearch
 
 
 class ES(object):
-    def __init__(self, addr, synonyms=None):
+    def __init__(self, addr):
         self.addr = addr
         self.es = Elasticsearch(self.addr)
-        if synonyms is None:
-            synonyms = []
+        es_root_path = self.get_es_root_path()
+        self.synonyms_path_abs = os.path.join(es_root_path, "config/analysis/synonyms/kbqa.txt") if es_root_path else None
         self.settings = {
             "analysis": {
                 "filter": {
                     "synonym": {
                         "type": "synonym",
-                        "synonyms": synonyms
+                        "synonyms_path": self.synonyms_path_abs,
+                        "updateable": True
                     }
                 },
                 "analyzer": {
+                    "ik_max_word": {
+                        "type": "custom",
+                        "tokenizer": "ik_max_word",
+                    },
                     "ik_max_word_synonym": {
                         "type": "custom",
                         "tokenizer": "ik_max_word",
-                        "filter": ["synonym"]
+                        "filter": ["synonym"] if self.synonyms_path_abs else []
                     }
                 }
             }
@@ -58,7 +63,8 @@ class ES(object):
                     },
                     "question": {
                         "type": "text",
-                        "analyzer": "ik_max_word_synonym"
+                        "analyzer": "ik_max_word",
+                        "search_analyzer": "ik_max_word_synonym"
                     },
                     "standard_question_id": {
                         "type": "keyword"
@@ -121,6 +127,17 @@ class ES(object):
         for index, mappings in self.mappings.items():
             if not self.es.indices.exists(index=index):
                 self.es.indices.create(index=index, body={"settings": self.settings, "mappings": mappings})
+
+    def get_es_root_path(self):
+        if not self.ping():
+            logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
+            return None
+        nodes_info = self.es.nodes.info()["nodes"]
+        if not nodes_info:
+            return None
+        es_root_path = nodes_info.popitem()[1]["settings"]["path"]["home"]
+        logging.info("es_root_path: %s" % es_root_path)
+        return es_root_path
 
     def get_bot_id(self, bot_name):
         if not self.ping():
@@ -271,9 +288,7 @@ class ES(object):
         }
         hits = self.es.search(body=query_body, index=index)["hits"]["hits"]
         related_questions = [hit["_source"]["standard_question"] for hit in hits]
-        print(related_questions)
         return related_questions
-
 
     def retrieve(self, query, bot_name, explain=True):
         if not self.ping():
@@ -330,8 +345,7 @@ class ES(object):
 
 if __name__ == "__main__":
     address = 'http://127.0.0.1:9200'
-
     es = ES(address)
-    print(es.retrieve(query="加班", bot_name="qa_test"))
-    # print(es.get_qa(1))
+    print(es.retrieve(query="", bot_name="qa_test"))
+
 

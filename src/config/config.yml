@@ -19,18 +19,19 @@ bot:
   kb:
     switch: True
     es:
-      addr: "http://127.0.0.1:9200"
-    mysql:
-      host: "118.190.53.158"
-      port: "3306"
-      user: "root"
-      password: "rbjf_DEV123"
-      database: "es_db"
+      port: "9200"
     threshold: 1.0
     recommend:
       switch: True
       max_items: 10
-    sync_period: 10
+    sync:
+      mysql:
+        host: "118.190.53.158"
+        port: "3306"
+        user: "root"
+        password: "rbjf_DEV123"
+        database: "es_db"
+      period: 10
   fwd:
     switch: False
     patient: 3

@@ -1,4 +1,4 @@
-#coding=utf-8
+# coding=utf-8
 
 import json
 import sys
@@ -7,6 +7,7 @@ import datetime
 import os
 import tqdm
 import logging
+import collections
 
 import tornado.ioloop
 import tornado.web
@@ -15,6 +16,7 @@ import mysql.connector
 import mysql.connector.pooling
 
 from es import ES
+
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
 from utils.config import merge_config
 from utils.logger import config_logger
@@ -22,9 +24,9 @@ from utils.logger import config_logger
 
 class Synchonizer(object):
     def __init__(self, conf):
-        addr = conf["es"]["addr"]
+        addr = "http://127.0.0.1:%s" % conf["es"]["port"]
         self.es = ES(addr)
-        self.mysql_conf = conf["mysql"]
+        self.mysql_conf = conf["sync"]["mysql"]
         self.last_sync_time = datetime.datetime(1970, 1, 1)
 
     def sync_mysql_table(self, cnx, table, now):
@@ -52,7 +54,7 @@ class Synchonizer(object):
                 self.es.es.delete(index=index, id=doc_id)
             self.es.es.indices.refresh(index=index)
             logging.info("add: %d, update: %d, remain %d, delete: %d" % (
-            cnt["add"], cnt["update"], cnt["remain"], cnt["delete"]))
+                cnt["add"], cnt["update"], cnt["remain"], cnt["delete"]))
 
     def sync_from_mysql(self):
         if not self.es.ping():
@@ -65,10 +67,30 @@ class Synchonizer(object):
             now = datetime.datetime.now()
             for table in self.es.mappings:
                 self.sync_mysql_table(cnx, table, now)
+            self.sync_synonyms(cnx)
             self.last_sync_time = now
+
+    def sync_synonyms(self, cnx):
+        index = "kbqa_questions"
+        synonym_map = collections.defaultdict(set)
+        with cnx.cursor(dictionary=True) as cursor:
+            query = "SELECT c.word as core_word, s.synonym as synonym, c.update_time as coreword_update_time, s.update_time as synonym_update_time FROM kbqa_corewords as c INNER JOIN kbqa_synonyms as s ON c.id = s.coreword_id"
+            cursor.execute(query)
+            for record in cursor:
+                synonym_map[record["core_word"]].add(record["synonym"])
+        if self.es.synonyms_path_abs:
+            os.makedirs(os.path.basename(self.es.synonyms_path_abs), exist_ok=True)
+            with open(self.es.synonyms_path_abs, "w", encoding="utf-8") as f:
+                for coreword, synonyms in synonym_map.items():
+                    line = ", ".join([coreword] + list(synonyms))
+                    print(line, file=f)
+            logging.info(self.es.es.indices.reload_search_analyzers(index))
+            self.es.es.indices.refresh(index=index)
+
 
     def index_record(self, index, record):
         self.es.es.index(index=index, body=record, id=record["id"])
+
 
 if __name__ == "__main__":
     # config logger
@@ -82,8 +104,10 @@ if __name__ == "__main__":
     conf_kb = conf["bot"]["kb"]
 
     synchonizer = Synchonizer(conf_kb)
+    synchonizer.sync_from_mysql()
 
     logging.info("KBQA switch: %s" % conf_kb["switch"])
-    tornado.ioloop.PeriodicCallback(synchonizer.sync_from_mysql, conf_kb["sync_period"] * 1000).start()  # start scheduler 每隔2s执行一次f2s
+    tornado.ioloop.PeriodicCallback(synchonizer.sync_from_mysql,
+                                    conf_kb["sync"]["period"] * 1000).start()  # start scheduler 每隔2s执行一次f2s
     logging.info('qa synchonizer started.')
     tornado.ioloop.IOLoop.current().start()

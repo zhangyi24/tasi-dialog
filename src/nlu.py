@@ -68,7 +68,7 @@ class NLUManager(object):
         self.intent_model_template = IntentModelTemplate(self.templates)
 
         # kb
-        self.kb_module = ES(self.kb_config["es"]["addr"]) if self.kb_config["switch"] else None
+        self.kb_module = ES("http://127.0.0.1:%s" % self.kb_config["es"]["port"]) if self.kb_config["switch"] else None
         logging.info("KBQA switch: %s" % self.kb_config["switch"])
 
         # kg
