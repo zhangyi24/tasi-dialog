@@ -1,6 +1,3 @@
-import json
-import codecs
-import sys
 import os
 import logging
 
@@ -14,6 +11,8 @@ class ES(object):
         self.es = Elasticsearch(self.addr)
         es_root_path = self.get_es_root_path()
         self.synonyms_path_abs = os.path.join(es_root_path, "config/analysis/synonyms/kbqa.txt") if es_root_path else None
+        if self.synonyms_path_abs:
+            os.makedirs(os.path.dirname(self.synonyms_path_abs), exist_ok=True)
         self.settings = {
             "analysis": {
                 "filter": {
@@ -162,6 +161,8 @@ class ES(object):
             return []
         index = "kbqa_categories_bots_mapping"
         bot_id = self.get_bot_id(bot_name)
+        if bot_id is None:
+            return []
         query_body = {
             "query": {
                 "bool": {
@@ -347,5 +348,3 @@ if __name__ == "__main__":
     address = 'http://127.0.0.1:9200'
     es = ES(address)
     print(es.retrieve(query="", bot_name="qa_test"))
-
-

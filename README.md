@@ -24,6 +24,8 @@
 - scipy
 - py2neo
 - elasticsearch
+- jieba
+- mysql-connector-python
 
 如不想自行安装python依赖，可参考README_docker.md，用docker提供tasi_dialog的运行环境。
 

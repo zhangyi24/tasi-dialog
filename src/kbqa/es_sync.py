@@ -79,7 +79,7 @@ class Synchonizer(object):
             for record in cursor:
                 synonym_map[record["core_word"]].add(record["synonym"])
         if self.es.synonyms_path_abs:
-            os.makedirs(os.path.basename(self.es.synonyms_path_abs), exist_ok=True)
+            os.makedirs(os.path.dirname(self.es.synonyms_path_abs), exist_ok=True)
             with open(self.es.synonyms_path_abs, "w", encoding="utf-8") as f:
                 for coreword, synonyms in synonym_map.items():
                     line = ", ".join([coreword] + list(synonyms))

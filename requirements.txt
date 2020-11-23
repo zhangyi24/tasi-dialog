@@ -12,3 +12,4 @@ scipy
 py2neo
 elasticsearch
 mysql-connector-python
+jieba

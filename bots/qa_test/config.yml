@@ -1,9 +1,9 @@
 phone:
-  port: 49998
+  port: 49995
   bot:
     interruptable: False
 text:
-  port: 59998
+  port: 59995
 bot:
   kb:
     switch: True
@@ -11,10 +11,3 @@ bot:
     recommend:
       switch: True
       max_items: 10
-    mysql:
-      host: "118.190.53.158"
-      port: "3306"
-      user: "root"
-      password: "rbjf_DEV123"
-      database: "es_db"
-    sync_period: 5

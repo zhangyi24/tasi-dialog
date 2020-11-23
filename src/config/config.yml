@@ -17,7 +17,7 @@ bot:
       switch: False
       max_items: 3
   kb:
-    switch: True
+    switch: False
     es:
       port: "9200"
     threshold: 1.0
