@@ -38,15 +38,44 @@ git clone http://gitlab.tasitech.com.cn/bot/tasi_dialog.git
 cd tasi_dialog
 ```
 
+### 启动对话服务
+
+启动对话系统服务，默认端口是29999。
+
+```shell
+python src/server_crs.py
+```
+
+启动es和业务数据库的同步程序
+
+```shell
+python src/kbqa/es_sync.py
+```
+
+对话服务受到请求后会根据请求中的entrance_id字段把请求转发给对应机器人，然后把机器人的回复发送给客户端。
+
+路由设置见src/config/config.yml中的crs字段。
+
+配置示例如下：port设置对话服务的端口，route设置路由，键是entrance_id，值是entrance_id对应的机器人地址。
+
+```yml
+crs:
+  port: 29999
+  route:
+    "01": "http://127.0.0.1:49999"
+    "02": "http://127.0.0.1:49998"
+    "03": "http://127.0.0.1:49997"
+```
+
 ### 选择机器人
 
-```python
+```shell
 cd bots/{bot_name}
 ```
 
 把{bot_name}替换成你所要选择的机器人的名字。如想创建自己的机器人见[创建你的对话机器人](#创建你的对话机器人)。
 
-### 启动对话服务
+### 启动机器人
 
 tasi_dialog提供文字版和电话版两种对话接口，分别可用于文本形式和电话形式的对话系统。文字版和电话版的区别在于文字版对话机器人回复给用户的是文字，电话版对话机器人回复给用户的是语音。文字能瞬间展现给用户，语音的播放需要一段时间，因此电话版对话机器人有打断和非打断两种模式，打断模式是指在机器人说话时用户如果插话机器人会停止播放语音去听用户说的话。
 
@@ -55,19 +84,19 @@ tasi_dialog提供文字版和电话版两种对话接口，分别可用于文本
 
 启动文字版对话系统服务端，默认端口是49999。
 
-```python
+```shell
 bash run_server_text.sh
 ```
 
 测试文字版对话系统可以启动客户端。在命令行与机器人进行对话。
 
-```
+```shell
 bash run_client_text.sh
 ```
 
 启动电话版对话系统服务端，默认端口是59999。
 
-```
+```shell
 bash run_server_phone.sh
 ```
 
