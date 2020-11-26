@@ -43,6 +43,27 @@
         }
       ]
     },
+    "3": {
+      "type": "flow",
+      "flowName": "get_consumer_info_retry",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.consumer_info"
+              },
+              null
+            ]
+          },
+          "nextNode": "99"
+        },
+        {
+          "cond": "else",
+          "nextNode": "2"
+        }
+      ]
+    },
     "2": {
       "type": "function",
       "funcName": "report_consumer_info",

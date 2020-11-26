@@ -27,7 +27,7 @@ def test_flow_generator(filepath):
             self.assertEqual(resp['content'], response, msg=f"Response at {filename} line {line_index} failed")
     return test
 
-case_dir = os.path.realpath(os.path.realpath(__file__) + '/../cases/cert-order.txt')
+case_dir = os.path.realpath(os.path.realpath(__file__) + '/../cases/retry/phone-order.txt')
 for f in glob.glob(case_dir):
     test_name = 'test_flow_%s' % os.path.basename(f)
     test = test_flow_generator(f)

@@ -281,6 +281,7 @@ class Bot(object):
             # slot_filling
             elif current_node['type'] == 'slot_filling':
                 node_info = node_stack[-1] if node_stack else main_flow_node
+                logging.info("enter slot")
                 if 'slots_status' not in node_info:
                     node_info['slots_status'] = self.nlu_manager.slots_status_init(current_node['slots'])
                 slot_request, slots_filling_finish = self.nlu_manager.slots_filling(node_info['slots_status'],

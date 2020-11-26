@@ -2,12 +2,23 @@
   "name": "get_consumer_info",
   "nodes": {
     "0": {
+      "type": "response",
+      "response": "请提供下您的订货电话或者专卖证号",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "10"
+        }
+      ]
+    },
+    "10": {
       "type": "slot_filling",
       "slots": [
         {
           "name": "order_info.phone_no",
           "global_variable": "phone_no",
-          "max_request_num": 1, 
+          "max_request_num": 0, 
+          "response_before_filling": false,
           "response": {"content": "请提供下您的订货电话或者专卖证号", "input_channel": "keyboard"}
         }
       ],
@@ -21,7 +32,7 @@
               null
             ]
           },
-          "nextNode": "1"
+          "nextNode": "11"
         },
         {
           "cond": "else",
@@ -29,14 +40,15 @@
         }
       ]
     },
-    "1": {
+    "11": {
       "type": "slot_filling",
       "slots": [
         {
           "name": "order_info.cert_no",
           "global_variable": "cert_no",
-          "max_request_num": 1, 
-          "response": {"content": "开始填槽", "input_channel": "keyboard"}
+          "max_request_num": 0, 
+          "response_before_filling": false,
+          "response": {"content": "专卖证号填槽失败", "input_channel": "keyboard"}
         }
       ],
       "dm": [

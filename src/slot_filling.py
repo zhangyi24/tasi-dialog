@@ -17,7 +17,6 @@ sys.path.append('..')
 
 MAX_REQUEST_NUM = 2
 
-
 def slots_status_init(slots):
     slots_status = {
         'slots': [],
@@ -73,6 +72,7 @@ def slots_filling(slots_status, user_utter, intents, value_sets, g_vars):
 
 
 def slot_filling_once(slot, user_utter, intents, value_sets):
+    logging.info(f"slot_filling_once\n,slot={slot}\n,intents={intents}\n,user_utter={user_utter}\n")
     """
     更新slot['value']
     """
@@ -111,6 +111,7 @@ def slot_filling_once(slot, user_utter, intents, value_sets):
                 return
     elif value_set['type'] == 'regex':
         search_obj = value_set['regex'].search(user_utter)
+        logging.info(f"value_set={value_set['regex']},user_utter={user_utter},search_obj={search_obj}")
         if search_obj:
             slot['value'] = search_obj.group()
     elif value_set['type'] == 'bool':

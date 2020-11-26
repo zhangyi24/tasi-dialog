@@ -7,6 +7,6 @@
   "cert_no": {
     "name": "cert_no",
     "type": "regex",
-    "regex": "[A-Z]{8}"
+    "regex": "[0-9]{8}"
   }
 }

@@ -1,13 +1,25 @@
 {
-  "name": "get_consumer_info",
+  "name": "get_consumer_info_retry",
   "nodes": {
     "0": {
+      "type": "response",
+      "response": "请提供下您的订货电话或者专卖证号",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "10"
+        }
+      ]
+    },
+    "10": {
       "type": "slot_filling",
       "slots": [
         {
           "name": "order_info.phone_no",
           "global_variable": "phone_no",
-          "response": {"content": "请提供您的手机号", "input_channel": "keyboard"}
+          "max_request_num": 0, 
+          "response_before_filling": false,
+          "response": {"content": "请提供下您的订货电话或者专卖证号", "input_channel": "keyboard"}
         }
       ],
       "dm": [
@@ -15,26 +27,28 @@
           "cond": {
             "==": [
               {
-                "var": "global.consumer_number"
+                "var": "global.phone_no"
               },
               null
             ]
           },
-          "nextNode": "80"
+          "nextNode": "11"
         },
         {
           "cond": "else",
-          "nextNode": "1"
+          "nextNode": "80"
         }
       ]
     },
-    "1": {
+    "11": {
       "type": "slot_filling",
       "slots": [
         {
           "name": "order_info.cert_no",
-          "response": {"content": "请提供您的专卖证号", "input_channel": "keyboard"},
-          "global_variable": "cert_no"
+          "global_variable": "cert_no",
+          "max_request_num": 0, 
+          "response_before_filling": false,
+          "response": {"content": "专卖证号填槽失败", "input_channel": "keyboard"}
         }
       ],
       "dm": [
@@ -47,21 +61,11 @@
               null
             ]
           },
-          "nextNode": "70"
+          "nextNode": "91"
         },
         {
           "cond": "else",
           "nextNode": "81"
-        }
-      ]
-    },
-    "70": {
-      "type": "response",
-      "response": "抱歉，由于您无法提供或提供了错误的手机号和专卖证号，无法为您查询。",
-      "dm": [
-        {
-          "cond": true,
-          "nextNode": "99"
         }
       ]
     },
@@ -82,7 +86,8 @@
         },
         {
           "cond": "else",
-          "nextNode": "1"
+          "nextNode": "1",
+          "response": "抱歉，由于您提供了错误的手机号，无法为您查询。"
         }
       ]
     },
@@ -105,6 +110,16 @@
           "cond": "else",
           "nextNode": "99",
           "response": "抱歉，由于您提供了错误专卖证号，无法为您查询。"
+        }
+      ]
+    },
+    "91": {
+      "type": "response",
+      "response": "抱歉，由于您提供了错误的订货电话或者专卖证号，无法为您查询。",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "99"
         }
       ]
     },
