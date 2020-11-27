@@ -1,0 +1,7 @@
+{
+  "answer_choice": {
+    "name": "answer_choice",
+    "type": "regex",
+    "regex": "[A-D]"
+  }
+}

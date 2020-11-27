@@ -1,0 +1,54 @@
+[
+  {
+    "py/object": "__main__.Question",
+    "quest_bh": "0000001076",
+    "quest_type": "01",
+    "quest_name": "您对客户经理的服务态度是否满意?",
+    "daarray": [
+        {
+          "py/object": "__main__.Option",
+          "dabh": "0000003963",
+          "daname": "很满意"
+        },
+        {
+          "py/object": "__main__.Option",
+          "dabh": "0000003964",
+          "daname": "基本满意"
+        },
+        {
+          "py/object": "__main__.Option",
+          "dabh": "0000003965",
+          "daname": "不满意"
+        }
+    ]
+  },
+  {
+    "py/object": "__main__.Question",
+    "quest_bh": "0000001077",
+    "quest_type": "02",
+    "quest_name": "您是通过何种途径了解卷烟零售户信用体的?",
+    "daarray": [
+        {
+            "py/object": "__main__.Option",
+            "dabh": "0000003966",
+            "daname": "烟草公司会议"
+        },
+        {
+            "py/object": "__main__.Option",
+            "dabh": "0000003967",
+            "daname": "客户经理宣传"
+        },
+        {
+            "py/object": "__main__.Option",
+            "dabh": "0000003968",
+            "daname": "其它零售户的介绍"
+        }
+    ]
+  },
+  {
+    "py/object": "__main__.Question",
+    "quest_bh": "0000001078",
+    "quest_type": "03",
+    "quest_name": "关于我们的工作是否还有什么建议"
+  }
+]

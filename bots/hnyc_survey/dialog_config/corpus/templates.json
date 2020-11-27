@@ -1,0 +1,13 @@
+{
+  "agree_survey": {
+    "name": "agree_survey",
+    "templates": [
+      "好的",
+      "行吧",
+      "OK",
+      "没问题",
+      "成",
+      "行"
+    ]
+  }
+}
