@@ -21,23 +21,7 @@ deb-src http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted univer
 deb http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse\n\
 deb-src http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse' > /etc/apt/sources.list
 
-RUN echo $'channels:\n\
-  - defaults\n\
-show_channel_urls: true\n\
-channel_alias: https://mirrors.tuna.tsinghua.edu.cn/anaconda\n\
-default_channels:\n\
-  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main\n\
-  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free\n\
-  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r\n\
-  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/pro\n\
-  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2\n\
-custom_channels:\n\
-  conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud\n\
-  msys2: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud\n\
-  bioconda: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud\n\
-  menpo: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud\n\
-  pytorch: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud\n\
-  simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud' > ~/.condarc
+RUN mv /etc/apt/sources.list.d /etc/apt/sources.list.d.bak
 
 RUN apt-get update && apt-get install -y \
         apt-utils \
@@ -49,16 +33,22 @@ RUN apt-get update && apt-get install -y \
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN dpkg-reconfigure --frontend noninteractive tzdata
 
-RUN conda install -y pytorch-lightning \
-        scikit-learn \
-        tornado \
-        requests \
-        psycopg2 \
-        pyyaml -c conda-forge && \
-    conda clean -ya
-
 RUN python -m pip install -i $PIP_MIRROR --no-cache-dir --upgrade pip setuptools && \
-    python -m pip install -i $PIP_MIRROR --no-cache-dir transformers pypinyin
+    python -m pip install -i $PIP_MIRROR --no-cache-dir \
+        elasticsearch \
+        jieba \
+        ltp \
+        mysql-connector-python \
+        PyYAML \
+        psycopg2-binary \
+        py2neo \
+        pypinyin \
+        pytorch-lightning==0.9.0 \
+        requests \
+        scikit-learn \
+        scipy \
+        tornado \
+        transformers==3.1.0
 
 EXPOSE 49999
 EXPOSE 59999
