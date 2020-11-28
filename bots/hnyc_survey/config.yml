@@ -1,0 +1,6 @@
+phone:
+  port: 49998
+  bot:
+    interruptable: False
+text:
+  port: 59998

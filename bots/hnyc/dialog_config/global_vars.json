@@ -2,7 +2,8 @@
   "g_vars": {
     "consumer_info": null,
     "phone_no": null,
-    "cert_no": null
+    "cert_no": null,
+    "retry_count": null
   },
   "g_vars_need_init": {}
 }

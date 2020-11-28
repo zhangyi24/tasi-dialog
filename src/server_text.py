@@ -67,7 +67,7 @@ class MainHandler(tornado.web.RequestHandler):
 		if self.req_body['inaction'] == 8:
 			user_info = self.req_body['inparams']['user_info'].split('#')[1:]
 			self.bot.init(user_id=self.req_body['userid'], user_info=user_info,
-			                         call_info=self.req_body['inparams'])
+									 call_info=self.req_body['inparams'])
 			user = self.bot.users[self.req_body['userid']]
 			user['inter_idx'] = '1'
 			user['resp_queue'] = collections.deque()
@@ -142,8 +142,7 @@ class MainHandler(tornado.web.RequestHandler):
 		})
 		return resp_body
 
-
-if __name__ == "__main__":
+def initbot():
 	# config logger
 	config_logger('logs/text')
 
@@ -159,13 +158,19 @@ if __name__ == "__main__":
 	if os.path.exists(custom_config_file):
 		with open(custom_config_file, 'r', encoding='utf-8') as f:
 			custom_conf = yaml.safe_load(f)
-	merge_config(conf, custom_conf)	# merge custom_conf to default_conf
+	merge_config(conf, custom_conf) # merge custom_conf to default_conf
 	conf_text = conf["text"]
 	
 	# bot
 	logging.info('loading bot...')
 	bot = Bot(bot_config=conf["bot"])
 	logging.info('bot loaded.')
+	
+	return bot, conf
+
+if __name__ == "__main__":
+	bot, conf = initbot()
+	conf_text = conf["text"]
 	# app
 	application = tornado.web.Application([
 		(r"/", MainHandler, dict(bot=bot)),

@@ -5,6 +5,12 @@
       "咨询下我的订货信息",
       "我要订货"
     ]
+  },
+  "get_consumer_info_retry": {
+    "name": "get_consumer_info_retry",
+    "templates": [
+      "我要订货retry"
+    ]
   }
 }
   

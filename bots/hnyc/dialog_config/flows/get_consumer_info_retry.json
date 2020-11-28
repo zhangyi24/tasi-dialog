@@ -1,5 +1,5 @@
 {
-  "name": "get_consumer_info",
+  "name": "get_consumer_info_retry",
   "nodes": {
     "0": {
       "type": "response",

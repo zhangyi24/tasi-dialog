@@ -1,0 +1,27 @@
+[
+  {
+    "returnvisit_content": "您于2020年11月2日来电举报假烟销售已处理，您对处理结果满意吗?",
+		"returnvisit_option": [
+      {
+        "option_id": "1",
+        "option_name": "非常满意"
+      },
+			{
+				"option_id": "2",
+				"option_name": "满意"
+			},
+			{
+				"option_id": "5",
+				"option_name": "基本满意"
+			},
+			{
+				"option_id": "3",
+				"option_name": "不满意"
+			},
+			{
+				"option_id": "4",
+				"option_name": "非常不满意"
+			}
+		]
+	}
+]

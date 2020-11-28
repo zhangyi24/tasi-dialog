@@ -34,7 +34,7 @@ class ResultsTracker(object):
 class Bot(object):
     def __init__(self, interruptable=True, bot_config=None):
         # import config files
-        # flows
+        # flows 
         self.interruptable = interruptable
         self.bot_config = {} if bot_config is None else bot_config
         self.flows = {}
@@ -46,6 +46,7 @@ class Bot(object):
         # intent_flow_mapping
         self.intent_flow_mapping = {}
         for flow_name, flow in self.flows.items():
+            # 如果flow中有intent字段,关联入map,否则就是个子流程.
             if 'intent' in flow:
                 self.intent_flow_mapping[flow['intent']] = flow_name
         # intents
@@ -55,20 +56,20 @@ class Bot(object):
             with open('dialog_config/intents.json', 'r', encoding='utf-8') as f:
                 self.intents = json.load(f)
         # value_sets
-        # builtin value_sets
+        # builtin value_sets 内建Slot空间位置位于config/value_sets.json下
         self.value_sets = {}
         builtin_value_sets_file_path = os.path.join(os.path.dirname(__file__), 'config', 'value_sets.json')
         with open(builtin_value_sets_file_path, 'r', encoding='utf-8') as f:
             self.value_sets['builtin'] = json.load(f)
-        # custom value_sets
+        # custom value_sets 用户自定义Slot空间位于dialog_config/value_sets.json下
         self.value_sets['user'] = {}
         custom_value_sets_config_path = 'dialog_config/value_sets.json'
         if os.path.exists(custom_value_sets_config_path):
             with open(custom_value_sets_config_path, 'r', encoding='utf-8') as f:
                 self.value_sets['user'] = json.load(f)
-        # builtin_vars
+        # builtin_vars 4个内建变量
         self.builtin_vars = {'intent': None, 'func_return': None, 'last_response': None, 'cnt_no_answer_succession': 0}
-        # global_vars
+        # global_vars 全局变量
         self.g_vars = {}
         self.g_vars_need_init = []
         g_vars_config_path = 'dialog_config/global_vars.json'
@@ -78,7 +79,7 @@ class Bot(object):
                 self.g_vars = g_vars_cfg['g_vars']
                 self.g_vars_need_init = g_vars_cfg['g_vars_need_init']  # 需要初始值来初始化的全局变量。实例化一个机器人时需要传入这些变量的初始值
 
-        # templates
+        # templates 模板
         self.templates = {}
         templates_path = 'dialog_config/corpus/templates.json'
         if os.path.exists(templates_path):
@@ -114,7 +115,7 @@ class Bot(object):
             "asr": "10",
             "keyboard": "01"
         }
-
+        
     def init(self, user_id, user_info, call_info, task_id=-1):
         self.users[user_id] = {
             "user_id": user_id,
@@ -136,7 +137,7 @@ class Bot(object):
             logging.warning("The length of 'g_vars_need_init' must be equal to the length of 'user_info': %s != %s",
                             len(self.g_vars_need_init), len(user_info))
         self.users[user_id]['g_vars'].update(dict(zip(self.g_vars_need_init, user_info)))
-
+        
     def greeting(self, user_id):
         user = self.users[user_id]
         # generate response
@@ -280,6 +281,7 @@ class Bot(object):
             # slot_filling
             elif current_node['type'] == 'slot_filling':
                 node_info = node_stack[-1] if node_stack else main_flow_node
+                logging.info("enter slot")
                 if 'slots_status' not in node_info:
                     node_info['slots_status'] = self.nlu_manager.slots_status_init(current_node['slots'])
                 slot_request, slots_filling_finish = self.nlu_manager.slots_filling(node_info['slots_status'],

@@ -1,0 +1,18 @@
+{
+  "py/object": "__main__.Question",
+  "quest_bh": "6082502445613",
+  "quest_type": "02",
+  "quest_name": "服务不能能够您的注意需要.",
+  "daarray": [
+    {
+      "py/object": "__main__.Option",
+      "dabh": "5485556155834",
+      "daname": "今年关系类型原因."
+    },
+    {
+      "py/object": "__main__.Option",
+      "dabh": "4456888857186",
+      "daname": "浏览一次资源主要对于今年专业因此."
+    }
+  ]
+}
