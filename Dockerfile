@@ -48,6 +48,7 @@ RUN python -m pip install -i $PIP_MIRROR --no-cache-dir --upgrade pip setuptools
         scikit-learn \
         scipy \
         tornado \
+        supervisor \
         transformers==3.1.0
 
 EXPOSE 49999
