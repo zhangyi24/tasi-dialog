@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 PHONE_PORT=49998
 TEXT_PORT=59998
 

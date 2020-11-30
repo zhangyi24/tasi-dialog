@@ -3,8 +3,8 @@ import requests
 import copy
 
 userid = '25044006'
-entrance_id = "bot114-text"
-local_server_url = 'http://127.0.0.1:59999'
+entrance_id = "10"
+local_server_url = 'http://127.0.0.1:29999'
 remote_server_url = 'http://101.6.68.40:59999'
 url = local_server_url
 req_body_8 = {
@@ -136,6 +136,29 @@ def post(url, req_body):
 
 
 if __name__ == '__main__':
+    import argparse
+    from types import SimpleNamespace
+    # Create a parser
+    parser = argparse.ArgumentParser(description='Bot supervisor')
+    # Add argument
+    parser.add_argument('--entrance_id', default="10", help="entrance id")
+    parser.add_argument('--user_id', default="25044006", help="user id")
+    parser.add_argument('--url', default="http://127.0.0.1:29999", help="bot url")
+    parser.add_argument('--bot_id', default=None, help="bot id")
+    args = vars(parser.parse_args())
+    args = SimpleNamespace(**args)
+    userid = args.user_id
+    botid = args.bot_id
+    entrance_id = args.entrance_id
+    url = args.url
+    if botid:
+        from utils.config_writer import routes
+        url = routes()[botid]
+        if not url:
+            raise Exception(f"can't find bot {bot_id} config")
+    else:
+        url = args.url
+    print(f"Load bot at {url}")
     post(url, req_body_8)
     user_utters = [
         "",
