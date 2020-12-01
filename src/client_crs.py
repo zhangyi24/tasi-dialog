@@ -137,7 +137,6 @@ def post(url, req_body):
 
 if __name__ == '__main__':
     import argparse
-    from types import SimpleNamespace
     # Create a parser
     parser = argparse.ArgumentParser(description='Bot supervisor')
     # Add argument
@@ -145,8 +144,7 @@ if __name__ == '__main__':
     parser.add_argument('--user_id', default="25044006", help="user id")
     parser.add_argument('--url', default="http://127.0.0.1:29999", help="bot url")
     parser.add_argument('--bot_id', default=None, help="bot id")
-    args = vars(parser.parse_args())
-    args = SimpleNamespace(**args)
+    args = parser.parse_args()
     userid = args.user_id
     botid = args.bot_id
     entrance_id = args.entrance_id

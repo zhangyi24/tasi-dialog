@@ -49,6 +49,7 @@ RUN python -m pip install -i $PIP_MIRROR --no-cache-dir --upgrade pip setuptools
         scipy \
         tornado \
         supervisor \
+        jsonpath_ng \
         transformers==3.1.0
 
 EXPOSE 49999

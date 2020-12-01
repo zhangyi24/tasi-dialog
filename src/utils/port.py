@@ -13,7 +13,7 @@ def free_port():
     free_socket.close()
     return port
 
-def port_open(port)
+def port_open(port):
     a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     location = ("127.0.0.1", port)
     result_of_check = a_socket.connect_ex(location)
