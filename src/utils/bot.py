@@ -21,8 +21,9 @@ bot cli crs # 从crs启动会话测试
 '''
 
 import glob, os, sys
-from config_writer import print_routes
+from config_writer import print_routes, add_route, modify_bot_port
 import supervisor
+from supervisor import write_bot
 
 BOT_FOLDER = os.path.realpath(os.path.join(os.path.dirname(__file__), "../../bots"))
 def _bot_choices():
@@ -36,7 +37,33 @@ def bot_new(args):
     pass
     
 def bot_derive(args):
-    pass
+    bot_path = os.path.join(BOT_FOLDER, args.botname)
+    if not os.path.exists(bot_path):
+        print(f"Error, bot path {bot_path} not exists.")
+    else:
+        print(f"Derive bot from {bot_path}")
+    i = 1
+    while os.path.exists(os.path.join(BOT_FOLDER, f"{args.botname}_{i}")):
+        i = i + 1
+        
+    new_bot_name = f"{args.botname}_{i}"
+    new_bot_path = os.path.join(BOT_FOLDER, new_bot_name)
+    print(f"Generate new bot at {new_bot_path}")
+    os.system(f"cp -r {bot_path} {new_bot_path}")
+    ori_quest = os.path.join(args.source, "data.json")
+    dst_quest = os.path.join(new_bot_path, "data", "question-raw.json")
+    print(f"Import data from {ori_quest} to {dst_quest}")
+    os.system(f"cp {ori_quest} {dst_quest}")
+    # Generate phone bot
+    phone_bot, phone_bot_port = add_route(f"{new_bot_name}-phone")
+    print(f"Register Phone Bot route {phone_bot} at port {phone_bot_port}")
+    modify_bot_port(phone_bot, phone_bot_port)
+    write_bot(new_bot_name, "phone")
+    # Generate text bot 
+    text_bot, text_bot_port = add_route(f"{new_bot_name}-text")
+    print(f"Register Text Bot route {text_bot} at port {text_bot_port}")
+    modify_bot_port(text_bot, text_bot_port)
+    write_bot(new_bot_name, "text")
     
 def bot_init(args):
     print("\n[install supervisor]")
