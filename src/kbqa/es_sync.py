@@ -25,7 +25,7 @@ from utils.logger import config_logger
 class Synchonizer(object):
     def __init__(self, conf):
         addr = "http://127.0.0.1:%s" % conf["es"]["port"]
-        self.es = ES(addr)
+        self.es = ES(addr, recreate_index=True)
         self.mysql_conf = conf["sync"]["mysql"]
         self.last_sync_time = datetime.datetime(1970, 1, 1)
 

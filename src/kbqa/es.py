@@ -6,7 +6,7 @@ from elasticsearch import Elasticsearch
 
 
 class ES(object):
-    def __init__(self, addr):
+    def __init__(self, addr, recreate_index=False):
         self.addr = addr
         self.es = Elasticsearch(self.addr)
         es_root_path = self.get_es_root_path()
@@ -124,6 +124,8 @@ class ES(object):
             logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
             return
         for index, mappings in self.mappings.items():
+            if self.es.indices.exists(index=index) and recreate_index:
+                self.es.indices.delete(index=index)
             if not self.es.indices.exists(index=index):
                 self.es.indices.create(index=index, body={"settings": self.settings, "mappings": mappings})
 
