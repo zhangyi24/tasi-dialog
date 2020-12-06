@@ -1,5 +1,5 @@
 '''
-bot总控脚本(未完成)
+bot总控脚本
 ## bot 生成
 bot new `$folder_path` #从路径下的配置文件中生成一个新的bot.
 bot derive bot_name `data.json` #以某个bot为模板派生出一个bot来,用于调查问卷的bot生成,返回bot_id

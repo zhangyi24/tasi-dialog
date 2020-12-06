@@ -9,7 +9,7 @@
           "cond": {
             "==": [
               {
-                "var": "global.consumer_info"
+                "var": "global.customer_info"
               },
               null
             ]
@@ -24,34 +24,13 @@
     },
     "1": {
       "type": "flow",
-      "flowName": "get_consumer_info",
+      "flowName": "get_customer_info",
       "dm": [
         {
           "cond": {
             "==": [
               {
-                "var": "global.consumer_info"
-              },
-              null
-            ]
-          },
-          "nextNode": "99"
-        },
-        {
-          "cond": "else",
-          "nextNode": "2"
-        }
-      ]
-    },
-    "3": {
-      "type": "flow",
-      "flowName": "get_consumer_info_retry",
-      "dm": [
-        {
-          "cond": {
-            "==": [
-              {
-                "var": "global.consumer_info"
+                "var": "global.customer_info"
               },
               null
             ]
@@ -66,7 +45,7 @@
     },
     "2": {
       "type": "function",
-      "funcName": "report_consumer_info",
+      "funcName": "report_customer_info",
       "dm": [
         {
           "cond": true, 

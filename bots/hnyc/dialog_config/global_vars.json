@@ -1,6 +1,10 @@
 {
   "g_vars": {
-    "consumer_info": null,
+    "customer_info": null,
+    "order_time": null,
+    "order_info": null,
+    "customer_manager_info": null,
+    "addr_search": null,
     "phone_no": null,
     "cert_no": null,
     "retry_count": null

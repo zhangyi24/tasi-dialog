@@ -1,9 +1,10 @@
 {
-  "name": "get_consumer_info_retry",
+  "name": "customer_info",
+  "intent": "customer_info",
   "nodes": {
     "0": {
       "type": "response",
-      "response": "请提供下您的订货电话或者专卖证号",
+      "response": "请提供下您的订货电话或者专卖证号customer_info",
       "dm": [
         {
           "cond": true,
@@ -71,7 +72,7 @@
     },
     "80": {
       "type": "function",
-      "funcName": "consumer_info_access_by_phone_no",
+      "funcName": "customer_info_access_by_phone_no",
       "dm": [
         {
           "cond": {
@@ -93,7 +94,7 @@
     },
     "81": {
       "type": "function",
-      "funcName": "consumer_info_access_by_cert_no",
+      "funcName": "customer_info_access_by_cert_no",
       "dm": [
         {
           "cond": {
@@ -124,6 +125,17 @@
       ]
     },
     "99": {
+      "type": "function",
+      "funcName": "report_customer_info",
+      "dm": [
+        {
+          "cond": true, 
+          "nextNode": "100",
+          "response": "[%builtin.func_return%]"
+        } 
+      ]
+    },
+    "100": {
       "type": "return"
     }
   }
