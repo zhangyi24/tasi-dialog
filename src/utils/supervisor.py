@@ -46,9 +46,10 @@ def main(argv):
         exec(f"mkdir -p /usr/local/var/run")
     
     write_crs()
+    write_bot("hnyc", "phone")
     write_bot("hnyc", "text")
+    write_bot("hnyc_survey", "phone")
     write_bot("hnyc_survey", "text")
-    write_bot("sgcc", "text")
     
 def start():
     exec(f"supervisord -c {SUPERVISOR_CONFIG}")
