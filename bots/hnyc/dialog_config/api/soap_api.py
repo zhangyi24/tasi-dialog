@@ -13,14 +13,18 @@ def request(endpoint, params = None):
     if DEBUG:
         print(f"{response.request.method} -- {response.url}\n",f"{response.text}")
     bs = BeautifulSoup(response.text, features="lxml")
-    result = bs.find("ns:return").text
-    return result
+    obj = bs.find("ns:return")
+    if obj:
+        result = bs.find("ns:return").text
+        return result
+    else:
+        return False
 
-def query(endpoint='users', cert_no=None, phone=None):
+def query(endpoint='users', cert_no=None, phone_no=None):
     if cert_no:
         result = request(endpoint, {"tel": cert_no})
     else:
-        result = request(endpoint, {"tel": phone})
+        result = request(endpoint, {"tel": phone_no})
     if DEBUG:
         print(f"\n{result}")
     return result

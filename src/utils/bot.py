@@ -55,14 +55,16 @@ def bot_derive(args):
     print(f"Import data from {ori_quest} to {dst_quest}")
     os.system(f"cp {ori_quest} {dst_quest}")
     # Generate phone bot
-    phone_bot, phone_bot_port = add_route(f"{new_bot_name}-phone")
+    entrance = "{:0>2}".format(int(args.entrance))
+    phone_bot, phone_bot_port = add_route(f"{entrance}")
     print(f"Register Phone Bot route {phone_bot} at port {phone_bot_port}")
-    modify_bot_port(phone_bot, phone_bot_port)
+    modify_bot_port(f"{new_bot_name}-phone", phone_bot_port)
     write_bot(new_bot_name, "phone")
     # Generate text bot 
-    text_bot, text_bot_port = add_route(f"{new_bot_name}-text")
+    new_entrance = "{:0>2}".format(int(args.entrance)+1)
+    text_bot, text_bot_port = add_route(f"{new_entrance}")
     print(f"Register Text Bot route {text_bot} at port {text_bot_port}")
-    modify_bot_port(text_bot, text_bot_port)
+    modify_bot_port(f"{new_bot_name}-text", text_bot_port)
     write_bot(new_bot_name, "text")
     
 def bot_init(args):
@@ -88,7 +90,8 @@ def bot_stop(args):
     pass
     
 def bot_restart(args):
-    pass
+    print("[supervisorctl] restarting...")
+    os.system('supervisorctl reload')
     
 def bot_cli(args):
     pass
@@ -103,6 +106,7 @@ if __name__ == "__main__":
     # create the parser for the "derive" command
     parser_new = subparsers.add_parser('derive', help='bot derive')
     parser_new.add_argument('botname', choices=_bot_choices(), help='bot name')
+    parser_new.add_argument('entrance', type=str, help='bot entrance id')
     parser_new.add_argument('source', type=PathType(exists=True, type='dir'), help='bot config data source')
     # create the parser for the "install" command
     parser_new = subparsers.add_parser('init', help='bot system init')

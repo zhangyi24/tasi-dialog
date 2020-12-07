@@ -1,72 +1,70 @@
 bot:
+  fwd:
+    patient: 3
+    switch: false
   intent_recognition:
     classifier:
-      switch: True
-      model: bert
       min_confidence: 0.93
+      model: bert
+      switch: true
     similarity:
-      switch: False
-      model: bert-base-chinese-mean-csts
       min_similarity: 0.9
-  kg:
-    switch: False
-    min_score: 15
-    es: null
-    neo4j: null
-    recommend:
-      switch: False
-      max_items: 3
+      model: bert-base-chinese-mean-csts
+      switch: false
   kb:
-    switch: True
     es:
-      port: "9200"
-    threshold: 1.0
+      port: '9200'
     recommend:
-      switch: True
       max_items: 10
+      switch: true
+    switch: true
     sync:
       mysql:
-        host: "10.72.0.82"
-        port: "3306"
-        user: "root"
-        password: "1qaz@WSX"
-        database: "callcenter"
+        database: callcenter
+        host: 10.72.0.82
+        password: 1qaz@WSX
+        port: '3306'
+        user: root
       period: 10
-  fwd:
-    switch: False
-    patient: 3
-text:
-  port: 59999
-phone:
-  port: 49999
-  postgresql:
-    switch: False
-    host: "47.93.120.246"
-    port: "5432"
-    user: "postgres"
-    password: "305Cm@TFg3u70N8Q"
-    dbname: "visualization"
-    client_encoding: "utf-8"
-    connect_timeout: 5
-  bot:
-    interruptable: False
-    lock_before_fwd: False
-    save_result:
-      switch: False
-      url: "http://39.99.186.66:8001/api/robot/resultSave"
-  asr:
-    record_dir: 'https://tasi-callcenter-audio-record.oss-cn-beijing.aliyuncs.com/ASR/'
+    threshold: 1.0
+  kg:
+    es: null
+    min_score: 15
+    neo4j: null
+    recommend:
+      max_items: 3
+      switch: false
+    switch: false
 crs:
   port: 59999
   route:
-    #"hnyc-phone": "http://127.0.0.1:49995"
-    #"hnyc_survey-phone": "http://127.0.0.1:49994"
-    #"hnyc-text": "http://127.0.0.1:59995"
-    #"hnyc_survey-text": "http://127.0.0.1:59994"
-    "01": "http://127.0.0.1:49995"
-    "02": "http://127.0.0.1:49994"
-    "03": "http://127.0.0.1:59995"
-    "04": "http://127.0.0.1:59994"
+    '01': http://127.0.0.1:49995
+    '02': http://127.0.0.1:49994
+    '03': http://127.0.0.1:59995
+    '04': http://127.0.0.1:59994
+    09: http://127.0.0.1:41217
+    '10': http://127.0.0.1:38679
+phone:
+  asr:
+    record_dir: https://tasi-callcenter-audio-record.oss-cn-beijing.aliyuncs.com/ASR/
+  bot:
+    interruptable: false
+    lock_before_fwd: false
+    save_result:
+      switch: false
+      url: http://39.99.186.66:8001/api/robot/resultSave
+  port: 49999
+  postgresql:
+    client_encoding: utf-8
+    connect_timeout: 5
+    dbname: visualization
+    host: 47.93.120.246
+    password: 305Cm@TFg3u70N8Q
+    port: '5432'
+    switch: false
+    user: postgres
+text:
+  port: 59999
 text-sgcc:
+  keyboard_access: true
   port: 19999
-  keyboard_access: True

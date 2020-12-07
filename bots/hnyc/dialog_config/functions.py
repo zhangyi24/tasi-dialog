@@ -2,9 +2,9 @@ import logging
 ENV="production"
 
 if ENV == "production":
-    from dialog_config.api.soap_api import query
+    from .api.soap_api import query
 else:
-    from dialog_config.api.json_api import query
+    from .api.json_api import query
 
 ## order_time
 def order_time_access_by_phone_no(user_utter, global_vars):
