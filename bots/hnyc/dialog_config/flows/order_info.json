@@ -4,7 +4,7 @@
   "nodes": {
     "0": {
       "type": "response",
-      "response": "请提供下您的订货电话或者专卖证号order_info",
+      "response": "请提供下您的订货电话或者专卖证号,我将为你查询最近一次订单信息",
       "dm": [
         {
           "cond": true,
