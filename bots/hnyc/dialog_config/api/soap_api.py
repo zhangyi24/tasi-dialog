@@ -16,17 +16,21 @@ def request(endpoint, params = None):
     result = bs.find("ns:return").text
     return result
 
-# def query(endpoint='users', cert_no=None, phone=None):
-#     if cert_no:
-#         result = request(endpoint, {"tel": cert_no})
-#     else:
-#         result = request(endpoint, {"tel": phone})
-#     if DEBUG:
-#         print(f"\n{result}")
-#     return result
+def query(endpoint='users', cert_no=None, phone=None):
+    if cert_no:
+        result = request(endpoint, {"tel": cert_no})
+    else:
+        result = request(endpoint, {"tel": phone})
+    if DEBUG:
+        print(f"\n{result}")
+    return result
     
-def query(endpoint='users', cert_no=None, phone_no=None):
-    return f"{endpoint} cert_no={cert_no}, phone_no={phone_no}"
+# def query(endpoint='users', cert_no=None, phone_no=None):
+#     if cert_no == "长沙县" or phone_no == "长沙县":
+#         return False
+#     if cert_no == "15012345678" or phone_no == "15012345678":
+#         return False
+#     return f"{endpoint} cert_no={cert_no}, phone_no={phone_no}"
 
 if __name__ == "__main__":
     DEBUG=True

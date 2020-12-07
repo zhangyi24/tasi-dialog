@@ -10,6 +10,10 @@
       "cert_no": {
         "name": "cert_no",
         "valueSet": "user.cert_no"
+      },
+      "address": {
+        "name": "address",
+        "valueSet": "user.address"
       }
     }
   }

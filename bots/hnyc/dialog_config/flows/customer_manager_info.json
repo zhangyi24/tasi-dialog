@@ -1,9 +1,10 @@
 {
   "name": "customer_manager_info",
+  "intent": "customer_manager_info",
   "nodes": {
     "0": {
       "type": "response",
-      "response": "请提供下您的订货电话或者专卖证号",
+      "response": "请提供下您的订货电话或者专卖证号customer_manager_info",
       "dm": [
         {
           "cond": true,
@@ -71,7 +72,7 @@
     },
     "80": {
       "type": "function",
-      "funcName": "customer_info_access_by_phone_no",
+      "funcName": "customer_manager_info_access_by_phone_no",
       "dm": [
         {
           "cond": {
@@ -86,14 +87,14 @@
         },
         {
           "cond": "else",
-          "nextNode": "1",
+          "nextNode": "100",
           "response": "抱歉，由于您提供了错误的手机号，无法为您查询。"
         }
       ]
     },
     "81": {
       "type": "function",
-      "funcName": "customer_info_access_by_cert_no",
+      "funcName": "customer_manager_info_access_by_cert_no",
       "dm": [
         {
           "cond": {
@@ -108,7 +109,7 @@
         },
         {
           "cond": "else",
-          "nextNode": "99",
+          "nextNode": "100",
           "response": "抱歉，由于您提供了错误专卖证号，无法为您查询。"
         }
       ]
@@ -119,11 +120,22 @@
       "dm": [
         {
           "cond": true,
-          "nextNode": "99"
+          "nextNode": "100"
         }
       ]
     },
     "99": {
+      "type": "function",
+      "funcName": "report_customer_manager_info",
+      "dm": [
+        {
+          "cond": true, 
+          "nextNode": "100",
+          "response": "[%builtin.func_return%]"
+        } 
+      ]
+    },
+    "100": {
       "type": "return"
     }
   }

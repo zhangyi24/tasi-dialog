@@ -1,0 +1,91 @@
+{
+  "name": "addr_search",
+  "intent": "addr_search",
+  "nodes": {
+    "0": {
+      "type": "response",
+      "response": "请提供下您的地址,我将为你提供最近的办证信息",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "10"
+        }
+      ]
+    },
+    "10": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "order_info.address",
+          "global_variable": "address",
+          "max_request_num": 0, 
+          "response_before_filling": false,
+          "response": {"content": "NULL", "input_channel": "keyboard"}
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.address"
+              },
+              null
+            ]
+          },
+          "nextNode": "91"
+        },
+        {
+          "cond": "else",
+          "nextNode": "80"
+        }
+      ]
+    },
+    "80": {
+      "type": "function",
+      "funcName": "addr_search_access_by_address",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "builtin.func_return"
+              },
+              true
+            ]
+          },
+          "nextNode": "99"
+        },
+        {
+          "cond": "else",
+          "nextNode": "100",
+          "response": "抱歉，地址查询失败。"
+        }
+      ]
+    },
+    "91": {
+      "type": "response",
+      "response": "抱歉，由于您提供了错误的地址，无法为您查询。",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "100"
+        }
+      ]
+    },
+    "99": {
+      "type": "function",
+      "funcName": "report_addr_search",
+      "dm": [
+        {
+          "cond": true, 
+          "nextNode": "100",
+          "response": "[%builtin.func_return%]"
+        } 
+      ]
+    },
+    "100": {
+      "type": "return"
+    }
+  }
+}

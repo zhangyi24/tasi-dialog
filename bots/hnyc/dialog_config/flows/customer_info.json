@@ -87,7 +87,7 @@
         },
         {
           "cond": "else",
-          "nextNode": "1",
+          "nextNode": "100",
           "response": "抱歉，由于您提供了错误的手机号，无法为您查询。"
         }
       ]
@@ -109,7 +109,7 @@
         },
         {
           "cond": "else",
-          "nextNode": "99",
+          "nextNode": "100",
           "response": "抱歉，由于您提供了错误专卖证号，无法为您查询。"
         }
       ]
@@ -120,7 +120,7 @@
       "dm": [
         {
           "cond": true,
-          "nextNode": "99"
+          "nextNode": "100"
         }
       ]
     },

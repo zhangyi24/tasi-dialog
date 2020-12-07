@@ -3,15 +3,16 @@
     "name": "order_time",
     "templates": [
       "最后一次订货时间",
-      "订货"
+      "订货",
+      "啥时候",
+      "时间"
     ]
   },
   "customer_info": {
     "name": "customer_info",
     "templates": [
       "查询客户基本信息",
-      "我的",
-      "客户"
+      "我的"
     ]
   },
   "order_info": {
