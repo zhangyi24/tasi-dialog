@@ -93,33 +93,33 @@ def report_customer_info(user_utter, global_vars):
         sales_phone = global_vars['customer_info']['sales_phone']
         return f"您的售货员是{sales},售货员电话{sales_phone}"
         
-## customer_mananger_info
-def customer_mananger_info_access_by_phone_no(user_utter, global_vars):
+## customer_manager_info
+def customer_manager_info_access_by_phone_no(user_utter, global_vars):
     ENDPOINT="custMgrQuery"
-    logging.debug(f"customer_mananger_info_access_by_phone_no: user_utter={user_utter}, global_vars={global_vars}")
+    logging.debug(f"customer_manager_info_access_by_phone_no: user_utter={user_utter}, global_vars={global_vars}")
     data = query(ENDPOINT, phone_no=global_vars['phone_no'])
     if not data:
         return False
     else:
-        global_vars['customer_mananger_info'] = data
+        global_vars['customer_manager_info'] = data
         return True
     
-def customer_mananger_info_access_by_cert_no(user_utter, global_vars):   
+def customer_manager_info_access_by_cert_no(user_utter, global_vars):   
     ENDPOINT="custMgrQuery"
-    logging.debug(f"customer_mananger_info_access_by_cert_no: user_utter={user_utter}, global_vars={global_vars}")
+    logging.debug(f"customer_manager_info_access_by_cert_no: user_utter={user_utter}, global_vars={global_vars}")
     data = query(ENDPOINT, cert_no=global_vars['cert_no'])
     if not data:
         return False
     else:
-        global_vars['customer_mananger_info'] = data
+        global_vars['customer_manager_info'] = data
         return True
         
-def report_customer_mananger_info(user_utter, global_vars): 
+def report_customer_manager_info(user_utter, global_vars): 
     if ENV == "production":
-        return global_vars['customer_mananger_info']
+        return global_vars['customer_manager_info']
     else: 
-        sales = global_vars['customer_mananger_info']['sales']
-        sales_phone = global_vars['customer_mananger_info']['sales_phone']
+        sales = global_vars['customer_manager_info']['sales']
+        sales_phone = global_vars['customer_manager_info']['sales_phone']
         return f"您的售货员是{sales},售货员电话{sales_phone}"
         
 ## addr_search

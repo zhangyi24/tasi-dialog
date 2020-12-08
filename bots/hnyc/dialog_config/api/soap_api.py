@@ -16,15 +16,21 @@ def request(endpoint, params = None):
     obj = bs.find("ns:return")
     if obj:
         result = bs.find("ns:return").text
+        if result == "1":
+            return False
         return result
     else:
         return False
 
 def query(endpoint='users', cert_no=None, phone_no=None):
-    if cert_no:
-        result = request(endpoint, {"tel": cert_no})
+    if endpoint == "addrSearch":
+        key = "addr"
     else:
-        result = request(endpoint, {"tel": phone_no})
+        key = "tel"
+    if cert_no:
+        result = request(endpoint, {key:cert_no})
+    else:
+        result = request(endpoint, {key:phone_no})
     if DEBUG:
         print(f"\n{result}")
     return result
@@ -42,3 +48,4 @@ if __name__ == "__main__":
     query("orderInfoQuery", 87971551)
     query("custMgrQuery", 87971551)
     query("custInfoQuery", 87971551)
+    query("addrSearch", "长沙县")
