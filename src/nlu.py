@@ -153,7 +153,7 @@ class NLUManager(object):
             related_questions = hit["related_questions"][: self.kb_config["recommend"]["max_items"]]
             if len(related_questions):
                 recommend = "\n您是不是还想问：\n" + "\n".join(related_questions)
-        response = f"{standard_question}\n{answer}{recommend}"
+        response = f"{answer}{recommend}"
         return response, hit
 
     def qa_kg(self, user_utter):

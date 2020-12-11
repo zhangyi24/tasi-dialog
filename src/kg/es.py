@@ -49,7 +49,7 @@ class ElasticSearch(object):
             }
         arrs = []
         try:
-            res = self.es.search(index=self.index, doc_type=self.table, body=query)
+            res = self.es.search(index=self.index, body=query)
             res = res.get('hits').get('hits')
             for data in res:
                 source = data.get('_source')

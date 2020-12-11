@@ -4,7 +4,7 @@ bot:
       switch: False
       min_similarity: 0.93
   kg:
-    switch: False
+    switch: True
     min_score: 16
     recommend:
       switch: True
