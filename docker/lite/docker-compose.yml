@@ -2,6 +2,7 @@
 version: '3.3'    
 services:
       tasi-dialog-lite:
+        image: tasitech/tasi_dialog:v0.3
         build:
           context: ../../
           dockerfile: ./docker/lite/Dockerfile
