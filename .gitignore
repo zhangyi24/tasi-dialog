@@ -6,6 +6,7 @@
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 ackflow
+bots/114bot/doc
 
 src/models/tfs_cache
 src/models/ltp/ltp.model
