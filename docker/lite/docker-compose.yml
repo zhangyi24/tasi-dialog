@@ -1,0 +1,7 @@
+#docker-compose.yml
+version: '3.3'    
+services:
+      tasi-dialog-lite:
+        build:
+          context: ../../
+          dockerfile: ./docker/lite/Dockerfile
