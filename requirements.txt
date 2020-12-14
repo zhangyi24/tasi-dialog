@@ -13,3 +13,5 @@ py2neo
 elasticsearch
 mysql-connector-python
 jieba
+jsonpath-ng
+supervisor
