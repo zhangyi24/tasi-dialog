@@ -21,9 +21,9 @@ def request(endpoint, params = None):
         return None
     return response.json()[0]
 
-def query(endpoint='users', cert_no=None, phone=None):
+def query(endpoint='users', cert_no=None, phone_no=None):
     endpoint = 'users'
     if cert_no:
         return request(endpoint,{'cert_no':cert_no})
-    if phone:
-        return request(endpoint,{'phone':phone})
+    if phone_no:
+        return request(endpoint,{'phone':phone_no})

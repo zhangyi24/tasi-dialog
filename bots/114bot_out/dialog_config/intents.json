@@ -1,0 +1,20 @@
+{
+  "confirm_move": {
+    "name": "confirm_move",
+    "description": "",
+    "slots": {
+      "phone_no": {
+        "name": "phone_no",
+        "valueSet": "user.phone_no"
+      },
+      "cert_no": {
+        "name": "cert_no",
+        "valueSet": "user.cert_no"
+      },
+      "address": {
+        "name": "address",
+        "valueSet": "user.address"
+      }
+    }
+  }
+}

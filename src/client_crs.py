@@ -138,7 +138,7 @@ def post(url, req_body):
 if __name__ == '__main__':
     import argparse
     # Create a parser
-    parser = argparse.ArgumentParser(description='Bot supervisor')
+    parser = argparse.ArgumentParser(description='CRS Client')
     # Add argument
     parser.add_argument('--entrance_id', default="10", help="entrance id")
     parser.add_argument('--user_id', default="25044006", help="user id")

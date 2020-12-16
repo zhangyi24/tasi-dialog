@@ -1,0 +1,8 @@
+kb:
+  threshold: 0.01
+phone:
+  port: 49995
+  bot:
+    interruptable: False
+text:
+  port: 59995

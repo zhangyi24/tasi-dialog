@@ -1,0 +1,20 @@
+{
+  "move_car": {
+    "name": "move_car",
+    "description": "",
+    "slots": {
+      "car_no": {
+        "name": "car_no",
+        "valueSet": "user.car_no"
+      },
+      "car_location": {
+        "name": "car_location",
+        "valueSet": "user.car_location"
+      },
+      "car_move_reason": {
+        "name": "car_move_reason",
+        "valueSet": "user.car_move_reason"
+      }
+    }
+  }
+}
