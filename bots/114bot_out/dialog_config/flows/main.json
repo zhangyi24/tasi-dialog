@@ -1,0 +1,169 @@
+{
+  "name": "main",
+  "nodes": {
+    "0": {
+      "type": "response",
+      "response": "您好！我们是114挪车智能服务，请问您是车牌号[%global.car_no%]的车主吗？",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "10"
+        }
+      ]
+    },
+    "10": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "main.is_user_car",
+          "global_variable": "is_user_car",
+          "max_request_num": 0, 
+          "response_before_filling": false,
+          "response": {"content": "NULL", "input_channel": "keyboard"}
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.is_user_car"
+              },
+              "不是"
+            ]
+          },
+          "nextNode": "91"
+        },
+        {
+          "cond": "else",
+          "nextNode": "1"
+        }
+      ]
+    },
+    "1": {
+      "type": "response",
+      "response": "您的车是停在[%global.car_location%]了吗？",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "11"
+        }
+      ]
+    },
+    "11": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "main.is_car_location",
+          "global_variable": "is_car_location",
+          "max_request_num": 0, 
+          "response_before_filling": false,
+          "response": {"content": "NULL", "input_channel": "keyboard"}
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.is_car_location"
+              },
+              "不是"
+            ]
+          },
+          "nextNode": "92"
+        },
+        {
+          "cond": "else",
+          "nextNode": "2"
+        }
+      ]
+    },
+    "2": {
+      "type": "response",
+      "response": "您的车因[%global.car_move_reason%]，需要您配合挪车，请问您是否同意?",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "12"
+        }
+      ]
+    },
+    "12": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "main.agree_move_car",
+          "global_variable": "agree_move_car",
+          "max_request_num": 0, 
+          "response_before_filling": false,
+          "response": {"content": "NULL", "input_channel": "keyboard"}
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "!=": [
+              {
+                "var": "global.agree_move_car"
+              },
+              "同意"
+            ]
+          },
+          "nextNode": "93"
+        },
+        {
+          "cond": "else",
+          "nextNode": "80"
+        }
+      ]
+    },
+    "80": {
+      "type": "response",
+      "response": "[%global.feedback_owner1%]",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "101"
+        }
+      ]
+    },
+    "91": {
+      "type": "response",
+      "response": "[%global.confirm_owner5%]",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "101"
+        }
+      ]
+    },
+    "92": {
+      "type": "response",
+      "response": "[%global.wrong_car_location%]",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "101"
+        }
+      ]
+    },
+    "93": {
+      "type": "response",
+      "response": "[%global.feedback_owner3%]",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "101"
+        }
+      ]
+    },
+    "101": {
+      "type": "exit",
+      "todo": "hangup"
+    },
+    "100": {
+      "type": "return"
+    }
+  }
+}

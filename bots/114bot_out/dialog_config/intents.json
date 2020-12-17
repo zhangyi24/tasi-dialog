@@ -1,19 +1,19 @@
 {
-  "confirm_move": {
-    "name": "confirm_move",
+  "main": {
+    "name": "main",
     "description": "",
     "slots": {
-      "phone_no": {
+      "is_user_car": {
         "name": "phone_no",
-        "valueSet": "user.phone_no"
+        "valueSet": "user.is_user_car"
       },
-      "cert_no": {
-        "name": "cert_no",
-        "valueSet": "user.cert_no"
+      "is_car_location": {
+        "name": "is_car_location",
+        "valueSet": "user.is_car_location"
       },
-      "address": {
-        "name": "address",
-        "valueSet": "user.address"
+      "agree_move_car": {
+        "name": "agree_move_car",
+        "valueSet": "user.agree_move_car"
       }
     }
   }
