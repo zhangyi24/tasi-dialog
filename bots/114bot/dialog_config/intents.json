@@ -1,8 +1,12 @@
 {
-  "move_car": {
-    "name": "move_car",
+  "main": {
+    "name": "main",
     "description": "",
     "slots": {
+      "accept_service": {
+        "name": "accept_service",
+        "valueSet": "user.accept_service"
+      },
       "car_no": {
         "name": "car_no",
         "valueSet": "user.car_no"

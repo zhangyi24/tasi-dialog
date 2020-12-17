@@ -1,0 +1,142 @@
+{
+  "name": "main",
+  "nodes": {
+    "0": {
+      "type": "response",
+      "response": "[%global.confirm_move%]",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "1"
+        }
+      ]
+    },
+    "1": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "main.accept_service",
+          "global_variable": "accept_service",
+          "max_request_num": 0, 
+          "response_before_filling": false,
+          "response": {"content": "NULL", "input_channel": "keyboard"}
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.accept_service"
+              },
+              "不是"
+            ]
+          },
+          "nextNode": "90"
+        },
+        {
+          "cond": "else",
+          "nextNode": "2"
+        }
+      ]
+    },
+    "2": {
+      "type": "response",
+      "response": "[%global.ask_car_no3%]",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "10"
+        }
+      ]
+    },
+    "10": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "main.car_no",
+          "global_variable": "car_no",
+          "max_request_num": 0, 
+          "response_before_filling": false,
+          "response": {"content": "NULL", "input_channel": "keyboard"}
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.car_no"
+              },
+              null
+            ]
+          },
+          "nextNode": "91"
+        },
+        {
+          "cond": "else",
+          "nextNode": "80"
+        }
+      ]
+    },
+    "80": {
+      "type": "function",
+      "funcName": "query_phone_by_car_no",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "builtin.func_return"
+              },
+              true
+            ]
+          },
+          "nextNode": "99"
+        },
+        {
+          "cond": "else",
+          "nextNode": "101",
+          "response": "很抱歉，系统没有查询到车牌号[%global.car_no%]的相关信息，无法帮助您通知挪车"
+        }
+      ]
+    },
+    "91": {
+      "type": "response",
+      "response": "[%global.ask_car_no2%]",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "10"
+        }
+      ]
+    },
+    "90": {
+      "type": "response",
+      "response": "[%global.deny_move%]",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "101"
+        }
+      ]
+    },
+    "99": {
+      "type": "response",
+      "response": "播放音乐(外呼[%global.phone_no%])",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "99"
+        }
+      ]
+    },
+    "101": {
+      "type": "exit",
+      "todo": "hangup"
+    },
+    "100": {
+      "type": "return"
+    }
+  }
+}
