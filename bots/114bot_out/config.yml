@@ -1,8 +1,8 @@
 kb:
   threshold: 0.01
 phone:
-  port: 49995
+  port: 49992
   bot:
     interruptable: False
 text:
-  port: 59995
+  port: 59992

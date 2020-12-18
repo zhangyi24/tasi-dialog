@@ -1,0 +1,94 @@
+#!/bin/sh
+ProgName=$(basename $0)
+
+ENV=${ENV_PATH:-'.env'}
+source $ENV
+echo "Load env file from $ENV"
+
+sub_help() {
+    echo "Usage: $ProgName <subcommand> [options]\n"
+    echo "Subcommands:"
+    echo "    connect             Connect to mysql shell"
+    echo "    count_table         Connect to mysql shell"
+    echo "    exec [script_path]  Execute script."
+    echo ""
+    echo "For help with each subcommand run:"
+    echo "$ProgName <subcommand> -h|--help"
+    echo ""
+}
+
+GREEN='\033[0;32m' #green
+NC='\033[0m' # No Color
+
+exec_sql() {
+  echo "${GREEN}$1${NC}"
+  mysql -h $DB_HOST -u$DB_USER -p$DB_PASSWORD -P $DB_PORT $DB_DATABASE -e "$1"
+}
+
+#delete from hot where hotable_id IN (select hotable_id from (SELECT count(*) as count, hotable_id FROM hot GROUP BY hotable_id ORDER BY count DESC) as t where count>100)
+sub_connect() {
+  mysql -h $DB_HOST -u$DB_USER -p$DB_PASSWORD -P $DB_PORT $DB_DATABASE 
+}
+
+sub_desc() {
+  exec_sql "SHOW FULL COLUMNS FROM $1"
+}
+
+sub_count_table() {
+  exec_sql "SELECT table_name, table_rows FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '$DB_DATABASE'"
+  
+}
+
+sub_field() {
+  IN=$1
+  array=(${IN//./ })
+  table=${array[0]}
+  field=${array[1]}
+  exec_sql "SELECT count(*), ${field} FROM ${table} GROUP BY ${field} ORDER BY count(*) DESC LIMIT 10"
+}
+
+sub_uniq() {
+  IN=$1
+  array=(${IN//./ })
+  table=${array[0]}
+  field=${array[1]}
+  exec_sql "SELECT DISTINCT ${field} FROM ${table}"
+}
+
+sub_unlink_foreign() {
+  IN=$1
+  array=(${IN//./ })
+  table=${array[0]}
+  field=${array[1]}
+  if [[ $field =~ _id$ ]]; then
+    lookup=$(echo $field | sed 's/^\(.*\)_id$/\1/')
+    echo "Base on ${table} field ${field}, Look up table ${lookup}"
+    # TODO
+  else
+    echo "Field ${field} is not a foreign field, exit"
+    exit 1
+  fi
+}
+  
+sub_exec() {
+  echo "execute script $1, with{HOST=$DB_HOST, UESR=$DB_USER, PASSWORD=$DB_PASSWORD, DATABASE=$DB_DATABASE}"
+  echo "mysql -h $DB_HOST -u$DB_USER -p$DB_PASSWORD $DB_DATABASE < $1"
+  mysql -h $DB_HOST -u$DB_USER -p$DB_PASSWORD $DB_DATABASE < $1
+}
+
+subcommand=$1
+case $subcommand in
+    "" | "-h" | "--help")
+        sub_help
+        ;;
+    *)
+        shift
+        sub_${subcommand} $@
+        if [ $? = 127 ]; then
+            echo "Error: '$subcommand' is not a known subcommand." >&2
+            echo "       Run '$ProgName --help' for a list of known subcommands." >&2
+            exit 1
+        fi
+        ;;
+esac
+

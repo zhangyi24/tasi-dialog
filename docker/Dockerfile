@@ -50,6 +50,8 @@ RUN python -m pip install -i $PIP_MIRROR --no-cache-dir --upgrade pip setuptools
         tornado \
         supervisor \
         jsonpath_ng \
+        expiringdict \
+        sqlalchemy \
         transformers==3.1.0
 
 EXPOSE 49999

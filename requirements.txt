@@ -15,3 +15,5 @@ mysql-connector-python
 jieba
 jsonpath-ng
 supervisor
+sqlalchemy
+expiringdict
