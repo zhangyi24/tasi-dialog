@@ -397,11 +397,11 @@ cond字段的三种情况：
 # 预处理代码
 
 # 自定义函数
-def func1(user_utter, global_vars):
+def func1(user_utter, global_vars, context = None)::
     #根据api调用结果改变用户信息等全局变量
     pass
 
-def func2(user_utter, global_vars):
+def func2(user_utter, global_vars, context = None)::
     #根据api调用结果改变用户信息等全局变量
     pass
 

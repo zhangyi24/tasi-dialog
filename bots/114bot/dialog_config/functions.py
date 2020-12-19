@@ -1,4 +1,5 @@
 import logging
+#logging.root.setLevel(logging.DEBUG)
 ENV="dev"
 
 if ENV == "production":
@@ -7,9 +8,9 @@ else:
     from .api.json_api import query
 
 ## order_time
-def query_phone_by_car_no(user_utter, global_vars):
+def query_phone_by_car_no(user_utter, global_vars, context = None):
     ENDPOINT="users"
-    logging.debug(f"query_phone_by_car_no: user_utter={user_utter}, global_vars={global_vars}")
+    logging.info(f"query_phone_by_car_no: user_utter={user_utter}, context={context}")
     data = query(ENDPOINT, car_no=global_vars['car_no'])
     if not data:
         return False

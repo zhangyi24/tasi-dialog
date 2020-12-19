@@ -1,5 +1,5 @@
 # 自定义函数
-def consumer_info_access_by_meter_number(user_utter, global_vars):
+def consumer_info_access_by_meter_number(user_utter, global_vars, context = None):
 	import json
 	with open('database/consumers_info.json', 'r', encoding='utf-8') as f:
 		consumers_info = json.load(f)
@@ -9,7 +9,7 @@ def consumer_info_access_by_meter_number(user_utter, global_vars):
 				global_vars['consumer_info_access'] = True
 
 
-def verify_consumer_name(user_utter, global_vars):
+def verify_consumer_name(user_utter, global_vars, context = None):
 	import json
 	with open('database/consumers_info.json', 'r', encoding='utf-8') as f:
 		consumers_info = json.load(f)
@@ -25,17 +25,17 @@ def verify_consumer_name(user_utter, global_vars):
 		global_vars['consumer_verify_success'] = False
 
 
-def check_if_reserved_phone_number_exist(user_utter, global_vars):
+def check_if_reserved_phone_number_exist(user_utter, global_vars, context = None):
 	import re
 	pattern = "^[1][3-9][0-9]{9}$"
 	return bool(re.match(pattern, global_vars['consumer_info']['contactMobile']))
 
 
-def verify_cellphone_number(user_utter, global_vars):
+def verify_cellphone_number(user_utter, global_vars, context = None):
 	return global_vars['cellphone_number'] == global_vars['consumer_info']['contactMobile']
 
 
-def electricity_bill_inquiry(user_utter, global_vars):
+def electricity_bill_inquiry(user_utter, global_vars, context = None):
 	response = '截止到%s年%s月%s日，您的用电量是%s度，电费是%.2f元。' % (
 		global_vars['consumer_info']['rcvblInfoLists'][0]['releaseDate'][: 4],
 		global_vars['consumer_info']['rcvblInfoLists'][0]['releaseDate'][4: 6].lstrip('0'),
@@ -46,7 +46,7 @@ def electricity_bill_inquiry(user_utter, global_vars):
 	return response
 
 
-def elec_price_inquiry(user_utter, global_vars):
+def elec_price_inquiry(user_utter, global_vars, context = None):
 	elec_price_table = {
 		'居民生活用电': {
 			'一户一表': [((0, 220), [(1, 0.4900), (float('inf'), 0.4800)]),
@@ -103,7 +103,7 @@ def elec_price_inquiry(user_utter, global_vars):
 	return response
 
 
-def repeat_payment_reponse(user_utter, global_vars):
+def repeat_payment_reponse(user_utter, global_vars, context = None):
 	response = '经查询，'
 	pay_list = global_vars['consumer_info']['payFlowLists']
 	if not len(pay_list):
@@ -122,7 +122,7 @@ def repeat_payment_reponse(user_utter, global_vars):
 	return response
 
 
-def electricity_bill_not_received_response(user_utter, global_vars):
+def electricity_bill_not_received_response(user_utter, global_vars, context = None):
 	import datetime
 	owe_flag = False
 	for owe_info in global_vars['consumer_info']['oweAmtLists']:
@@ -149,7 +149,7 @@ def electricity_bill_not_received_response(user_utter, global_vars):
 		return '您的电费已结清，无需补寄账单。'
 
 
-def amount_differ_reponse(user_utter, global_vars):
+def amount_differ_reponse(user_utter, global_vars, context = None):
 	import datetime
 	today = datetime.datetime.today()
 	pay_list = global_vars['consumer_info']['payFlowLists']
@@ -171,7 +171,7 @@ def amount_differ_reponse(user_utter, global_vars):
 	return response
 
 
-def pay_info_inquiry(user_utter, global_vars):
+def pay_info_inquiry(user_utter, global_vars, context = None):
 	import datetime
 	today = datetime.datetime.today()
 	pay_list = global_vars['consumer_info']['payFlowLists']
@@ -183,7 +183,7 @@ def pay_info_inquiry(user_utter, global_vars):
 	return response
 
 
-def meter_reading_inquiry(user_utter, global_vars):
+def meter_reading_inquiry(user_utter, global_vars, context = None):
 	import datetime
 	today = datetime.datetime.today()
 	if not global_vars['consumer_info']['readPqLists']:
@@ -209,7 +209,7 @@ def meter_reading_inquiry(user_utter, global_vars):
 	return response
 
 
-def get_available_balance(user_utter, global_vars):
+def get_available_balance(user_utter, global_vars, context = None):
 	global_vars['available_balance'] = global_vars['consumer_info']['availableBalance']
 
 if __name__ == '__main__':

@@ -37,10 +37,10 @@ question_count = 0
 survey_type = 'survey'        
 
 ### Call back Functions
-def survey_type(user_utter, global_vars):
+def survey_type(user_utter, global_vars, context = None):
     return survey_type
     
-def init_survey(user_utter, global_vars):
+def init_survey(user_utter, global_vars, context = None):
     f = open("data/question-raw.json", "r")
     survey = json.load(f)
     for data in survey:
@@ -55,7 +55,7 @@ def init_survey(user_utter, global_vars):
     question_count = len(questions)
     survey_type = 'survey'
 
-def next_question(user_utter, global_vars):
+def next_question(user_utter, global_vars, context = None):
     if questions:
         return questions.pop(0)
     else:

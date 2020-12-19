@@ -321,7 +321,7 @@ class Bot(object):
             # function
             elif current_node['type'] == 'function':
                 exec(
-                    'builtin_vars["func_return"] = ' + 'functions.' + current_node['funcName'] + '(user_utter, g_vars)')
+                    'builtin_vars["func_return"] = ' + 'functions.' + current_node['funcName'] + '(user_utter, g_vars, context=self)')
 
             # dm
             assert 'dm' in current_node
