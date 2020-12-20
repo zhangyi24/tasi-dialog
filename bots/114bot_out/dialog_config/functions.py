@@ -13,7 +13,7 @@ def write_result(user_utter, global_vars, context = None):
       from_callid = int(stringToInt)
     except ValueError:
       from_callid = 123
-    content = None
+    content = "#".join(ns.history)
     # global variables
     call_result = global_vars['agree_move_car']
     logging.info(f"write_result: extend={extend},call_result={call_result}")

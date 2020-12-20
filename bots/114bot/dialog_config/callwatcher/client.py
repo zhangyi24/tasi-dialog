@@ -41,6 +41,11 @@ def insert_buslist(customer_phone, extend, tenant_id=2, event_id=2520):
     sql = sql.replace("\n","")
     res = exec_sql(sql)
     return res.lastrowid
+
+def update_buslit(list_id):
+    """
+    UPDATE cti_cdr set dropcause=200 where memberid = {list_id};
+    """
     
 def create_call_result():
     sql = """

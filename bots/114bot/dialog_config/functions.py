@@ -22,7 +22,7 @@ def query_phone_by_car_no(user_utter, global_vars, context = None):
 def call_manager_process(user_utter, global_vars, context = None):
     ns = SimpleNamespace(**context)
     call_id = ns.call_info['call_id']
-    extend = ns.call_info['user_info']
+    extend = ns.call_info['extend']
     # global variables
     phone = global_vars['phone_no']
     car_no = global_vars['car_no']

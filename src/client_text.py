@@ -20,7 +20,7 @@ def get_req_body_init(call_id, call_sor_id, user_info):
             'call_id': call_id,
             'call_sor_id': call_sor_id,
             'start_time': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S%f')[:-3],
-            'user_info': user_info
+            'extend': user_info
         }
     }
     return req_body

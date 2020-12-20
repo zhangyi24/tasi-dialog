@@ -65,7 +65,7 @@ class MainHandler(tornado.web.RequestHandler):
 		resp_body = None
 		assert self.req_body['inaction'] in [8, 9]
 		if self.req_body['inaction'] == 8:
-			user_info = self.req_body['inparams']['user_info'].split('#')[1:]
+			user_info = self.req_body['inparams']['extend'].split('#')[1:]
 			self.bot.init(user_id=self.req_body['userid'], user_info=user_info,
 									 call_info=self.req_body['inparams'])
 			user = self.bot.users[self.req_body['userid']]
