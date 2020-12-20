@@ -102,19 +102,29 @@
       ],
       "dm": [
         {
+          "cond": true,
+          "nextNode": "70"
+        }
+      ]
+    },
+    "70": {
+      "type": "function",
+      "funcName": "write_result",
+      "dm": [
+        {
           "cond": {
-            "!=": [
+            "==": [
               {
                 "var": "global.agree_move_car"
               },
               "同意"
             ]
           },
-          "nextNode": "93"
+          "nextNode": "80"
         },
         {
           "cond": "else",
-          "nextNode": "80"
+          "nextNode": "81"
         }
       ]
     },
@@ -124,7 +134,17 @@
       "dm": [
         {
           "cond": true,
-          "nextNode": "101"
+          "nextNode": "100"
+        }
+      ]
+    },
+    "81": {
+      "type": "response",
+      "response": "[%global.feedback_owner3%]",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "100"
         }
       ]
     },
@@ -134,7 +154,7 @@
       "dm": [
         {
           "cond": true,
-          "nextNode": "101"
+          "nextNode": "100"
         }
       ]
     },
@@ -144,23 +164,9 @@
       "dm": [
         {
           "cond": true,
-          "nextNode": "101"
+          "nextNode": "100"
         }
       ]
-    },
-    "93": {
-      "type": "response",
-      "response": "[%global.feedback_owner3%]",
-      "dm": [
-        {
-          "cond": true,
-          "nextNode": "101"
-        }
-      ]
-    },
-    "101": {
-      "type": "exit",
-      "todo": "hangup"
     },
     "100": {
       "type": "return"

@@ -22,22 +22,25 @@ def joinpath(*args):
     path = Path(args[0])
     for e in args[1:]:
         path = path.joinpath(e)
-    return path
+    return path.resolve()
     
 def dirpath(*args):
     path = joinpath(*args)
     if not path.exists():
-        raise Exception(f"Path {path.resolve()} not exist")
+        raise Exception(f"Path {path} not exist")
     if not path.is_dir():
-        raise Exception(f"Dir {path.resolve()} not exist")
+        raise Exception(f"Not Dir {path}")
     return path.resolve()
     
-def filepath(*args):
+def filepath(*args, ensure=False):
     path = joinpath(*args)
     if not path.exists():
-        raise Exception(f"Path {path.resolve()} not exist")
+        if not ensure:
+            raise Exception(f"Path {path} not exist")
+        else:
+            path.touch()
     if not path.is_file():
-        raise Exception(f"File {path.resolve()} not exist")
+        raise Exception(f"Not File {path}")
     return path.resolve()
     
 def test_dirpath():

@@ -28,5 +28,17 @@
       "chineseName": "车牌号",
       "type": "regex",
       "regex": "[京津晋冀蒙辽吉黑沪苏浙皖闽赣鲁豫鄂湘粤桂琼渝川贵云藏陕甘青宁新][ABCDEFGHJKLMNPQRSTUVWXY][1-9DF][1-9ABCDEFGHJKLMNPQRSTUVWXYZ]\\d{3}[1-9DF]|[京津晋冀蒙辽吉黑沪苏浙皖闽赣鲁豫鄂湘粤桂琼渝川贵云藏陕甘青宁新][ABCDEFGHJKLMNPQRSTUVWXY][\\dABCDEFGHJKLNMxPQRSTUVWXYZ]{5}"
+  },
+  "car_location": {
+    "name": "car_location",
+    "chineseName": "车辆停靠地址",
+    "type": "regex",
+    "regex": "(\\D+?(|省|市|县|区|道|路|街|小区|里|园|院|苑|城|大厦|公寓|商厦|支行|楼|号|门|门口|附近|对面|旁))*"
+  },
+  "car_move_reason": {
+    "name": "car_move_reason",
+    "chineseName": "挪车原因",
+    "type": "regex",
+    "regex": "((挡|堵|占|施工|碍事|画线|压|禁停|消防|没)\\D*(门口|位置|车|车位|道|路|门|井盖|线|车窗)?)"
   }
 }

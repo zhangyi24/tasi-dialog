@@ -5,9 +5,9 @@ import logging
 from expiringdict import ExpiringDict
 
 logging.basicConfig(format='%(asctime)s [%(levelname)s] %(message)s')
-logging.root.setLevel(logging.INFO)
+logging.root.setLevel(logging.DEBUG)
 
-DEBUG=False
+DEBUG=True
 
 dialect = "mysql"
 driver = "pymysql"
@@ -29,24 +29,58 @@ def cti_cdr(list_id):
     res = exec_sql(sql).first()
     if not res:
         return None
+    logging.debug(f"cti_cdr return {int(res.dropcause)}")
     return int(res.dropcause)
     
 def insert_buslist(customer_phone, extend, tenant_id=2, event_id=2520):
     car_no = extend.split("#")[1]
     sql = f"""
     INSERT INTO ocm_buslist (tenant_id , customer_name, customer_phone, event_id, call_number, create_time, car_no, extend, channel_no, templet_id) 
-    VALUES (2,'BOT', {customer_phone}, {event_id}, '00000000000', NOW(), '{car_no}', 'extend', 1, '03')
+    VALUES (2,'BOT', {customer_phone}, {event_id}, '00000000000', NOW(), '{car_no}', '{extend}', 1, '03')
+    """
+    sql = sql.replace("\n","")
+    res = exec_sql(sql)
+    return res.lastrowid
+    
+def create_call_result():
+    sql = """
+    CREATE TABLE `ocm_callout_result` (
+      `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+      `callid` bigint(20) NOT NULL COMMENT '对话唯一性id(在cti_cdr中主键)',
+      `from_callid` bigint(20) NOT NULL  COMMENT '内呼任务id',
+      `content` varchar(1000) DEFAULT NULL COMMENT '机器人内容',
+      `extend` varchar(100) DEFAULT NULL COMMENT '扩展字段',
+      `call_result` varchar(100) DEFAULT NULL COMMENT '呼叫结果',
+      PRIMARY KEY (`id`) USING BTREE
+    ) 
+    """
+    sql = sql.replace("\n","")
+    res = exec_sql(sql)
+    return res
+    
+def insert_callout_result(callid, from_callid, content, extend, call_result):
+    sql = f"""
+    INSERT INTO ocm_callout_result (callid, from_callid, content, extend, call_result) 
+    VALUES ({callid}, {from_callid}, '{content}', '{extend}', '{call_result}')
     """
     sql = sql.replace("\n","")
     res = exec_sql(sql)
     return res.lastrowid
     
 def bot_result(callid):
-    return random() < 0.5
+    sql = f"""
+    SELECT call_result from ocm_callout_result WHERE from_callid = {callid}
+    """
+    sql = sql.replace("\n","")
+    res = exec_sql(sql).first()
+    logging.debug(f'bot_result: {res}')
+    if not res:
+        return None
+    return res.call_result
 
 def last_buslist():
     sql = """
-    select * from ocm_buslist order by list_id desc limit 5
+    select list_id, customer_phone, customer_name, car_no, extend from ocm_buslist order by list_id desc limit 5
     """
     res = exec_sql(sql)
     print(res.next())
@@ -122,7 +156,7 @@ class CallManager(metaclass=CallidSingleton):
         res = resp.render(*args)
         if resp.is_terminal():
             self._destroy()
-        return res
+        return (res, resp.is_terminal())
         
     def recall_with_response(self):
         if self._should_retry():
@@ -134,28 +168,32 @@ class CallManager(metaclass=CallidSingleton):
     def process(self):
         # 如果没有呼叫过
         if not self._have_call():
-            logging.debug(f"如果没有呼叫过,{self.last_list_id}")
+            logging.info(f"如果没有呼叫过,{self.last_list_id}")
             self._call()
             return self.response(Response.CONNECTING, 3 - self.retry_count)
         cti_status = cti_cdr(self.last_list_id)
         # 数据库中没有查到,在呼叫中.
-        if not cti_status:
+        if cti_status == None:
+            logging.info("数据库中没有查到,在呼叫中")
             return self.response(Response.CONNECTING, 3 - self.retry_count)
         # 用户接通且用户主动挂机返回值200
         if cti_status == 200:
-            if bot_result(self.callid):
-                logging.debug("用户同意挪车")
+            if bot_result(self.callid) == None:
+                logging.info("用户挂机了但没给返回,内部错误")
+                return self.response(Response.UNKNOW, "用户挂机了但没给返回,内部错误")
+            elif bot_result(self.callid) == "同意":
+                logging.info("用户同意挪车")
                 return self.response(Response.ACCEPT)
             else:
-                logging.debug("用户拒绝挪车")
+                logging.info("用户拒绝挪车")
                 return self.response(Response.REJECT)
         # 用户拒绝接听603,或者其他大于400造成的失败    
         if cti_status == 603 or cti_status > 400:
-            logging.debug("用户拒绝接听603,或者其他大于400造成的失败")
+            logging.info("用户拒绝接听603,或者其他大于400造成的失败")
             return self.recall_with_response()
         # 用户接通返回是0,有可能后续接通后改成返回200
         if cti_status == 0:
-            logging.debug("用户接通返回是0,有可能后续接通后改成返回200")
+            logging.info("用户接通返回是0,有可能后续接通后改成返回200")
             return self.response(Response.CONNECTED)
         
         return self.response(Response.UNKNOW)
@@ -199,9 +237,10 @@ if __name__ == "__main__":
     #automap()
     #print(cti_cdr(204531))
     DEBUG=True
+    #create_call_result()
     while True:
         p = CallManager("1",999991,["11000000", "津A12345", "滨海新区", "挡住出车道"])
-        logging.info(p.process())
+        logging.info(p.process()[0])
         time.sleep(1)
         # if input('continue? (Y?n)').lower() == 'n':
         #     break

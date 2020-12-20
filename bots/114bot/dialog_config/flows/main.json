@@ -7,11 +7,11 @@
       "dm": [
         {
           "cond": true,
-          "nextNode": "1"
+          "nextNode": "10"
         }
       ]
     },
-    "1": {
+    "10": {
       "type": "slot_filling",
       "slots": [
         {
@@ -46,11 +46,11 @@
       "dm": [
         {
           "cond": true,
-          "nextNode": "10"
+          "nextNode": "12"
         }
       ]
     },
-    "10": {
+    "12": {
       "type": "slot_filling",
       "slots": [
         {
@@ -71,15 +71,15 @@
               null
             ]
           },
-          "nextNode": "91"
+          "nextNode": "82"
         },
         {
           "cond": "else",
-          "nextNode": "80"
+          "nextNode": "70"
         }
       ]
     },
-    "80": {
+    "70": {
       "type": "function",
       "funcName": "query_phone_by_car_no",
       "dm": [
@@ -92,22 +92,152 @@
               true
             ]
           },
-          "nextNode": "99"
+          "nextNode": "3"
         },
         {
           "cond": "else",
-          "nextNode": "101",
+          "nextNode": "100",
           "response": "很抱歉，系统没有查询到车牌号[%global.car_no%]的相关信息，无法帮助您通知挪车"
         }
       ]
     },
-    "91": {
+    "3": {
+      "type": "response",
+      "response": "[%global.ask_location%]",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "13"
+        }
+      ]
+    },
+    "13": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "main.car_location",
+          "global_variable": "car_location",
+          "max_request_num": 0, 
+          "response_before_filling": false,
+          "response": {"content": "NULL", "input_channel": "keyboard"}
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.car_location"
+              },
+              null
+            ]
+          },
+          "nextNode": "83"
+        },
+        {
+          "cond": "else",
+          "nextNode": "4"
+        }
+      ]
+    },
+    "4": {
+      "type": "response",
+      "response": "[%global.ask_reason15%]",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "14"
+        }
+      ]
+    },
+    "14": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "main.car_move_reason",
+          "global_variable": "car_move_reason",
+          "max_request_num": 0, 
+          "response_before_filling": false,
+          "response": {"content": "NULL", "input_channel": "keyboard"}
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.car_move_reason"
+              },
+              null
+            ]
+          },
+          "nextNode": "84"
+        },
+        {
+          "cond": "else",
+          "nextNode": "71"
+        }
+      ]
+    },
+    "71": {
+      "type": "function",
+      "funcName": "call_manager_process",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "builtin.func_return"
+              },
+              null
+            ]
+          },
+          "nextNode": "81"
+        },
+        {
+          "cond": "else",
+          "nextNode": "100",
+          "response": "[%global.func_message%]"
+        }
+      ]
+    },
+    "81": {
+      "type": "response",
+      "response": "[%global.func_message%]", 
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "71"
+        }
+      ]
+    },
+    "82": {
       "type": "response",
       "response": "[%global.ask_car_no2%]",
       "dm": [
         {
           "cond": true,
-          "nextNode": "10"
+          "nextNode": "12"
+        }
+      ]
+    },
+    "83": {
+      "type": "response",
+      "response": "[%global.ask_location4%]",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "13"
+        }
+      ]
+    },
+    "84": {
+      "type": "response",
+      "response": "[%global.ask_reason16%]",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "14"
         }
       ]
     },
@@ -117,7 +247,7 @@
       "dm": [
         {
           "cond": true,
-          "nextNode": "101"
+          "nextNode": "100"
         }
       ]
     },
@@ -130,10 +260,6 @@
           "nextNode": "99"
         }
       ]
-    },
-    "101": {
-      "type": "exit",
-      "todo": "hangup"
     },
     "100": {
       "type": "return"
