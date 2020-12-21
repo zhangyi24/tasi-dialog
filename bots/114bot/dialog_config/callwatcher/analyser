@@ -27,6 +27,7 @@ exec_sql() {
 
 #delete from hot where hotable_id IN (select hotable_id from (SELECT count(*) as count, hotable_id FROM hot GROUP BY hotable_id ORDER BY count DESC) as t where count>100)
 sub_connect() {
+  echo "mysql -h $DB_HOST -u$DB_USER -p$DB_PASSWORD -P $DB_PORT $DB_DATABASE"
   mysql -h $DB_HOST -u$DB_USER -p$DB_PASSWORD -P $DB_PORT $DB_DATABASE 
 }
 
