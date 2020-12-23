@@ -1,0 +1,26 @@
+不客气没有不是的不是的不是我家的是的。
+{u'status': 0, u'segment-start': 0.0, u'segment-length': 7.35, u'total-length': 7.75, u'result': {u'hypotheses': [{u'transcript': u'\u4e0d\u5ba2\u6c14\u6ca1\u6709\u4e0d\u662f\u7684\u4e0d\u662f\u7684\u4e0d\u662f\u6211\u5bb6\u7684\u662f\u7684\u3002', u'confidence': 0.8777882398538651, u'likelihood': 513.816}], u'final': True}, u'segment': 0, u'id': u'463c9d64-f929-463e-9ccc-5e5b0367d51b'}
+墨NN4。
+{u'status': 0, u'segment-start': 7.75, u'segment-length': 5.67, u'total-length': 13.75, u'result': {u'hypotheses': [{u'transcript': u'\u58a8NN4\u3002', u'confidence': 0.09697044833115231, u'likelihood': 374.562}], u'final': True}, u'segment': 1, u'id': u'463c9d64-f929-463e-9ccc-5e5b0367d51b'}
+博世牧9。
+{u'status': 0, u'segment-start': 13.75, u'segment-length': 1.89, u'total-length': 16.0, u'result': {u'hypotheses': [{u'transcript': u'\u535a\u4e16\u72679\u3002', u'confidence': 0.25023840776096684, u'likelihood': 68.8405}], u'final': True}, u'segment': 2, u'id': u'463c9d64-f929-463e-9ccc-5e5b0367d51b'}
+煤R2。
+{u'status': 0, u'segment-start': 16.0, u'segment-length': 1.68, u'total-length': 18.0, u'result': {u'hypotheses': [{u'transcript': u'\u7164R2\u3002', u'confidence': 0.18543414424712712, u'likelihood': 54.7553}], u'final': True}, u'segment': 3, u'id': u'463c9d64-f929-463e-9ccc-5e5b0367d51b'}
+世D。
+{u'status': 0, u'segment-start': 18.0, u'segment-length': 3.99, u'total-length': 22.25, u'result': {u'hypotheses': [{u'transcript': u'\u4e16D\u3002', u'confidence': 0.19345855982265292, u'likelihood': 236.575}], u'final': True}, u'segment': 4, u'id': u'463c9d64-f929-463e-9ccc-5e5b0367d51b'}
+莫恩硕。
+{u'status': 0, u'segment-start': 22.25, u'segment-length': 5.46, u'total-length': 28.0, u'result': {u'hypotheses': [{u'transcript': u'\u83ab\u6069\u7855\u3002', u'confidence': 0.8062138407936925, u'likelihood': 319.4}], u'final': True}, u'segment': 5, u'id': u'463c9d64-f929-463e-9ccc-5e5b0367d51b'}
+好行。 
+{u'status': 0, u'segment-start': 28.0, u'segment-length': 3.15, u'total-length': 31.5, u'result': {u'hypotheses': [{u'transcript': u'\u597d\u884c\u3002', u'confidence': 0.9476602940515685, u'likelihood': 181.62}], u'final': True}, u'segment': 6, u'id': u'463c9d64-f929-463e-9ccc-5e5b0367d51b'}
+现在就行好视。
+{u'status': 0, u'segment-start': 31.5, u'segment-length': 5.25, u'total-length': 37.0, u'result': {u'hypotheses': [{u'transcript': u'\u73b0\u5728\u5c31\u884c\u597d\u89c6\u3002', u'confidence': 0.8878591939026409, u'likelihood': 307.95}], u'final': True}, u'segment': 7, u'id': u'463c9d64-f929-463e-9ccc-5e5b0367d51b'}
+红叶布行。
+{u'status': 0, u'segment-start': 37.0, u'segment-length': 1.89, u'total-length': 39.25, u'result': {u'hypotheses': [{u'transcript': u'\u7ea2\u53f6\u5e03\u884c\u3002', u'confidence': 10000000000.0, u'likelihood': 88.12}], u'final': True}, u'segment': 8, u'id': u'463c9d64-f929-463e-9ccc-5e5b0367d51b'}
+不需要我不用R3。
+{u'status': 0, u'segment-start': 39.25, u'segment-length': 5.25, u'total-length': 44.75, u'result': {u'hypotheses': [{u'transcript': u'\u4e0d\u9700\u8981\u6211\u4e0d\u7528R3\u3002', u'confidence': 0.5730122693469737, u'likelihood': 329.64}], u'final': True}, u'segment': 9, u'id': u'463c9d64-f929-463e-9ccc-5e5b0367d51b'}
+在开会在开车在睡觉。
+{u'status': 0, u'segment-start': 44.75, u'segment-length': 3.15, u'total-length': 48.25, u'result': {u'hypotheses': [{u'transcript': u'\u5728\u5f00\u4f1a\u5728\u5f00\u8f66\u5728\u7761\u89c9\u3002', u'confidence': 0.9962761604280755, u'likelihood': 251.042}], u'final': True}, u'segment': 10, u'id': u'463c9d64-f929-463e-9ccc-5e5b0367d51b'}
+上课在开车在睡觉 Audio sent, now sending EOS
+上课在开车在睡觉。
+{u'status': 0, u'segment-start': 48.25, u'segment-length': 3.36, u'total-length': 52.0, u'result': {u'hypotheses': [{u'transcript': u'\u4e0a\u8bfe\u5728\u5f00\u8f66\u5728\u7761\u89c9\u3002', u'confidence': 0.9986163080139674, u'likelihood': 258.064}], u'final': True}, u'segment': 11, u'id': u'463c9d64-f929-463e-9ccc-5e5b0367d51b'}
+不客气没有不是的不是的不是我家的是的。 墨NN4。 博世牧9。 煤R2。 世D。 莫恩硕。 好行。 现在就行好视。 红叶布行。 不需要我不用R3。 在开会在开车在睡觉。 上课在开车在睡觉。

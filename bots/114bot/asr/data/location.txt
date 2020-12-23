@@ -1,0 +1,22 @@
+河北区泗阳里占车位。
+{u'status': 0, u'segment-start': 0.0, u'segment-length': 5.25, u'total-length': 5.5, u'result': {u'hypotheses': [{u'transcript': u'\u6cb3\u5317\u533a\u6cd7\u9633\u91cc\u5360\u8f66\u4f4d\u3002', u'confidence': 10000000000.0, u'likelihood': 369.169}], u'final': True}, u'segment': 0, u'id': u'eb5e8983-a595-4d44-bd92-4a1bf23f2fd8'}
+静海县静海金桥国贸堵车。
+{u'status': 0, u'segment-start': 5.5, u'segment-length': 3.99, u'total-length': 9.75, u'result': {u'hypotheses': [{u'transcript': u'\u9759\u6d77\u53bf\u9759\u6d77\u91d1\u6865\u56fd\u8d38\u5835\u8f66\u3002', u'confidence': 10000000000.0, u'likelihood': 299.493}], u'final': True}, u'segment': 1, u'id': u'eb5e8983-a595-4d44-bd92-4a1bf23f2fd8'}
+南开区孤山路怀安西里堵车。
+{u'status': 0, u'segment-start': 9.75, u'segment-length': 4.2, u'total-length': 14.25, u'result': {u'hypotheses': [{u'transcript': u'\u5357\u5f00\u533a\u5b64\u5c71\u8def\u6000\u5b89\u897f\u91cc\u5835\u8f66\u3002', u'confidence': 0.9231576992928356, u'likelihood': 271.956}], u'final': True}, u'segment': 2, u'id': u'eb5e8983-a595-4d44-bd92-4a1bf23f2fd8'}
+津南区林景家园堵车。
+{u'status': 0, u'segment-start': 14.25, u'segment-length': 2.94, u'total-length': 17.5, u'result': {u'hypotheses': [{u'transcript': u'\u6d25\u5357\u533a\u6797\u666f\u5bb6\u56ed\u5835\u8f66\u3002', u'confidence': 10000000000.0, u'likelihood': 180.875}], u'final': True}, u'segment': 3, u'id': u'eb5e8983-a595-4d44-bd92-4a1bf23f2fd8'}
+河东区吹荫里5号楼施工。
+{u'status': 0, u'segment-start': 17.5, u'segment-length': 3.15, u'total-length': 21.0, u'result': {u'hypotheses': [{u'transcript': u'\u6cb3\u4e1c\u533a\u5439\u836b\u91cc5\u53f7\u697c\u65bd\u5de5\u3002', u'confidence': 10000000000.0, u'likelihood': 205.408}], u'final': True}, u'segment': 4, u'id': u'eb5e8983-a595-4d44-bd92-4a1bf23f2fd8'}
+南区和平区北辰区双清新家园盛福园占车位和平区津南区8里台锦台园施工。
+{u'status': 0, u'segment-start': 21.0, u'segment-length': 11.13, u'total-length': 32.5, u'result': {u'hypotheses': [{u'transcript': u'\u5357\u533a\u548c\u5e73\u533a\u5317\u8fb0\u533a\u53cc\u6e05\u65b0\u5bb6\u56ed\u76db\u798f\u56ed\u5360\u8f66\u4f4d\u548c\u5e73\u533a\u6d25\u5357\u533a8\u91cc\u53f0\u9526\u53f0\u56ed\u65bd\u5de5\u3002', u'confidence': 0.9728939953001345, u'likelihood': 940.055}], u'final': True}, u'segment': 5, u'id': u'eb5e8983-a595-4d44-bd92-4a1bf23f2fd8'}
+洞庭路86号占车位。位 
+{u'status': 0, u'segment-start': 32.5, u'segment-length': 5.46, u'total-length': 38.25, u'result': {u'hypotheses': [{u'transcript': u'\u6d1e\u5ead\u8def86\u53f7\u5360\u8f66\u4f4d\u3002', u'confidence': 0.68525736315722, u'likelihood': 362.68}], u'final': True}, u'segment': 6, u'id': u'eb5e8983-a595-4d44-bd92-4a1bf23f2fd8'}
+和平区滨海新区加梅苑小区挡车。
+{u'status': 0, u'segment-start': 38.25, u'segment-length': 4.2, u'total-length': 42.75, u'result': {u'hypotheses': [{u'transcript': u'\u548c\u5e73\u533a\u6ee8\u6d77\u65b0\u533a\u52a0\u6885\u82d1\u5c0f\u533a\u6321\u8f66\u3002', u'confidence': 10000000000.0, u'likelihood': 310.512}], u'final': True}, u'segment': 7, u'id': u'eb5e8983-a595-4d44-bd92-4a1bf23f2fd8'}
+天津滨海新区大港中塘镇施工挡路。
+{u'status': 0, u'segment-start': 42.75, u'segment-length': 4.62, u'total-length': 47.75, u'result': {u'hypotheses': [{u'transcript': u'\u5929\u6d25\u6ee8\u6d77\u65b0\u533a\u5927\u6e2f\u4e2d\u5858\u9547\u65bd\u5de5\u6321\u8def\u3002', u'confidence': 0.5044068743073477, u'likelihood': 352.54}], u'final': True}, u'segment': 8, u'id': u'eb5e8983-a595-4d44-bd92-4a1bf23f2fd8'}
+静海区 Audio sent, now sending EOS
+静海区。
+{u'status': 0, u'segment-start': 47.75, u'segment-length': 1.59, u'total-length': 49.3419, u'result': {u'hypotheses': [{u'transcript': u'\u9759\u6d77\u533a\u3002', u'confidence': 0.9836920082514361, u'likelihood': 69.5416}], u'final': True}, u'segment': 9, u'id': u'eb5e8983-a595-4d44-bd92-4a1bf23f2fd8'}
+河北区泗阳里占车位。 静海县静海金桥国贸堵车。 南开区孤山路怀安西里堵车。 津南区林景家园堵车。 河东区吹荫里5号楼施工。 南区和平区北辰区双清新家园盛福园占车位和平区津南区8里台锦台园施工。 洞庭路86号占车位。 和平区滨海新区加梅苑小区挡车。 天津滨海新区大港中塘镇施工挡路。 静海区。
