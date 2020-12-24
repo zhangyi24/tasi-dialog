@@ -184,8 +184,8 @@ class CallManager(metaclass=CallidSingleton):
         # 用户接通且用户主动挂机返回值200
         if cti_status == 200:
             if bot_result(self.callid) == None:
-                logging.info("用户挂机了但没给返回,内部错误")
-                return self.response(Response.UNKNOW, "用户挂机了但没给返回,内部错误")
+                logging.info("用户挂机了但没给返回")
+                return self.recall_with_response()
             elif bot_result(self.callid) == "同意":
                 logging.info("用户同意挪车")
                 return self.response(Response.ACCEPT)
