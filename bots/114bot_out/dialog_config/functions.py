@@ -4,10 +4,9 @@ from .callwatcher.client import insert_callout_result
 
 ## functions
 def write_result(user_utter, global_vars, context = None):
-    logging.info(f"write_result: user_utter={user_utter}, context={context}")
     ns = SimpleNamespace(**context)
     call_id = ns.call_info['call_id']
-    extend = ns.call_info['user_info']
+    extend = ns.call_info['extend']
     stringToInt = extend.split("#")[0]
     try:
       from_callid = int(stringToInt)
