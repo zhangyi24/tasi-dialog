@@ -99,7 +99,7 @@
       "name": "car_no",
       "chineseName": "车牌号",
       "type": "regex",
-      "regex": "\\D[A-Za-z0-9]{6}"
+      "regex": "(.[A-Za-z0-9]{6}|.{7}(?=\\W*$))"
   },
   "car_location": {
     "name": "car_location",
