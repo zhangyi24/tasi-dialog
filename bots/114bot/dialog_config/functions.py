@@ -2,11 +2,17 @@ import logging
 from types import SimpleNamespace
 from .callwatcher.client import CallManager
 from pypinyin import lazy_pinyin
+import re
 ENV="dev"
 
 from .api.json_api import query
     
 ## order_time
+def render_tts(user_utter, global_vars, context = None):
+    car_no=global_vars['car_no']
+    global_vars['car_no'] = render_car_no(car_no)
+    return True
+    
 def query_phone_by_car_no(user_utter, global_vars, context = None):
     ENDPOINT="users"
     try: 
@@ -49,6 +55,12 @@ def call_manager_process(user_utter, global_vars, context = None):
     global_vars['func_message'] = msg
     return code
     
+def render_car_no(car_no):
+    res = re.sub(r"(\d)", r"{\1}", car_no)
+    res = re.sub("([A-Za-z])", r"<\1>", res)
+    logging.info(f"渲染{car_no}为{res}")
+    return res
+    
 def test_tianjin_chepai(car_no):
     try: 
         if lazy_pinyin(car_no[0])[0][0:3] != "jin":
@@ -63,10 +75,10 @@ if __name__ == "__main__":
     car_no = "津A12345"
     #res = query(f'users',car_no=car_no)
     #print(res)
-    global_vars = {'car_no': car_no}
-    p_res = query_phone_by_car_no({},global_vars)
-    print("query result:", p_res)
+    # global_vars = {'car_no': car_no}
+    # p_res = query_phone_by_car_no({},global_vars)
+    # print("query result:", p_res)
     # print(p_res, global_vars)
-    car_no_list = ["津A12345", "金123455","晋123456","京123456","冀123456","东","南"]
+    car_no_list = ["津A12345", "金AB3455","晋1234CC","京1234R6","冀123456","东","南"]
     for car_no in car_no_list:
-        test_tianjin_chepai(car_no)
+        print(render_car_no(car_no))
