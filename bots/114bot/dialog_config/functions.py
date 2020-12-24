@@ -9,9 +9,11 @@ from .api.json_api import query
 ## order_time
 def query_phone_by_car_no(user_utter, global_vars, context = None):
     ENDPOINT="users"
-    logging.info(f"query_phone_by_car_no: user_utter={user_utter}, context={context}")
     try: 
+        car_no=global_vars['car_no']
+        logging.info(f"query_phone_by_car_no: 首字母{lazy_pinyin(car_no[0])[0][0:3]}")
         if lazy_pinyin(car_no[0])[0][0:3] != "jin":
+            logging.info(f"query_phone_by_car_no: 非天津车牌")
             return False
     except:
         pass
@@ -24,9 +26,11 @@ def query_phone_by_car_no(user_utter, global_vars, context = None):
         #     global_vars['phone_no'] = data['phone']
         #     return True
         global_vars['phone_no'] = 999991
+        logging.info(f"query_phone_by_car_no: dev环境返回999991")
         return True
     else:
         global_vars['phone_no'] = 17622627188
+        logging.info(f"query_phone_by_car_no: prod环境返回17622627188")
         return True
         
 def call_manager_process(user_utter, global_vars, context = None):

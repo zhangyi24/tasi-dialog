@@ -19,6 +19,7 @@ database = "callcenter"
 url = f"{dialect}+{driver}://{username}:{password}@{host}:{port}/{database}"
 print(url)
 engine = create_engine(url)
+engine.connect()
 
 def cti_cdr(list_id):
     sql = f"""
@@ -91,9 +92,8 @@ def last_buslist():
 def exec_sql(sql):
     if DEBUG:
         logging.debug(sql.strip())
-    with engine.connect() as connection:
-        res = connection.execute(sql)
-        return res
+    res = engine.execute(sql)
+    return res
 
 def last_cti_cdr():
     sql = """
@@ -244,7 +244,7 @@ if __name__ == "__main__":
     DEBUG=True
     #create_call_result()
     while True:
-        p = CallManager("1",999991,["11000000", "津A12345", "滨海新区", "挡住出车道"])
+        p = CallManager("1",999991,["11000000", "津A12345", "双清大厦", "挡住出车道"])
         logging.info(p.process()[0])
         time.sleep(1)
         # if input('continue? (Y?n)').lower() == 'n':
