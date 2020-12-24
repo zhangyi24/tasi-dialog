@@ -79,8 +79,8 @@ def bot_result(callid):
     res = exec_sql(sql).first()
     logging.debug(f'bot_result: {res}')
     if not res:
-        return None
-    return res.call_result
+        return 0
+    return int(res.call_result)
 
 def last_buslist():
     sql = """
@@ -105,18 +105,20 @@ def last_cti_cdr():
 
 from enum import Enum
 class Response(Enum):
-    CONNECTING = "正在尝试第{{{0}}}次联系车主...请您耐心等待"
-    RETRY = "车主的电话暂未接通,还将重试{{{0}}}次...请您耐心等待"
+    CONNECTING = "正在尝试第{{{0}}}次联系车主，请您耐心等待"
+    RETRY = "车主的电话暂未接通,还将重试{{{0}}}次，请您耐心等待"
     CONNECTED = "我们已经和车主取得联系,正在沟通中"
     FAIL = "十分抱歉，对方车主无人接听，现在无法帮您通知车主挪车"
-    ACCEPT = "已通知到车主，车主答应挪车，请您稍等"
-    REJECT = "车主目前不方便挪车，请您通过其他途径解决"
+    ACCEPT_200 = "已通知到车主，车主答应挪车。感谢您的来电，请您挂机"
+    REJECT_300 = "车主目前不方便挪车，请您通过其他途径解决。感谢您的来电，请您挂机"
+    WRONG_USER_401 = "该车牌号并非车主本人，无法帮您挪车。感谢您的来电，请您挂机"
+    WRONG_LOCATION_402 = "车主的车没有停在这个位置，无法帮您挪车。感谢您的来电，请您挂机"
     UNKNOW = "未知的错误代码{0}"
     def render(self, *args):
         return self.value.format(*args)
         
     def is_terminal(self):
-        return self in [Response.FAIL, Response.ACCEPT, Response.REJECT, Response.UNKNOW]
+        return self in [Response.FAIL, Response.ACCEPT_200, Response.REJECT_300, Response.WRONG_USER_401, Response.WRONG_LOCATION_402, Response.UNKNOW]
     
 class CallidSingleton(type):
     
@@ -183,15 +185,22 @@ class CallManager(metaclass=CallidSingleton):
             return self.response(Response.CONNECTING, 3 - self.retry_count)
         # 用户接通且用户主动挂机返回值200
         if cti_status == 200:
-            if bot_result(self.callid) == None:
+            bot_res = bot_result(self.callid)
+            if bot_res == 0:
                 logging.info("用户挂机了但没给返回")
                 return self.recall_with_response()
-            elif bot_result(self.callid) == "同意":
+            elif bot_res == 200:
                 logging.info("用户同意挪车")
-                return self.response(Response.ACCEPT)
+                return self.response(Response.ACCEPT_200)
+            elif bot_res == 401:
+                logging.info("错误的车主")
+                return self.response(Response.WRONG_USER_401)
+            elif bot_res == 402:
+                logging.info("错误的停车地点")
+                return self.response(Response.WRONG_LOCATION_402)
             else:
-                logging.info("用户拒绝挪车")
-                return self.response(Response.REJECT)
+                logging.info("未知的错误")
+                return self.response(Response.UNKNOW)
         # 用户拒绝接听603,或者其他大于400造成的失败    
         if cti_status == 603 or cti_status > 400:
             logging.info("用户拒绝接听603,或者其他大于400造成的失败")

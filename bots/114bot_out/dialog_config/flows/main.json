@@ -32,11 +32,31 @@
               "不是"
             ]
           },
-          "nextNode": "91"
+          "nextNode": "71"
         },
         {
           "cond": "else",
           "nextNode": "1"
+        }
+      ]
+    },
+    "71": {
+      "type": "function",
+      "funcName": "write_result",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "91"
+        }
+      ]
+    },
+    "91": {
+      "type": "response",
+      "response": "[%global.confirm_owner5%]",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "100"
         }
       ]
     },
@@ -71,7 +91,7 @@
               "不是"
             ]
           },
-          "nextNode": "92"
+          "nextNode": "72"
         },
         {
           "cond": "else",
@@ -79,9 +99,29 @@
         }
       ]
     },
+    "72": {
+      "type": "function",
+      "funcName": "write_result",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "92"
+        }
+      ]
+    },
+    "92": {
+      "type": "response",
+      "response": "[%global.wrong_car_location%]",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "100"
+        }
+      ]
+    },
     "2": {
       "type": "response",
-      "response": "您的车因[%global.car_move_reason%]，需要您配合挪车，请问您是否同意?",
+      "response": "您的车因[%global.car_move_reason%]，需要您配合挪车，好吗?",
       "dm": [
         {
           "cond": true,
@@ -141,26 +181,6 @@
     "81": {
       "type": "response",
       "response": "[%global.feedback_owner3%]",
-      "dm": [
-        {
-          "cond": true,
-          "nextNode": "100"
-        }
-      ]
-    },
-    "91": {
-      "type": "response",
-      "response": "[%global.confirm_owner5%]",
-      "dm": [
-        {
-          "cond": true,
-          "nextNode": "100"
-        }
-      ]
-    },
-    "92": {
-      "type": "response",
-      "response": "[%global.wrong_car_location%]",
       "dm": [
         {
           "cond": true,
