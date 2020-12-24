@@ -100,6 +100,7 @@ class MainHandler(tornado.web.RequestHandler):
 				input = ''
 				if self.req_body['inparams']['flow_result_type'] in ['1', '2']:
 					input = self.req_body['inparams']['input']
+				user['history'].append('用户：' + input)
 				bot_resp, user['call_status'] = self.bot.response(self.req_body['userid'], input)
 				# 正常交互
 				if user['call_status'] == 'on':
@@ -119,6 +120,7 @@ class MainHandler(tornado.web.RequestHandler):
 		logging.info('resp_body: %s' % resp_body)
 	
 	def generate_resp_body_interact(self, user, bot_resp, input=True, timeout='5'):
+		user['history'].append('机器人：' + bot_resp['content'])
 		resp_body = copy.deepcopy(RESPONSE_BODY_9)
 		resp_body.update({"userid": self.req_body['userid']})
 		resp_body["outparams"].update({
