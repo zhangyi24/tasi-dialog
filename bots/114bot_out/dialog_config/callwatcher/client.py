@@ -192,6 +192,9 @@ class CallManager(metaclass=CallidSingleton):
             elif bot_res == 200:
                 logging.info("用户同意挪车")
                 return self.response(Response.ACCEPT_200)
+            elif bot_res == 300:
+                logging.info("用户拒绝挪车")
+                return self.response(Response.REJECT_300)
             elif bot_res == 401:
                 logging.info("错误的车主")
                 return self.response(Response.WRONG_USER_401)
