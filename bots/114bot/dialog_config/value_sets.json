@@ -23,6 +23,78 @@
           ]
       }
   },
+  "confirm_car_no": {
+      "name": "confirm_car_no",
+      "chineseName": "确认车牌号",
+      "type": "dict",
+      "dict": {
+          "不是": [
+              "不是",
+              "没有",
+              "不是的",
+              "不是啊",
+              "不是我家的"
+          ],
+          "是": [
+              "是的",
+              "对的",
+              "是啊",
+              "对啊",
+              "没错",
+              "嗯",
+              "嗯嗯",
+              "是我"
+          ]
+      }
+  },
+  "confirm_car_location": {
+      "name": "confirm_car_location",
+      "chineseName": "确认挪车地点",
+      "type": "dict",
+      "dict": {
+          "不是": [
+              "不是",
+              "没有",
+              "不是的",
+              "不是啊",
+              "不是我家的"
+          ],
+          "是": [
+              "是的",
+              "对的",
+              "是啊",
+              "对啊",
+              "没错",
+              "嗯",
+              "嗯嗯",
+              "是我"
+          ]
+      }
+  },
+  "confirm_car_move_reason": {
+      "name": "confirm_car_move_reason",
+      "chineseName": "确认挪车原因",
+      "type": "dict",
+      "dict": {
+          "不是": [
+              "不是",
+              "没有",
+              "不是的",
+              "不是啊",
+              "不是我家的"
+          ],
+          "是": [
+              "是的",
+              "对的",
+              "是啊",
+              "对啊",
+              "没错",
+              "嗯",
+              "嗯嗯",
+              "是我"
+          ]
+      }
+  },
   "car_no": {
       "name": "car_no",
       "chineseName": "车牌号",

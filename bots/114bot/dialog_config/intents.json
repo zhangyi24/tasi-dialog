@@ -7,6 +7,18 @@
         "name": "accept_service",
         "valueSet": "user.accept_service"
       },
+      "confirm_car_no": {
+        "name": "confirm_car_no",
+        "valueSet": "user.confirm_car_no"
+      },
+      "confirm_car_location": {
+        "name": "confirm_car_location",
+        "valueSet": "user.confirm_car_location"
+      },
+      "confirm_car_move_reason": {
+        "name": "confirm_car_move_reason",
+        "valueSet": "user.confirm_car_move_reason"
+      },
       "car_no": {
         "name": "car_no",
         "valueSet": "user.car_no"

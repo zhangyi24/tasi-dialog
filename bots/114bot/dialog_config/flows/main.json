@@ -75,6 +75,45 @@
         },
         {
           "cond": "else",
+          "nextNode": "62"
+        }
+      ]
+    },
+    "62": {
+      "type": "response",
+      "response": "您需要挪车的车牌为[%global.car_no%]，是吧？",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "112"
+        }
+      ]
+    },
+    "112": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "main.confirm_car_no",
+          "global_variable": "confirm_car_no",
+          "max_request_num": 0, 
+          "response_before_filling": false,
+          "response": {"content": "NULL", "input_channel": "keyboard"}
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.confirm_car_no"
+              },
+              "不是"
+            ]
+          },
+          "nextNode": "2"
+        },
+        {
+          "cond": "else",
           "nextNode": "70"
         }
       ]

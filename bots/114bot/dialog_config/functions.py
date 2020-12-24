@@ -4,10 +4,7 @@ from .callwatcher.client import CallManager
 from pypinyin import lazy_pinyin
 ENV="dev"
 
-if ENV == "production":
-    from .api.soap_api import query
-else:
-    from .api.json_api import query
+from .api.json_api import query
     
 ## order_time
 def query_phone_by_car_no(user_utter, global_vars, context = None):
@@ -18,11 +15,18 @@ def query_phone_by_car_no(user_utter, global_vars, context = None):
             return False
     except:
         pass
-    data = query(ENDPOINT, car_no=global_vars['car_no'])
-    if not data:
-        return False
+    
+    if ENV == "dev":
+        # data = query(ENDPOINT, car_no=global_vars['car_no'])
+        # if not data:
+        #     return False
+        # else:
+        #     global_vars['phone_no'] = data['phone']
+        #     return True
+        global_vars['phone_no'] = 999991
+        return True
     else:
-        global_vars['phone_no'] = data['phone']
+        global_vars['phone_no'] = 17622627188
         return True
         
 def call_manager_process(user_utter, global_vars, context = None):

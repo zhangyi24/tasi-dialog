@@ -19,8 +19,6 @@ database = "callcenter"
 url = f"{dialect}+{driver}://{username}:{password}@{host}:{port}/{database}"
 print(url)
 engine = create_engine(url)
-engine.connect()
-Session = sessionmaker(bind=engine)
 
 def cti_cdr(list_id):
     sql = f"""
@@ -93,7 +91,9 @@ def last_buslist():
 def exec_sql(sql):
     if DEBUG:
         logging.debug(sql.strip())
-    return engine.execute(sql)
+    with engine.connect() as connection:
+        res = connection.execute(sql)
+        return res
 
 def last_cti_cdr():
     sql = """

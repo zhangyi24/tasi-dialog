@@ -2,8 +2,11 @@
   "g_vars": {
     "accept_service": null,
     "car_location": null,
+    "confirm_car_no": null,
     "car_no": null,
+    "confirm_car_no": null,
     "car_move_reason": null,
+    "confirm_car_move_reason": null,
     "phone_no": null,
     "func_message": null, 
     "confirm_move":"您好！请问您需要挪车吗？",

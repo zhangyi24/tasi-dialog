@@ -14,4 +14,4 @@ play() {
 }
 
 trans $1
-play $FILENAME.pcm
+play $FILENAME[$1].pcm
