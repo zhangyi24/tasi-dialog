@@ -105,8 +105,8 @@ def last_cti_cdr():
 
 from enum import Enum
 class Response(Enum):
-    CONNECTING = "正在尝试第{0}次联系车主...请您耐心等待"
-    RETRY = "车主的电话暂未接通,还将重试{0}次...请您耐心等待"
+    CONNECTING = "正在尝试第{{{0}}}次联系车主...请您耐心等待"
+    RETRY = "车主的电话暂未接通,还将重试{{{0}}}次...请您耐心等待"
     CONNECTED = "我们已经和车主取得联系,正在沟通中"
     FAIL = "十分抱歉，对方车主无人接听，现在无法帮您通知车主挪车"
     ACCEPT = "已通知到车主，车主答应挪车，请您稍等"

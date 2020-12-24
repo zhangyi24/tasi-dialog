@@ -269,7 +269,7 @@
     },
     "64": {
       "type": "response",
-      "response": "您提供的挪车位置为[%global.car_move_reason%]，是吧？",
+      "response": "您提供的挪车原因为[%global.car_move_reason%]，是吧？",
       "dm": [
         {
           "cond": true,
