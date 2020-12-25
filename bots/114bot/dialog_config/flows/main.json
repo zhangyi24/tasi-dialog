@@ -389,6 +389,16 @@
       ]
     },
     "100": {
+      "type": "function",
+      "funcName": "write_result",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "101"
+        }
+      ]
+    },
+    "101": {
       "type": "return"
     }
   }

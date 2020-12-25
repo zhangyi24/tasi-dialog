@@ -8,6 +8,18 @@ ENV="dev"
 from .api.json_api import query
     
 ## order_time
+def write_result(user_utter, global_vars, context = None):
+    ns = SimpleNamespace(**context)
+    call_id = ns.call_info['call_id']
+    extend = ns.call_info['extend']
+    stringToInt = extend.split("#")[0]
+    from_callid = None
+    content = "#".join(ns.history)
+    call_result = None
+    logging.info(f"write_result: extend={extend},call_result={call_result}")
+    insert_callout_result(call_id, from_callid, content, extend, call_result)
+    return True
+    
 def render_tts(user_utter, global_vars, context = None):
     car_no=global_vars['car_no']
     global_vars['car_no'] = render_car_no(car_no)
