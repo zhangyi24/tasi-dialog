@@ -1,6 +1,12 @@
 {
-  "agree_survey": {
-    "name": "agree_survey",
-    "description": "同意调查"
+  "main": {
+    "name": "main",
+    "description": "湖南烟草外呼调查BOT",
+    "slots": {
+      "answer": {
+        "name": "answer",
+        "valueSet": "user.answer"
+      }
+    }
   }
 }

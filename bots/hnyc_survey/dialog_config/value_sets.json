@@ -1,7 +1,7 @@
 {
-  "answer_choice": {
-    "name": "answer_choice",
+  "answer": {
+    "name": "answer",
     "type": "regex",
-    "regex": "[A-D]"
+    "regex": ".*"
   }
 }

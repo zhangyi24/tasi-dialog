@@ -1,70 +1,106 @@
-import requests
-import configparser
-import urllib
-from jsonpath_ng import jsonpath, parse
-from datetime import datetime, timedelta
 import os
 import json
 import logging
-#
-# API_CONFIG = object()
-# setattr(API_CONFIG,"domain","localhost:3000")
+from .callwatcher.client import insert_callout_result
+from .xmlrpc.client import rpcserver
+from types import SimpleNamespace
+
 DEBUG=False
 ### Api Wrapper    
-def request(endpoint, params = None):
-    headers = {}
-    domain = "http://localhost:3000"
-    url = f"{domain}{endpoint}"
-    if params:
-        url += f"?{urllib.parse.urlencode(params)}"
-    response = requests.get(url,headers=headers)
-    if DEBUG:
-        print(f"{response.request.method} -- {response.url}\n",f"{response.text}")
-        
-    if not response.json():
-        return None
-    return response.json()[0]
-
-def get_user(cert_no, phone):
-    if cert_no:
-        return request(f'/users',{'cert_no':cert_no})
-    if phone:
-        return request(f'/users',{'phone':phone})
-
+server = rpcserver("localhost",8000)
+def query_choice(sentences, answer):
+    return server.distance(sentences, answer)
+    
 ### Read Survey
 questions = []
+it = None
 question_count = 0
-survey_type = 'survey'        
+class Question(object):
+    def __init__(self, question, type, options):
+        self.question = question
+        self.type = type
+        self.options = options
+        self.answer = None
+        self.choice = None
+        self.result = None
+    
+    def respond_answer(self, answer):
+        self.answer = answer
+        if self.type == "03":
+            self.result = answer
+            return 
+        choice, index = query_choice(self.options, answer)
+        self.choice = choice
+        self.result = index
+        
+    def render_type(self):
+        if self.type == "01":
+            return "[单选题]"
+        if self.type == "02": 
+            return "[多选题]"
+        return "[问答题]"
+            
+    def render_options(self):
+        return ",".join(self.options)
+        
+    def render(self):
+        return f"{self.render_type()} {self.question} {self.render_options()}"
 
 ### Call back Functions
-def survey_type(user_utter, global_vars, context = None):
-    return survey_type
-    
 def init_survey(user_utter, global_vars, context = None):
     f = open("data/data.json", "r")
     survey = json.load(f)
     for data in survey:
         question = data['quest_name']
+        quest_type = data['quest_type']
         array = data.get('daarray',[])
         if array: 
             options = [o['daname'] for o in array]
         else:
-            options = []
-        answer = ",".join(options)
-        questions.append(f"{question} {answer}")
+            options = []    
+        questions.append(Question(question, quest_type, options))
     question_count = len(questions)
-    survey_type = 'survey'
+    global it
+    it = iter(questions)
+    return True
 
 def next_question(user_utter, global_vars, context = None):
-    if questions:
-        return questions.pop(0)
+    quest = next(it, None)
+    # set question
+    global_vars['question'] = quest
+    if quest:
+        return quest.render()
     else:
         return False
+        
+def answer_to_choice(user_utter, global_vars, context = None):
+    answer = global_vars['answer']
+    quest = global_vars['question']
+    quest.respond_answer(answer)
+    logging.info(f"answer_to_choice {answer} in {quest.options}, got {quest.choice}, {quest.result}")
+    global_vars['result'] = str(global_vars['result']) + f"#{quest.result}"
+    # clear question-answer pair
+    global_vars['answer'] = None
+    global_vars['question'] = None
+    return True
+
+def save(user_utter, global_vars, context = None):
+    ns = SimpleNamespace(**context)
+    call_id = ns.call_info['call_id']
+    extend = ns.call_info['extend']
+    stringToInt = extend.split("#")[0]
+    try:
+      from_callid = int(stringToInt)
+    except ValueError:
+      from_callid = -1
+    content = "#".join(ns.history)
+    # global variables
+    call_result = global_vars['result']
+    logging.info(f"write_result: extend={extend},call_result={call_result}")
+    insert_callout_result(call_id, from_callid, content, extend, call_result)
+    return True
     
 if __name__ == "__main__":
-    phone_no = 13588880000
-    cert_no = 22345678
-    res = request(f'/users',{'cert_no':cert_no})
-    print(res)
+    pass
      
     

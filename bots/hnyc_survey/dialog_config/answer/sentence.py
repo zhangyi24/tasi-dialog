@@ -29,8 +29,8 @@ def distance(sentences, answer):
     #Compute cosine-similarities for each sentence with each other sentence
     cosine_scores = util.pytorch_cos_sim(sentence_embeddings, answer_embeddings)
     index = torch.argmax(cosine_scores)
-    print(f"{answer} -> {sentences[index]}, {cosine_scores}")
-    return sentences[index]
+    print(f"{answer} -> {sentences[index]}, {cosine_scores}, {int(index)}")
+    return sentences[index], int(index)
 
 def cut(sentences):
     for text in sentences:
@@ -44,4 +44,6 @@ def test_answer():
         with Timer(f"Calculate {ans}"):
             distance(sentences1, ans)
 
+if __name__ == "__main__":
+    test_answer()
 #cut(sentences1)

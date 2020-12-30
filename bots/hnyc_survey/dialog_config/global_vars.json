@@ -1,6 +1,9 @@
 {
   "g_vars": {
     "question_count": null,
+    "question": null,
+    "answer": null,
+    "result": null,
     "answer_wrong": null
   },
   "g_vars_need_init": []

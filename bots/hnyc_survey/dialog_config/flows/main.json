@@ -24,11 +24,11 @@
               null
             ]
           },
-          "nextNode": "91"
+          "nextNode": "79"
         },
         {
           "cond": "else",
-          "nextNode": "1",
+          "nextNode": "10",
           "response": "[%builtin.func_return%]"
         }
       ]
@@ -37,11 +37,10 @@
       "type": "slot_filling",
       "slots": [
         {
-          "name": "order_info.phone_no",
-          "global_variable": "phone_no",
+          "name": "main.answer",
+          "global_variable": "answer",
           "max_request_num": 0, 
-          "response_before_filling": false,
-          "response": {"content": "请提供下您的订货电话或者专卖证号", "input_channel": "keyboard"}
+          "response_before_filling": false
         }
       ],
       "dm": [
@@ -49,22 +48,43 @@
           "cond": {
             "==": [
               {
-                "var": "global.phone_no"
+                "var": "global.answer"
               },
-              null
+              ""
             ]
           },
-          "nextNode": "11"
+          "nextNode": "10",
+          "response": "不好意思我没听清您的回答,能否重新说一遍?"
         },
         {
           "cond": "else",
-          "nextNode": "80"
+          "nextNode": "70"
+        }
+      ]
+    },
+    "70": {
+      "type": "function",
+      "funcName": "answer_to_choice",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "1"
+        }
+      ]
+    },
+    "79": {
+      "type": "function",
+      "funcName": "save",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "91"
         }
       ]
     },
     "91": {
       "type": "response",
-      "response": "本次调查到此结束,感谢您的配合,祝您生活愉快,再见!",
+      "response": "本次调查到此结束,感谢您的配合,祝您生活愉快. 请您挂下电话,再见!",
       "dm": [
         {
           "cond": true,
