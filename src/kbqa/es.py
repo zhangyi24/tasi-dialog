@@ -3,6 +3,7 @@ import logging
 
 import jieba.posseg as pseg
 from elasticsearch import Elasticsearch
+import elasticsearch.helpers as es_helpers
 
 
 class ES(object):
@@ -328,7 +329,7 @@ class ES(object):
         if not self.ping():
             logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
             return []
-        hits = self.es.search(body={"query": {"match_all": {}}, "_source": ["id"]}, index=index)["hits"]["hits"]
+        hits = es_helpers.scan(client=self.es, query={"query": {"match_all": {}}, "_source": ["id"]}, index=index)
         return [doc["_source"]["id"] for doc in hits]
 
     def get_num_docs(self, explanation):
@@ -349,4 +350,4 @@ class ES(object):
 if __name__ == "__main__":
     address = 'http://127.0.0.1:9200'
     es = ES(address)
-    print(es.retrieve(query="", bot_name="qa_test"))
+    print(es.get_ids("kbqa_qa"))
