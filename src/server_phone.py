@@ -176,11 +176,11 @@ class MainHandler(tornado.web.RequestHandler):
                 if self.req_body['inparams']['flow_result_type'] in ['1', '2']:
                     user_input, asr_record_path = self.parse_asr_result(self.req_body['inparams']['input'])
                 if user_input:
+                    user['history'].append('用户：' + user_input)
                     if self.db:
                         self.db.add_msg(user=user['call_info'].get('call_sor_id', ''),
                                         receipt='bot', msg=user_input, task_id=user['task_id'],
                                         asr_record_path=asr_record_path)
-                    user['history'].append('用户：' + user_input)
                 bot_resp, user['call_status'] = self.bot.response(self.req_body['userid'], user_input)
                 bot_resp['content'] = replace_space(bot_resp['content'])
                 # 正常交互

@@ -1,0 +1,1 @@
+ffplay  -autoexit -f s16le -ar 8000 $1

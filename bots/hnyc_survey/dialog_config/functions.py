@@ -41,7 +41,7 @@ def survey_type(user_utter, global_vars, context = None):
     return survey_type
     
 def init_survey(user_utter, global_vars, context = None):
-    f = open("data/question-raw.json", "r")
+    f = open("data/data.json", "r")
     survey = json.load(f)
     for data in survey:
         question = data['quest_name']

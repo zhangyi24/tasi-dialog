@@ -51,7 +51,7 @@ def bot_derive(args):
     print(f"Generate new bot at {new_bot_path}")
     os.system(f"cp -r {bot_path} {new_bot_path}")
     ori_quest = os.path.join(args.source, "data.json")
-    dst_quest = os.path.join(new_bot_path, "data", "question-raw.json")
+    dst_quest = os.path.join(new_bot_path, "data", "data.json")
     print(f"Import data from {ori_quest} to {dst_quest}")
     os.system(f"cp {ori_quest} {dst_quest}")
     # Generate phone bot

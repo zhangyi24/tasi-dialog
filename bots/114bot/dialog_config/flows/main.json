@@ -75,6 +75,55 @@
         },
         {
           "cond": "else",
+          "nextNode": "120"
+        }
+      ]
+    },
+    "120": {
+      "type": "function",
+      "funcName": "render_tts",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "62"
+        }
+      ]
+    },
+    "62": {
+      "type": "response",
+      "response": "您需要挪车的车牌为[%global.car_no%]，是吧？",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "52"
+        }
+      ]
+    },
+    "52": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "main.confirm_car_no",
+          "global_variable": "confirm_car_no",
+          "max_request_num": 0, 
+          "response_before_filling": false,
+          "response": {"content": "NULL", "input_channel": "keyboard"}
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.confirm_car_no"
+              },
+              "不是"
+            ]
+          },
+          "nextNode": "2"
+        },
+        {
+          "cond": "else",
           "nextNode": "70"
         }
       ]
@@ -136,6 +185,45 @@
         },
         {
           "cond": "else",
+          "nextNode": "63"
+        }
+      ]
+    },
+    "63": {
+      "type": "response",
+      "response": "您提供的挪车位置为[%global.car_location%]，是吧？",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "53"
+        }
+      ]
+    },
+    "53": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "main.confirm_car_location",
+          "global_variable": "confirm_car_location",
+          "max_request_num": 0, 
+          "response_before_filling": false,
+          "response": {"content": "NULL", "input_channel": "keyboard"}
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.confirm_car_location"
+              },
+              "不是"
+            ]
+          },
+          "nextNode": "3"
+        },
+        {
+          "cond": "else",
           "nextNode": "4"
         }
       ]
@@ -172,6 +260,45 @@
             ]
           },
           "nextNode": "84"
+        },
+        {
+          "cond": "else",
+          "nextNode": "64"
+        }
+      ]
+    },
+    "64": {
+      "type": "response",
+      "response": "您提供的挪车原因为[%global.car_move_reason%]，是吧？",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "54"
+        }
+      ]
+    },
+    "54": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "main.confirm_car_move_reason",
+          "global_variable": "confirm_car_move_reason",
+          "max_request_num": 0, 
+          "response_before_filling": false,
+          "response": {"content": "NULL", "input_channel": "keyboard"}
+        }
+      ],
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.confirm_car_move_reason"
+              },
+              "不是"
+            ]
+          },
+          "nextNode": "4"
         },
         {
           "cond": "else",
@@ -262,6 +389,16 @@
       ]
     },
     "100": {
+      "type": "function",
+      "funcName": "write_result",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "101"
+        }
+      ]
+    },
+    "101": {
       "type": "return"
     }
   }

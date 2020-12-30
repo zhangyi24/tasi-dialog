@@ -9,4 +9,4 @@ find=".wav"
 replace=".txt"
 result=${str//$find/$replace}
 echo $result 
-python2 ws.py -u ws://$DOMAIN:$PORT/client/ws/speech -r 8000 "$1" | tee $result
+python2 ws.py -u ws://$DOMAIN:$PORT/client/ws/speech -r 8000 "$1"
