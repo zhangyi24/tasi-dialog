@@ -175,7 +175,7 @@ class ES(object):
                 }
             }
         }
-        hits = self.es.search(body=query_body, index=index)["hits"]["hits"]
+        hits = es_helpers.scan(client=self.es, query=query_body, index=index)
         return list(set(hit["_source"]["category_id"] for hit in hits))
 
     def get_standard_question_ids(self, bot_name):
@@ -194,7 +194,7 @@ class ES(object):
                 }
             }
         }
-        hits = self.es.search(body=query_body, index=index)["hits"]["hits"]
+        hits = es_helpers.scan(client=self.es, query=query_body, index=index)
         return list(set(hit["_source"]["id"] for hit in hits))
 
     def search_standard_question(self, query, cand_standard_question_ids, full=True, explain=True):
@@ -272,10 +272,10 @@ class ES(object):
                 }
             }
         }
-        hits = self.es.search(body=query_body, index=index)
-        return list(set(hit["_source"]["related_question_id"] for hit in hits["hits"]["hits"]))
+        hits = es_helpers.scan(client=self.es, query=query_body, index=index)
+        return list(set(hit["_source"]["related_question_id"] for hit in hits))
 
-    def get_related_questions(self, related_question_ids):
+    def get_standard_questions_by_ids(self, standard_question_ids):
         if not self.ping():
             logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
             return []
@@ -284,14 +284,22 @@ class ES(object):
             "query": {
                 "bool": {
                     "filter": [
-                        {"terms": {"id": related_question_ids}},
+                        {"terms": {"id": standard_question_ids}},
                         {"term": {"is_published": 1}}
                     ]
                 }
             }
         }
-        hits = self.es.search(body=query_body, index=index)["hits"]["hits"]
-        related_questions = [hit["_source"]["standard_question"] for hit in hits]
+        hits = es_helpers.scan(client=self.es, query=query_body, index=index)
+        standard_questions = [hit["_source"]["standard_question"] for hit in hits]
+        return standard_questions
+
+    def get_related_questions(self, standard_question_id):
+        if not self.ping():
+            logging.info(f"Can not connect to elasticsearch cluster: {self.addr}")
+            return []
+        related_question_ids = self.get_related_question_ids(standard_question_id)
+        related_questions = self.get_standard_questions_by_ids(related_question_ids)
         return related_questions
 
     def retrieve(self, query, bot_name, explain=True):
@@ -309,8 +317,7 @@ class ES(object):
         avg_len = self.get_avg_len(hit["_explanation"])
         hit_standard_question_id = hit["_source"]['standard_question_id']
         qa = self.get_qa(hit_standard_question_id)
-        related_question_ids = self.get_related_question_ids(hit_standard_question_id)
-        related_questions = self.get_related_questions(related_question_ids)
+        related_questions = self.get_related_questions(hit_standard_question_id)
         return {"score": hit["_score"],
                 "hit_question": hit["_source"],
                 "qa": qa,
@@ -350,4 +357,3 @@ class ES(object):
 if __name__ == "__main__":
     address = 'http://127.0.0.1:9200'
     es = ES(address)
-    print(es.get_ids("kbqa_qa"))

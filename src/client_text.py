@@ -7,7 +7,6 @@ import requests
 import argparse
 import os
 import yaml
-import readline
 
 from utils.config import merge_config
 
