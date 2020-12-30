@@ -7,6 +7,7 @@
 
 ackflow
 bots/114bot/doc
+bots/114bot/tts/*.pcm
 
 src/models/tfs_cache
 src/models/ltp/ltp.model
