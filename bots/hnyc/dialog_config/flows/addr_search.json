@@ -4,7 +4,7 @@
   "nodes": {
     "0": {
       "type": "response",
-      "response": "请提供下您的地址,我将为你提供就近的办证信息",
+      "response": "请提供下您的地址，我将为你提供就近的办证信息",
       "dm": [
         {
           "cond": true,

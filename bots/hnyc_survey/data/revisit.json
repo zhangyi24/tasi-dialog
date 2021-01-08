@@ -1,11 +1,11 @@
 {
   "py/object": "__main__.Revisit",
-  "returnvisit_content": "内容应该主要网络.",
+  "returnvisit_content": "内容应该主要网络。",
   "returnvisit_option": [
     {
       "py/object": "__main__.RevisitOption",
-      "option_id": "网站因为经验还有.",
-      "option_name": "如果最新专业地方."
+      "option_id": "网站因为经验还有。",
+      "option_name": "如果最新专业地方。"
     }
   ]
 }
