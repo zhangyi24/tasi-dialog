@@ -3,6 +3,46 @@
   "intent": "order_time",
   "nodes": {
     "0": {
+      "type": "branch",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.phone_no"
+              },
+              null
+            ]
+          },
+          "nextNode": "3"
+        },
+        {
+          "cond": "else",
+          "nextNode": "80"
+        }
+      ]
+    },
+    "3": {
+      "type": "branch",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.cert_no"
+              },
+              null
+            ]
+          },
+          "nextNode": "1"
+        },
+        {
+          "cond": "else",
+          "nextNode": "81"
+        }
+      ]
+    },
+    "1": {
       "type": "response",
       "response": "请提供下您的订货电话或者专卖证号，我将为您查询最近的送货时间",
       "dm": [
