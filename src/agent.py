@@ -204,8 +204,7 @@ class Bot(object):
             intent = builtin_vars['intent'] = intent_recognition_result
             intent_recognition_done = True
             # 根据意图识别结果调整node_stack
-            flow_switched = self.update_node_stack(intent, node_stack)
-            if flow_switched:
+            if self.update_node_stack(intent, node_stack):
                 node_stack[-1]["invade"] = True
         elif (not locked_in_flow) and (not current_node or current_node['type'] not in ['slot_filling', 'flow']):
             if qa_kb_result and qa_kb_result["score"] >= qa_kb_result["threshold"]:
@@ -225,27 +224,17 @@ class Bot(object):
                 current_flow_name, current_flow, current_node = self.get_current_flow_and_node(node_stack,
                                                                                                verbose=True)
                 if current_node is None:
-                    if intent_recognition_done:
+                    if qa_kb_result and qa_kb_result["score"] >= qa_kb_result["threshold"]:
+                        resp['content'] = qa_kb_result["response"]
+                        resp['src'] = 'kb'
+                        break
+                    elif intent_recognition_done:
                         break
                     else:
-                        if qa_kb_result and qa_kb_result["score"] >= qa_kb_result["threshold"]:
-                            resp['content'] = qa_kb_result["response"]
-                            resp['src'] = 'kb'
-                            break
-                        # 意图识别
                         intent = builtin_vars['intent'] = intent_recognition_result
                         intent_recognition_done = True
-                        if intent is None:
-                            break
-                        elif intent not in self.intent_flow_mapping:
-                            logging.warning("There is no flow that can be triggered by intent '%s'" % intent)
-                            break
-                        else:
-                            # 清空node_stack，把识别到的意图的对应流程压入node_stack
-                            if self.flows[self.intent_flow_mapping[intent]].get("forget", True):
-                                node_stack.clear()
-                            node_stack.append({'flow_name': self.intent_flow_mapping[intent], 'node_id': '0'})
-                            continue
+                        self.update_node_stack(intent, node_stack)
+                        continue
 
                 # log results
                 # todo: 每经过一个节点就把该节点的结果追加到results后，有没有更合理的记录对话结果的方法
@@ -285,7 +274,7 @@ class Bot(object):
                 # slot_filling
                 elif current_node['type'] == 'slot_filling':
                     node_info = node_stack[-1]
-                    logging.info("enter slot")
+                    logging.info("enter slot_filling node")
                     if 'slots_status' not in node_info:
                         node_info['slots_status'] = self.nlu_manager.slots_status_init(current_node['slots'])
                     slot_request, slots_filling_finish = self.nlu_manager.slots_filling(node_info['slots_status'],
@@ -393,19 +382,31 @@ class Bot(object):
             if intent not in self.intent_flow_mapping:
                 logging.warning("There is no flow that can be triggered by intent '%s'" % intent)
                 updated = False
-            elif not node_stack or self.intent_flow_mapping[intent] != node_stack[0][
-                'flow_name'] or in_slot_filling_node:
-                # 清空node_stack中除了栈底main流程节点外的其他节点，把识别到的意图的对应流程压入node_stack
-                main_flow_node = node_stack[0] if node_stack and node_stack[0]["flow_name"] == "main" else None
-                if self.flows[self.intent_flow_mapping[intent]].get("forget", True):
-                    node_stack.clear()
-                    if main_flow_node:
-                        node_stack.append(
-                            {'flow_name': main_flow_node['flow_name'], 'node_id': main_flow_node['node_id']})
-                node_stack.append({'flow_name': self.intent_flow_mapping[intent], 'node_id': '0'})
-                updated = True
             else:
-                updated = False
+                idx = -1
+                for i in range(len(node_stack) - 1, -1, -1):
+                    if "flow_triggered_by_intent" in node_stack[i]:
+                        idx = i
+                        break
+                flow_current = node_stack[idx]['flow_name'] if idx != -1 else None
+                flow_target = self.intent_flow_mapping[intent]
+                if flow_target != flow_current or in_slot_filling_node:
+                    if self.flows[self.intent_flow_mapping[intent]].get("forget", True):
+                        # 清空node_stack中除了栈底main流程节点外的其他节点，把识别到的意图的对应流程压入node_stack
+                        main_flow_node = node_stack[0] if node_stack and node_stack[0]["flow_name"] == "main" else None
+                        node_stack.clear()
+                        if main_flow_node:
+                            node_stack.append(
+                                {'flow_name': main_flow_node['flow_name'], 'node_id': main_flow_node['node_id']})
+                    else:
+                        if flow_target == flow_current:
+                            for _ in range(len(node_stack) - 1, idx - 1, -1):
+                                node_stack.clear()
+                    node_stack.append({'flow_name': self.intent_flow_mapping[intent], 'node_id': '0'})
+                    updated = True
+                    node_stack[-1]["flow_triggered_by_intent"] = True
+                else:
+                    updated = False
         else:
             updated = False
         return updated
