@@ -7,7 +7,7 @@ text:
 bot:
   kb:
     switch: True
-    threshold: 1.0
+    threshold_coeff: 1.0
     recommend:
       switch: True
       max_items: 10

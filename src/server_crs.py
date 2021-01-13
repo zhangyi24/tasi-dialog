@@ -26,9 +26,9 @@ from utils.str_process import replace_space
 from utils.config import merge_config
 
 class MainHandler(tornado.web.RequestHandler):
-    def initialize(self, conf_crs, users):
+    def initialize(self, conf_crs, calls):
         self.conf_crs = conf_crs
-        self.users = users
+        self.calls = calls
 
     async def prepare(self):
         logging.info('[crs] req_headers: %s' % dict(self.request.headers))
@@ -48,22 +48,22 @@ class MainHandler(tornado.web.RequestHandler):
             if entrance_id not in self.conf_crs["route"]:
                 self.throw_error(400, f"[crs] There is no bot that corresponds to 'entrance_id': {entrance_id}.")
             bot_url = self.conf_crs["route"][entrance_id]
-            self.users.update({self.req_body['userid']: {"bot_url": bot_url}})
+            self.calls.update({self.req_body['userid']: {"bot_url": bot_url}})
             # 尝试获取resp
             resp_body = self.post_to_bot(url=bot_url, req_body=self.req_body)
             self.write_resp(resp_body)
         else:
-            if self.req_body['userid'] not in self.users:
-                self.throw_error(400, f"[crs] There is no user whose userid is {self.req_body['userid']}.")
-            # 根据user_id获取用户信息
-            user = self.users[self.req_body['userid']]
-            bot_url = user["bot_url"]
+            if self.req_body['userid'] not in self.calls:
+                self.throw_error(400, f"[crs] There is no call whose userid is {self.req_body['userid']}.")
+            # 根据userid获取通话信息
+            call = self.calls[self.req_body['userid']]
+            bot_url = call["bot_url"]
             # 尝试获取resp
             resp_body = self.post_to_bot(url=bot_url, req_body=self.req_body)
             self.write_resp(resp_body)
         if resp_body['outaction'] == '10':
-            if self.req_body["userid"] in self.users:
-                self.users.pop(self.req_body["userid"])
+            if self.req_body["userid"] in self.calls:
+                self.calls.pop(self.req_body["userid"])
 
     def throw_error(self, status_code, reason):
         logging.info(reason)
@@ -106,7 +106,7 @@ if __name__ == "__main__":
 
     # app
     application = tornado.web.Application([
-        (r"/", MainHandler, dict(conf_crs=conf_crs, users={})),
+        (r"/", MainHandler, dict(conf_crs=conf_crs, calls={})),
     ])
     application.listen(conf_crs['port'])
     logging.info('listening on 127.0.0.1:%s...' % conf_crs['port'])

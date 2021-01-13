@@ -66,66 +66,66 @@ class MainHandler(tornado.web.RequestHandler):
 		assert self.req_body['inaction'] in [8, 9]
 		if self.req_body['inaction'] == 8:
 			user_info = self.req_body['inparams']['extend'].split('#')[1:]
-			self.bot.init(user_id=self.req_body['userid'], user_info=user_info,
+			self.bot.init(call_id=self.req_body['userid'], user_info=user_info,
 									 call_info=self.req_body['inparams'])
-			user = self.bot.users[self.req_body['userid']]
-			user['inter_idx'] = '1'
-			user['resp_queue'] = collections.deque()
+			call = self.bot.calls[self.req_body['userid']]
+			call['inter_idx'] = '1'
+			call['resp_queue'] = collections.deque()
 
 			# 获取开场白
-			bot_resp, user['call_status'] = self.bot.greeting(user_id=self.req_body['userid'])
+			bot_resp, call['call_status'] = self.bot.greeting(call_id=self.req_body['userid'])
 			# 正常交互
-			if user['call_status'] == 'on':
-				resp_body = self.generate_resp_body_interact(user, bot_resp)
+			if call['call_status'] == 'on':
+				resp_body = self.generate_resp_body_interact(call, bot_resp)
 			# 机器人发起挂断或转人工
 			else:
-				resp_body = self.generate_resp_body_interact(user, bot_resp, input=False)
-				user['resp_queue'].append(self.generate_resp_body_hangup(user))
+				resp_body = self.generate_resp_body_interact(call, bot_resp, input=False)
+				call['resp_queue'].append(self.generate_resp_body_hangup(call))
 		
 		elif self.req_body['inaction'] == 9:
-			if self.req_body['userid'] not in self.bot.users:
-				logging.info('there is no user whose user_id is \'%s\'.' % self.req_body['userid'])
+			if self.req_body['userid'] not in self.bot.calls:
+				logging.info('there is no call whose userid is \'%s\'.' % self.req_body['userid'])
 				return
-			# 根据user_id获取用户信息
-			user = self.bot.users[self.req_body['userid']]
+			# 根据userid获取呼叫信息
+			call = self.bot.calls[self.req_body['userid']]
 			# 用户主动挂断
 			if self.req_body['inparams']['flow_result_type'] == '3' and self.req_body['inparams']['input'] == 'hangup':
-				user['resp_queue'].clear()
-				resp_body = self.generate_resp_body_hangup(user)
+				call['resp_queue'].clear()
+				resp_body = self.generate_resp_body_hangup(call)
 			# 有待完成指令
-			elif user['resp_queue']:
-				resp_body = user['resp_queue'].popleft()
+			elif call['resp_queue']:
+				resp_body = call['resp_queue'].popleft()
 			else:
-				user['inter_idx'] = str(int(self.req_body['inparams']['inter_idx']) + 1)
+				call['inter_idx'] = str(int(self.req_body['inparams']['inter_idx']) + 1)
 				input = ''
 				if self.req_body['inparams']['flow_result_type'] in ['1', '2']:
 					input = self.req_body['inparams']['input']
-				user['history'].append('用户：' + input)
-				bot_resp, user['call_status'] = self.bot.response(self.req_body['userid'], input)
+				call['history'].append('用户：' + input)
+				bot_resp, call['call_status'] = self.bot.response(self.req_body['userid'], input)
 				# 正常交互
-				if user['call_status'] == 'on':
-					resp_body = self.generate_resp_body_interact(user, bot_resp)
+				if call['call_status'] == 'on':
+					resp_body = self.generate_resp_body_interact(call, bot_resp)
 				
 				# 机器人发起挂断或转人工
 				else:
-					resp_body = self.generate_resp_body_interact(user, bot_resp, input=False)
-					user['resp_queue'].append(self.generate_resp_body_hangup(user))
+					resp_body = self.generate_resp_body_interact(call, bot_resp, input=False)
+					call['resp_queue'].append(self.generate_resp_body_hangup(call))
 
 		
 		self.write(json.dumps(resp_body, ensure_ascii=False, separators=(',', ':')).encode('utf-8'))
-		self.bot.users[resp_body['userid']]['last_resp_body'] = resp_body
+		self.bot.calls[resp_body['userid']]['last_resp_body'] = resp_body
 		if resp_body['outaction'] == '10':
-			del self.bot.users[resp_body['userid']]
+			del self.bot.calls[resp_body['userid']]
 		logging.info('resp_headers: %s' % dict(self._headers))
 		logging.info('resp_body: %s' % resp_body)
 	
-	def generate_resp_body_interact(self, user, bot_resp, input=True, timeout='5'):
-		user['history'].append('机器人：' + bot_resp['content'])
+	def generate_resp_body_interact(self, call, bot_resp, input=True, timeout='5'):
+		call['history'].append('机器人：' + bot_resp['content'])
 		resp_body = copy.deepcopy(RESPONSE_BODY_9)
 		resp_body.update({"userid": self.req_body['userid']})
 		resp_body["outparams"].update({
-			"call_id": user["call_info"].get('call_id', ''),
-			"inter_idx": user['inter_idx'],
+			"call_id": call["call_info"].get('call_id', ''),
+			"inter_idx": call['inter_idx'],
 			"model_type": '11' if input else '10',
 			"prompt_text": bot_resp['content'],
 			"prompt_src": bot_resp['src'],
@@ -133,13 +133,13 @@ class MainHandler(tornado.web.RequestHandler):
 		})
 		return resp_body
 	
-	def generate_resp_body_hangup(self, user):
+	def generate_resp_body_hangup(self, call):
 		resp_body = copy.deepcopy(RESPONSE_BODY_10)
 		resp_body.update({"userid": self.req_body['userid']})
 		resp_body["outparams"].update({
-			"call_id": user['call_info'].get('call_id', ''),
-			"call_sor_id": user['call_info'].get('call_sor_id', ''),
-			"start_time": user['call_info'].get('start_time', ''),
+			"call_id": call['call_info'].get('call_id', ''),
+			"call_sor_id": call['call_info'].get('call_sor_id', ''),
+			"start_time": call['call_info'].get('start_time', ''),
 			"end_time": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S%f')[:-3]
 		})
 		return resp_body

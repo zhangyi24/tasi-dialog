@@ -128,24 +128,24 @@ class NLUManager(object):
         return intent
 
     def qa_kb(self, user_utter):
+        if user_utter is None:
+            return {}
         if self.kb_module is None:
-            return None, None
+            return {}
         hit = self.kb_module.retrieve(user_utter, self.bot_name)
         if hit is None:
-            logging.info(f"KBQA(BM25): user_utter: '{user_utter}', hit_question: {{}}, score: 0")
-            return None, None
+            logging.info(f"KBQA(BM25): user_utter: '{user_utter}', hit_question: None, score: 0")
+            return {}
         hit_question = hit["hit_question"]
         score = hit["score"]
         num_questions = hit["num_questions"]
         average_question_length = hit["average_question_length"]
-        threshold = max(self.kb_config["threshold"] * math.log(1 + num_questions) * math.sqrt(average_question_length) * 0.33, 1.01)
-        logging.info(f"KBQA(BM25): user_utter: '{user_utter}', hit_question: {hit_question}, score: {score}, threshold:{threshold}")
-        if hit is None:
-            return None, None
-        if score < threshold:
-            return None, None
+        threshold = max(self.kb_config["threshold_coeff"] * math.log(1 + num_questions) * math.sqrt(average_question_length) * 0.33, 1.01)
+        threshold2 = max(
+            self.kb_config["threshold2_coeff"] * math.log(1 + num_questions) * math.sqrt(average_question_length) * 0.33, 1.01)
+        logging.info(f"KBQA(BM25): user_utter: '{user_utter}', hit_question: {hit_question}, score: {score}, threshold:{threshold}, threshold2:{threshold2}")
         if not hit["qa"]:
-            return None, None
+            return {}
         standard_question = hit["qa"]["standard_question"]
         answer = hit["qa"]["answer"]
         recommend = ""
@@ -154,7 +154,7 @@ class NLUManager(object):
             if len(related_questions):
                 recommend = "\n您是不是还想问：\n" + "\n".join(related_questions)
         response = f"{answer}{recommend}"
-        return response, hit
+        return {"response": response, "hit_question": hit_question, "standard_question": standard_question, "score": score, "threshold": threshold, "threshold2": threshold2}
 
     def qa_kg(self, user_utter):
         if self.kg_module is None:

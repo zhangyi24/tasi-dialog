@@ -1,0 +1,12 @@
+{
+  "4digit": {
+    "name": "4digit",
+    "type": "regex",
+    "regex": "[0-9]{4}"
+  },
+  "5digit": {
+    "name": "5digit",
+    "type": "regex",
+    "regex": "[0-9]{5}"
+  }
+}

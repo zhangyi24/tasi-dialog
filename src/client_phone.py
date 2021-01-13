@@ -2,15 +2,15 @@
 import requests
 import copy
 
-userid = '25044006'
+call_id = '25044006'
 local_server_url = 'http://127.0.0.1:59999'
 remote_server_url = 'http://101.6.68.40:59999'
 url = local_server_url
 req_body_8 = {
-    'userid': userid,
+    'userid': call_id,
     'inaction': 8,
     'inparams': {
-        'call_id': userid,
+        'call_id': call_id,
         'call_sor_id': '15652310112',
         'call_dst_id': '053267774615',
         'start_time': '2020-03-14 22:22:37767',
@@ -23,10 +23,10 @@ req_body_8 = {
 }
 
 req_body_tts = {
-    'userid': userid,
+    'userid': call_id,
     'inaction': 9,
     'inparams': {
-        'call_id': userid,
+        'call_id': call_id,
         'inter_idx': '1',
         'begin_play': '2020-03-14 22:22:37909',
         'end_play': '2020-03-14 22:22:47838',
@@ -44,10 +44,10 @@ req_body_tts = {
 }
 
 req_body_asr = {
-    'userid': userid,
+    'userid': call_id,
     'inaction': 9,
     'inparams': {
-        'call_id': userid,
+        'call_id': call_id,
         'inter_idx': '1',
         'begin_play': '2020-03-14 22:22:47939',
         'end_play': '2020-03-14 22:22:52044',
@@ -66,9 +66,9 @@ req_body_asr = {
 }
 
 req_body_tts_asr = {
-    'userid': userid, 'inaction': 9,
+    'userid': call_id, 'inaction': 9,
     'inparams': {
-        'call_id': userid, 'inter_idx': '1', 'begin_play': '2020-03-15 15:41:20410',
+        'call_id': call_id, 'inter_idx': '1', 'begin_play': '2020-03-15 15:41:20410',
         'end_play': '2020-03-15 15:41:27730', 'result_time': '2020-03-15 15:41:27730',
         'flow_result_type': '1', 'input': '', 'inter_no': '2020-03-15 15:41:20410',
         'org': '', 'grammar': '', 'newsess': '', 'res_node_lst': '', 'res_parse_mode': '',
@@ -77,10 +77,10 @@ req_body_tts_asr = {
 }
 
 req_body_user_hangup = {
-	'userid': userid,
+	'userid': call_id,
 	'inaction': 9,
 	'inparams': {
-		'call_id': userid,
+		'call_id': call_id,
 		'inter_idx': '交互序号',
 		"begin_play": "放音开始时间",
 		"end_play": "放音结束时间",
@@ -98,10 +98,10 @@ req_body_user_hangup = {
 }
 
 req_body_11 = {
-    "userid": userid,
+    "userid": call_id,
     "inaction": 11,
     "inparams": {
-        "call_id": userid,
+        "call_id": call_id,
         "inter_idx": "1",
         "begin_trans": "转移的开始时间",
         "end_trans": "转移的结束时间",
@@ -110,10 +110,10 @@ req_body_11 = {
 }
 
 req_body_0 = {
-    'userid': userid,
+    'userid': call_id,
     'inaction': 0,
     'inparams': {
-        'call_id': userid,
+        'call_id': call_id,
         'call_sor_id': '15652310112',
         'call_dst_id': '053267774615',
         'att_status': '1'

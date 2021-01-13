@@ -115,138 +115,138 @@ class MainHandler(tornado.web.RequestHandler):
             # 处理扩展字段
             user_info = self.req_body['inparams']['extend'].split('#')[1:]
             # 初始化一个机器人，返回开场白
-            self.bot.init(user_id=self.req_body['userid'], user_info=user_info,
+            self.bot.init(call_id=self.req_body['userid'], user_info=user_info,
                           call_info=self.req_body['inparams'],
                           task_id=self.req_body['inparams']['strategy_params'].split('#')[0])
-            user = self.bot.users[self.req_body['userid']]
-            user['inter_idx'] = '1'
-            user['resp_queue'] = collections.deque()
+            call = self.bot.calls[self.req_body['userid']]
+            call['inter_idx'] = '1'
+            call['resp_queue'] = collections.deque()
 
             # 为了将对话信息入库，首先需要将用户基本信息入库
             if self.db:
-                self.db.add_user(user['call_info'].get('call_sor_id', ''))
+                self.db.add_user(call['call_info'].get('call_sor_id', ''))
             # 获取开场白
-            bot_resp, user['call_status'] = self.bot.greeting(user_id=self.req_body['userid'])
+            bot_resp, call['call_status'] = self.bot.greeting(call_id=self.req_body['userid'])
             bot_resp['content'] = replace_space(bot_resp['content'])
             # 正常交互
-            if user['call_status'] == 'on':
+            if call['call_status'] == 'on':
                 if bot_resp['allow_interrupt']:
-                    resp_body = self.generate_resp_body_speak_listen(user, bot_resp['content'])
+                    resp_body = self.generate_resp_body_speak_listen(call, bot_resp['content'])
                 else:
-                    resp_body = self.generate_resp_body_speak(user, bot_resp['content'])
-                    user['resp_queue'].append(self.generate_resp_body_listen(user))
+                    resp_body = self.generate_resp_body_speak(call, bot_resp['content'])
+                    call['resp_queue'].append(self.generate_resp_body_listen(call))
 
             # 机器人发起挂断
-            elif user['call_status'] == 'hangup':
-                resp_body = self.generate_resp_body_speak(user, bot_resp['content'])
-                user['resp_queue'].append(self.generate_resp_body_hangup(user))
+            elif call['call_status'] == 'hangup':
+                resp_body = self.generate_resp_body_speak(call, bot_resp['content'])
+                call['resp_queue'].append(self.generate_resp_body_hangup(call))
 
             # 机器人发起呼叫转移
-            elif user['call_status'] == 'fwd':
+            elif call['call_status'] == 'fwd':
                 if self.bot_conf["lock_before_fwd"]:
-                    resp_body = self.generate_resp_body_lock_queue(user)
-                    user['resp_queue'].append(
-                        self.generate_resp_body_speak(user, bot_resp['content']))
+                    resp_body = self.generate_resp_body_lock_queue(call)
+                    call['resp_queue'].append(
+                        self.generate_resp_body_speak(call, bot_resp['content']))
                 else:
-                    resp_body = self.generate_resp_body_speak(user, '正在为您转接至人工')
-                    user['resp_queue'].append(self.generate_resp_body_fwd(user))
+                    resp_body = self.generate_resp_body_speak(call, '正在为您转接至人工')
+                    call['resp_queue'].append(self.generate_resp_body_fwd(call))
 
         elif self.req_body['inaction'] == 9:
-            if self.req_body['userid'] not in self.bot.users:
-                error_info = '[dialog] there is no user whose user_id is \'%s\'.' % self.req_body['userid']
+            if self.req_body['userid'] not in self.bot.calls:
+                error_info = '[dialog] there is no call whose userid is \'%s\'.' % self.req_body['userid']
                 logging.info(error_info)
                 self.set_status(400, reason=error_info)
                 raise tornado.web.Finish()
-            # 根据user_id获取用户信息
-            user = self.bot.users[self.req_body['userid']]
+            # 根据userid获取呼叫信息
+            call = self.bot.calls[self.req_body['userid']]
             # 用户主动挂断
             if self.req_body['inparams']['flow_result_type'] == '3' and self.req_body['inparams']['input'] == 'hangup':
-                user['resp_queue'].clear()
-                resp_body = self.generate_resp_body_hangup(user)
+                call['resp_queue'].clear()
+                resp_body = self.generate_resp_body_hangup(call)
             # 上次指令执行超时，重发
             elif self.req_body['inparams']['flow_result_type'] == '3' and self.req_body['inparams'][
                 'input'] == 'timeout':
-                resp_body = self.bot.users[self.req_body['userid']]['last_resp_body']
+                resp_body = self.bot.calls[self.req_body['userid']]['last_resp_body']
             # 有待完成指令
-            elif user['resp_queue']:
-                resp_body = user['resp_queue'].popleft()
+            elif call['resp_queue']:
+                resp_body = call['resp_queue'].popleft()
             else:
-                user['inter_idx'] = str(int(self.req_body['inparams']['inter_idx']) + 1)
+                call['inter_idx'] = str(int(self.req_body['inparams']['inter_idx']) + 1)
                 user_input, asr_record_path = '', ''
                 if self.req_body['inparams']['flow_result_type'] in ['1', '2']:
                     user_input, asr_record_path = self.parse_asr_result(self.req_body['inparams']['input'])
                 if user_input:
-                    user['history'].append('用户：' + user_input)
+                    call['history'].append('用户：' + user_input)
                     if self.db:
-                        self.db.add_msg(user=user['call_info'].get('call_sor_id', ''),
-                                        receipt='bot', msg=user_input, task_id=user['task_id'],
+                        self.db.add_msg(user=call['call_info'].get('call_sor_id', ''),
+                                        receipt='bot', msg=user_input, task_id=call['task_id'],
                                         asr_record_path=asr_record_path)
-                bot_resp, user['call_status'] = self.bot.response(self.req_body['userid'], user_input)
+                bot_resp, call['call_status'] = self.bot.response(self.req_body['userid'], user_input)
                 bot_resp['content'] = replace_space(bot_resp['content'])
                 # 正常交互
-                if user['call_status'] == 'on':
+                if call['call_status'] == 'on':
                     if bot_resp['allow_interrupt']:
-                        resp_body = self.generate_resp_body_speak_listen(user, bot_resp['content'])
+                        resp_body = self.generate_resp_body_speak_listen(call, bot_resp['content'])
                     else:
-                        resp_body = self.generate_resp_body_speak(user, bot_resp['content'])
-                        user['resp_queue'].append(self.generate_resp_body_listen(user))
+                        resp_body = self.generate_resp_body_speak(call, bot_resp['content'])
+                        call['resp_queue'].append(self.generate_resp_body_listen(call))
 
                 # 机器人发起挂断
-                elif user['call_status'] == 'hangup':
-                    resp_body = self.generate_resp_body_speak(user, bot_resp['content'])
-                    user['resp_queue'].append(self.generate_resp_body_hangup(user))
+                elif call['call_status'] == 'hangup':
+                    resp_body = self.generate_resp_body_speak(call, bot_resp['content'])
+                    call['resp_queue'].append(self.generate_resp_body_hangup(call))
 
                 # 机器人发起呼叫转移
-                elif user['call_status'] == 'fwd':
+                elif call['call_status'] == 'fwd':
                     if self.bot_conf["lock_before_fwd"]:
-                        resp_body = self.generate_resp_body_lock_queue(user)
-                        user['resp_queue'].append(
-                            self.generate_resp_body_speak(user, bot_resp['content']))
+                        resp_body = self.generate_resp_body_lock_queue(call)
+                        call['resp_queue'].append(
+                            self.generate_resp_body_speak(call, bot_resp['content']))
                     else:
-                        resp_body = self.generate_resp_body_speak(user, '正在为您转接至人工')
-                        user['resp_queue'].append(self.generate_resp_body_fwd(user))
+                        resp_body = self.generate_resp_body_speak(call, '正在为您转接至人工')
+                        call['resp_queue'].append(self.generate_resp_body_fwd(call))
 
         # 判断呼叫转移是否成功
         elif self.req_body['inaction'] == 11:
-            user = self.bot.users[self.req_body['userid']]
+            call = self.bot.calls[self.req_body['userid']]
             trans_success = self.req_body['inparams']['trans_result'] == '1'
-            resp_body = self.generate_resp_body_hangup(user)  # 无论是否转移成功，这通电话已经结束。
+            resp_body = self.generate_resp_body_hangup(call)  # 无论是否转移成功，这通电话已经结束。
 
         # 判断呼叫转移队列是否锁定成功
         elif self.req_body['inaction'] == 0:
-            user = self.bot.users[self.req_body['userid']]
+            call = self.bot.calls[self.req_body['userid']]
             queue_locked = self.req_body['inparams']['att_status'] == '1'
             if queue_locked:
-                user['resp_queue'].popleft()
-                resp_body = self.generate_resp_body_speak(user, '正在为您转接至人工')
-                user['resp_queue'].append(self.generate_resp_body_fwd(user))
+                call['resp_queue'].popleft()
+                resp_body = self.generate_resp_body_speak(call, '正在为您转接至人工')
+                call['resp_queue'].append(self.generate_resp_body_fwd(call))
             else:
-                resp_body = user['resp_queue'].popleft()
-                user['resp_queue'].append(self.generate_resp_body_hangup(user))
+                resp_body = call['resp_queue'].popleft()
+                call['resp_queue'].append(self.generate_resp_body_hangup(call))
 
         self.write(json.dumps(resp_body, ensure_ascii=False, separators=(',', ':')).encode('utf-8'))
-        user = self.bot.users[resp_body['userid']]
+        call = self.bot.calls[resp_body['userid']]
         bot_say_something = resp_body['outaction'] == '9' and resp_body['outparams']['model_type'].startswith('1') and \
                             resp_body['outparams']['prompt_type'] == '2'
         retransmission = self.req_body['inaction'] == 9 and self.req_body['inparams']['flow_result_type'] == '3' and \
                          self.req_body['inparams'][
                              'input'] == 'timeout'
         if bot_say_something and not retransmission:
-            user['history'].append('机器人：' + resp_body['outparams']['prompt_text'])
+            call['history'].append('机器人：' + resp_body['outparams']['prompt_text'])
             if self.db:
                 self.db.add_msg(user='bot',
-                                receipt=user['call_info'].get('call_sor_id', ''), msg=resp_body['outparams']['prompt_text'],
-                                task_id=user['task_id'])
-        user['last_resp_body'] = resp_body
+                                receipt=call['call_info'].get('call_sor_id', ''), msg=resp_body['outparams']['prompt_text'],
+                                task_id=call['task_id'])
+        call['last_resp_body'] = resp_body
         logging.info('[dialog] resp_headers: %s' % dict(self._headers))
         logging.info('[dialog] resp_body: %s' % resp_body)
         if self.db:
             threading.Thread(target=self.db.write_msgs, name='SQL').start()
         if resp_body['outaction'] == '10':
-            del self.bot.users[resp_body['userid']]
-            threading.Thread(target=self.save_results, args=(user,), name='call_post_process').start()
+            del self.bot.calls[resp_body['userid']]
+            threading.Thread(target=self.save_results, args=(call,), name='call_post_process').start()
 
-    def save_results(self, user):
+    def save_results(self, call):
         save_result_conf = self.bot_conf["save_result"]
         if save_result_conf['switch'] is True:
             req_body = {
@@ -261,16 +261,16 @@ class MainHandler(tornado.web.RequestHandler):
                 "comcode": "",
                 "isToacd": ""
             }
-            self.bot.convert_results_to_codes(user)
+            self.bot.convert_results_to_codes(call)
             req_body.update({
-                "callid": user["call_info"].get('call_id', ''),
-                "entranceId": user["call_info"].get('entranceId', ''),
-                "content": '#'.join(user['history']),
-                "isToacd": '0' if user['call_status'] == 'fwd' else '1',
-                "callResult": '#'.join(user['results'])
+                "callid": call["call_info"].get('call_id', ''),
+                "entranceId": call["call_info"].get('entranceId', ''),
+                "content": '#'.join(call['history']),
+                "isToacd": '0' if call['call_status'] == 'fwd' else '1',
+                "callResult": '#'.join(call['results'])
             })
-            req_body.update(dict(zip(("eventId", "custId", "listId"), user['call_info']['strategy_params'].split('#'))))
-            extend = user['call_info'].get('extend', '').split('#')
+            req_body.update(dict(zip(("eventId", "custId", "listId"), call['call_info']['strategy_params'].split('#'))))
+            extend = call['call_info'].get('extend', '').split('#')
             for i in range(len(extend)):
                 req_body.update({'col%d' % (i + 1): extend[i]})
             req_body = [req_body]
@@ -290,12 +290,12 @@ class MainHandler(tornado.web.RequestHandler):
             asr_record_path = os.path.join(self.asr_conf['record_dir'], asr_record_path)
         return user_input, asr_record_path
 
-    def generate_resp_body_speak(self, user, prompt):
+    def generate_resp_body_speak(self, call, prompt):
         resp_body = copy.deepcopy(RESPONSE_BODY_9)
         resp_body.update({"userid": self.req_body['userid']})
         resp_body["outparams"].update({
-            "call_id": user["call_info"].get('call_id', ''),
-            "inter_idx": user['inter_idx'],
+            "call_id": call["call_info"].get('call_id', ''),
+            "inter_idx": call['inter_idx'],
             "model_type": "1000000",
             "prompt_type": '2',
             "prompt_wav": '',
@@ -304,24 +304,24 @@ class MainHandler(tornado.web.RequestHandler):
         })
         return resp_body
 
-    def generate_resp_body_listen(self, user, model_type='0100000', timeout='5'):
+    def generate_resp_body_listen(self, call, model_type='0100000', timeout='5'):
         resp_body = copy.deepcopy(RESPONSE_BODY_9)
         resp_body.update({"userid": self.req_body['userid']})
         resp_body["outparams"].update({
-            "call_id": user["call_info"].get('call_id', ''),
-            "inter_idx": user['inter_idx'],
+            "call_id": call["call_info"].get('call_id', ''),
+            "inter_idx": call['inter_idx'],
             "model_type": model_type,
             "prompt_type": '1',
             "timeout": timeout
         })
         return resp_body
 
-    def generate_resp_body_speak_listen(self, user, prompt, model_type='1100000', timeout='5'):
+    def generate_resp_body_speak_listen(self, call, prompt, model_type='1100000', timeout='5'):
         resp_body = copy.deepcopy(RESPONSE_BODY_9)
         resp_body.update({"userid": self.req_body['userid']})
         resp_body["outparams"].update({
-            "call_id": user["call_info"].get('call_id', ''),
-            "inter_idx": user['inter_idx'],
+            "call_id": call["call_info"].get('call_id', ''),
+            "inter_idx": call['inter_idx'],
             "model_type": model_type,
             "prompt_type": '2',
             "prompt_wav": '',
@@ -331,32 +331,32 @@ class MainHandler(tornado.web.RequestHandler):
 
         return resp_body
 
-    def generate_resp_body_hangup(self, user):
+    def generate_resp_body_hangup(self, call):
         resp_body = copy.deepcopy(RESPONSE_BODY_10)
         resp_body.update({"userid": self.req_body['userid']})
         resp_body["outparams"].update({
-            "call_id": user['call_info'].get('call_id', ''),
-            "call_sor_id": user['call_info'].get('call_sor_id', ''),
-            "call_dst_id": user['call_info'].get('call_dst_id', ''),
-            "start_time": user['call_info'].get('start_time', ''),
+            "call_id": call['call_info'].get('call_id', ''),
+            "call_sor_id": call['call_info'].get('call_sor_id', ''),
+            "call_dst_id": call['call_info'].get('call_dst_id', ''),
+            "start_time": call['call_info'].get('start_time', ''),
             "end_time": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S%f')[:-3],
-            "entrance_id": user['call_info'].get('entrance_id', '')
+            "entrance_id": call['call_info'].get('entrance_id', '')
         })
         return resp_body
 
-    def generate_resp_body_fwd(self, user, dest=None):
+    def generate_resp_body_fwd(self, call, dest=None):
         resp_body = copy.deepcopy(RESPONSE_BODY_11)
         resp_body.update({"userid": self.req_body['userid']})
         resp_body["outparams"].update({
-            "call_id": user['call_info'].get('call_id', ''),
-            "inter_idx": user["inter_idx"],
-            "call_sor_id": user['call_info'].get('call_sor_id', ''),
-            "queue_id": user['call_info'].get('queue_id', '')
+            "call_id": call['call_info'].get('call_id', ''),
+            "inter_idx": call["inter_idx"],
+            "call_sor_id": call['call_info'].get('call_sor_id', ''),
+            "queue_id": call['call_info'].get('queue_id', '')
         })
         if dest is None:
             resp_body["outparams"].update({
                 "trans_type": "1",
-                "queue_id": user['call_info'].get('queue_id', '')
+                "queue_id": call['call_info'].get('queue_id', '')
             })
         else:
             resp_body["outparams"].update({
@@ -366,15 +366,15 @@ class MainHandler(tornado.web.RequestHandler):
 
         return resp_body
 
-    def generate_resp_body_lock_queue(self, user):
+    def generate_resp_body_lock_queue(self, call):
         resp_body = copy.deepcopy(RESPONSE_BODY_0)
         resp_body.update({"userid": self.req_body['userid']})
         resp_body["outparams"].update({
-            "call_id": user['call_info'].get('call_id', ''),
-            "call_sor_id": user['call_info'].get('call_sor_id', ''),
-            "call_dst_id": user['call_info'].get('call_dst_id', ''),
+            "call_id": call['call_info'].get('call_id', ''),
+            "call_sor_id": call['call_info'].get('call_sor_id', ''),
+            "call_dst_id": call['call_info'].get('call_dst_id', ''),
             "att_status": 'true',
-            "queue_id": user['call_info'].get('queue_id', '')
+            "queue_id": call['call_info'].get('queue_id', '')
         })
         return resp_body
 

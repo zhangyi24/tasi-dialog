@@ -1,0 +1,21 @@
+{
+ "name": "流程",
+ "intent": "流程",
+ "lock": false,
+ "nodes": {
+  "0": {
+   "type": "flow",
+   "flowName": "子流程",
+   "dm": [
+    {
+     "cond": true,
+     "nextNode": "1"
+    }
+   ]
+  },
+  "1": {
+   "type": "return"
+  }
+ },
+ "version": "0.1"
+}

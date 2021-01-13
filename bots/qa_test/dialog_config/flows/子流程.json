@@ -1,0 +1,36 @@
+{
+  "name": "子流程",
+  "lock": false,
+  "nodes": {
+    "0": {
+      "type": "slot_filling",
+      "slots": [
+        {
+          "name": "流程.4digit",
+          "global_variable": "num",
+          "response": "请输入一个4位数的数字"
+        }
+      ],
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "1"
+        }
+      ]
+    },
+    "1": {
+      "type": "response",
+      "response": "填槽失败",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "2"
+        }
+      ]
+    },
+    "2": {
+      "type": "return"
+    }
+  },
+  "version": "0.1"
+}

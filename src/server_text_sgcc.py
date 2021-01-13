@@ -79,13 +79,13 @@ class MainHandler(tornado.web.RequestHandler):
                 "callerNo": self.req_body.get("callerNo", ""),
                 "callerNoType": self.req_body.get("callerNoType", "")
             }
-            self.bot.init(user_id=self.req_body['callId'], user_info=[],
+            self.bot.init(call_id=self.req_body['callId'], user_info=[],
                           call_info=call_info)
-            call = self.bot.users[self.req_body['callId']]
+            call = self.bot.calls[self.req_body['callId']]
             call['resp_queue'] = collections.deque()
 
             # 获取开场白
-            bot_resp, call['call_status'] = self.bot.greeting(user_id=self.req_body['callId'])
+            bot_resp, call['call_status'] = self.bot.greeting(call_id=self.req_body['callId'])
             # 正常交互
             if call['call_status'] == 'on':
                 resp_body = self.generate_resp_body_interact(bot_resp)
@@ -97,11 +97,11 @@ class MainHandler(tornado.web.RequestHandler):
                 resp_body = self.generate_resp_body_interact(bot_resp, input=False)
                 call['resp_queue'].append(self.generate_resp_body_fwd())
         else:
-            if self.req_body['callId'] not in self.bot.users:
+            if self.req_body['callId'] not in self.bot.calls:
                 error_info = f"there is no call whose callId is {self.req_body['callId']}."
                 self.throw_error(400, error_info)
             # 根据callId获取会话信息
-            call = self.bot.users[self.req_body['callId']]
+            call = self.bot.calls[self.req_body['callId']]
             # 用户主动挂断
             if self.req_body['messageType'] == "03":
                 call['resp_queue'].clear()
@@ -125,9 +125,9 @@ class MainHandler(tornado.web.RequestHandler):
                     resp_body = self.generate_resp_body_interact(bot_resp, input=False)
                     call['resp_queue'].append(self.generate_resp_body_fwd())
         self.write_resp(resp_body)
-        self.bot.users[resp_body['callId']]['last_resp_body'] = resp_body
+        self.bot.calls[resp_body['callId']]['last_resp_body'] = resp_body
         if resp_body['actionType'] != "2":
-            del self.bot.users[resp_body['callId']]
+            del self.bot.calls[resp_body['callId']]
 
     def generate_resp_body_interact(self, bot_resp, input=True):
         resp_body = copy.deepcopy(RESPONSE_BODY_INTERACT)

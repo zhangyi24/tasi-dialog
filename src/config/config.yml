@@ -26,7 +26,8 @@ bot:
         port: '3306'
         user: root
       period: 10
-    threshold: 1.0
+    threshold_coeff: 1.0
+    threshold2_coeff: 0.9
   kg:
     es: null
     min_score: 15

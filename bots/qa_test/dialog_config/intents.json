@@ -1,0 +1,28 @@
+{
+  "main": {
+    "name": "main",
+    "slots": {
+      "5digit": {
+        "name": "5digit",
+        "valueSet": "user.5digit"
+      }
+    }
+  },
+  "加班": {
+    "name": "拒绝交费",
+    "slots": {}
+  },
+  "流程": {
+    "name": "流程",
+    "slots": {
+      "4digit": {
+        "name": "4digit",
+        "valueSet": "user.4digit"
+      }
+    }
+  },
+  "重述": {
+    "name": "重述",
+    "slots": {}
+  }
+}
