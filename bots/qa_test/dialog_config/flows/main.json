@@ -8,7 +8,18 @@
         {
           "name": "main.5digit",
           "global_variable": "num",
-          "response": "请输入一个5位数的数字"
+          "response": {
+            "content": "请输入一个5位数的数字",
+            "input_channels": {
+              "asr": {
+                "switch": false
+              },
+              "keyboard": {
+                "switch": true,
+                "max_length": 5
+              }
+            }
+          }
         }
       ],
       "dm": [

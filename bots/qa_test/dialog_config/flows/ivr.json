@@ -1,0 +1,24 @@
+{
+  "name": "ivr",
+  "intent": "ivr",
+  "lock": false,
+  "invasive": false,
+  "forget": false,
+  "nodes": {
+    "0": {
+      "type": "response",
+      "response": "即将返回ivr，请稍候",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "1"
+        }
+      ]
+    },
+    "1": {
+      "type": "exit",
+      "todo": "ivr"
+    }
+  },
+  "version": "0.1"
+}

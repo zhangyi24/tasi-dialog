@@ -5,7 +5,7 @@
 # coding=utf-8
 import re
 
-def response_process(string, global_vars=None, builtin_vars=None):
+def render_response(string, global_vars=None, builtin_vars=None):
 	# 把[%global.var_name%]换成对应的变量值
 	pattern = '\[%global.\w+%]'
 	vars = set(re.findall(pattern, string))

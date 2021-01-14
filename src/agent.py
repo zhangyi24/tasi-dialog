@@ -14,7 +14,7 @@ import yaml
 
 from nlu import NLUManager
 from dm import cond_judge
-from nlg import response_process
+from nlg import render_response
 
 sys.path.append(".")
 functions_path = 'dialog_config/functions.py'
@@ -112,11 +112,6 @@ class Bot(object):
 
         self.calls = {}
 
-        self.input_channel_code_map = {
-            "asr": "10",
-            "keyboard": "01"
-        }
-
     def init(self, call_id, user_info, call_info, task_id=-1):
         self.calls[call_id] = {
             "call_id": call_id,
@@ -140,16 +135,15 @@ class Bot(object):
     def greeting(self, call_id):
         call = self.calls[call_id]
         # generate response
-        resp = {'content': None, 'allow_interrupt': self.interruptable,
-                'input_channel': self.input_channel_code_map["asr"], 'src': ''}
+        resp = self.makeup_bot_response()
         # return first response in main flow as the bot's response
         if 'main' in self.flows:
             resp, call['call_status'] = self.generate_response(call_id, user_utter=None)
             resp['src'] = 'flow'
         # return greeting as the bot's response
         if not resp['content']:
-            resp['content'] = response_process(self.service_language['greeting'], self.calls[call_id]['g_vars'],
-                                               self.calls[call_id]['builtin_vars'])
+            resp['content'] = render_response(self.service_language['greeting'], self.calls[call_id]['g_vars'],
+                                              self.calls[call_id]['builtin_vars'])
             resp['src'] = 'greeting'
         self.calls[call_id]['builtin_vars']['last_response'] = resp['content']
         return resp, call['call_status']
@@ -176,7 +170,7 @@ class Bot(object):
                 call_status = self.calls[call_id]['call_status'] = 'fwd'
             else:
                 # 兜底话术
-                resp['content'] = response_process(self.service_language['pardon'], g_vars, builtin_vars)
+                resp['content'] = render_response(self.service_language['pardon'], g_vars, builtin_vars)
             resp['src'] = 'no_answer'
         self.calls[call_id]['builtin_vars']['last_response'] = resp['content']
         return resp, call_status
@@ -184,8 +178,7 @@ class Bot(object):
     def generate_response(self, call_id, user_utter):
         """生成除了兜底话术之外的机器人正常回复"""
         call = self.calls[call_id]
-        resp = {'content': None, 'allow_interrupt': self.interruptable,
-                'input_channel': self.input_channel_code_map["asr"], 'src': ''}
+        resp = self.makeup_bot_response()
         g_vars = self.calls[call_id]['g_vars']
         builtin_vars = self.calls[call_id]['builtin_vars']
         node_stack = self.calls[call_id]['node_stack']
@@ -252,14 +245,7 @@ class Bot(object):
 
                 # response
                 elif current_node['type'] == 'response':
-                    resp_content = ''
-                    if type(current_node['response']) == str:
-                        resp_content = current_node['response']
-                    elif type(current_node['response']) == dict:
-                        resp_content = current_node['response']["content"]
-                        resp['input_channel'] = self.input_channel_code_map[
-                            current_node['response'].get("input_channel", "asr")]
-                    resp['content'] = response_process(resp_content, g_vars, builtin_vars)
+                    self.flow_response_process(resp, current_node['response'], g_vars, builtin_vars)
 
                 # flow
                 elif current_node['type'] == 'flow':
@@ -281,14 +267,7 @@ class Bot(object):
                                                                                         user_utter,
                                                                                         g_vars)
                     if slot_request is not None:
-                        resp_content = ''
-                        if type(slot_request) == str:
-                            resp_content = slot_request
-                        elif type(slot_request) == dict:
-                            resp_content = slot_request["content"]
-                            resp['input_channel'] = self.input_channel_code_map[
-                                slot_request.get("input_channel", "asr")]
-                        resp['content'] = response_process(resp_content, g_vars, builtin_vars)
+                        self.flow_response_process(resp, slot_request, g_vars, builtin_vars)
                         continue
                     if not slots_filling_finish:
                         continue
@@ -337,17 +316,12 @@ class Bot(object):
                                     call['call_status'] = 'hangup'
                                 elif next_node['todo'] == 'fwd':
                                     call['call_status'] = 'fwd'
+                                elif next_node['todo'] == 'ivr':
+                                    call['call_status'] = 'ivr'
                                 node_stack.clear()
                         # 处理response
                         if 'response' in case:
-                            resp_content = ''
-                            if type(case['response']) == str:
-                                resp_content = case['response']
-                            elif type(case['response']) == dict:
-                                resp_content = case['response']["content"]
-                                resp['input_channel'] = self.input_channel_code_map[
-                                    case['response'].get("input_channel", "asr")]
-                            resp['content'] = response_process(resp_content, g_vars, builtin_vars)
+                            self.flow_response_process(resp, case["response"], g_vars, builtin_vars)
                         break
             if resp['content']:
                 resp['src'] = 'flow'
@@ -410,6 +384,40 @@ class Bot(object):
         else:
             updated = False
         return updated
+
+    def flow_response_process(self, bot_resp, resp_config_from_flow, g_vars, builtin_vars):
+        resp_content = ''
+        if type(resp_config_from_flow) == str:
+            resp_content = resp_config_from_flow
+        elif type(resp_config_from_flow) == dict:
+            resp_content = resp_config_from_flow["content"]
+            input_channels = resp_config_from_flow.get("input_channels", {})
+            asr_switch = input_channels.get("asr", {}).get("switch", True)
+            if type(asr_switch) is not bool:
+                logging.error(f"type of response.input_channels.asr.switch must be bool instead of {type(asr_switch)}")
+            else:
+                bot_resp['input_channels']["asr"]["switch"] = asr_switch
+            keyboard_switch = input_channels.get("keyboard", {}).get("switch", False)
+            if type(keyboard_switch) is not bool:
+                logging.error(
+                    f"type of response.input_channels.keyboard.switch must be bool instead of {type(keyboard_switch)}")
+            else:
+                bot_resp['input_channels']["keyboard"]["switch"] = keyboard_switch
+            keyboard_max_length = input_channels.get("keyboard", {}).get("max_length", 12)
+            if type(keyboard_max_length) is not int or keyboard_max_length not in range(1, 13):
+                logging.error(
+                    f"type of response.input_channels.keyboard.max_length must be an integer between 1 and 12 instead of {keyboard_max_length}")
+            else:
+                bot_resp['input_channels']["keyboard"]["max_length"] = keyboard_max_length
+        bot_resp['content'] = render_response(resp_content, g_vars, builtin_vars)
+
+    def makeup_bot_response(self, content=None, asr_switch=True, keyboard_switch=False, keyboard_max_length=12,
+                            src=''):
+        resp = {'content': content, 'allow_interrupt': self.interruptable,
+                'input_channels': {"asr": {"switch": asr_switch},
+                                   "keyboard": {"switch": keyboard_switch, "max_length": keyboard_max_length}},
+                'src': src}
+        return resp
 
     def convert_results_to_codes(self, call):
         if self.results_tracker:

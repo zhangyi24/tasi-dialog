@@ -25,6 +25,18 @@ from utils.logger import config_logger
 from utils.str_process import replace_space
 from utils.config import merge_config
 
+RESPONSE_BODY_4 = {
+    "ret": 0,
+    "userid": "",
+    "outaction": '4',
+    "outparams": {
+        "call_id": "",
+        "call_sor_id": "",
+        "call_dst_id": "",
+        "entrance_id": ""
+    }
+}
+
 RESPONSE_BODY_9 = {
     "ret": 0,
     "userid": "",
@@ -128,28 +140,7 @@ class MainHandler(tornado.web.RequestHandler):
             # 获取开场白
             bot_resp, call['call_status'] = self.bot.greeting(call_id=self.req_body['userid'])
             bot_resp['content'] = replace_space(bot_resp['content'])
-            # 正常交互
-            if call['call_status'] == 'on':
-                if bot_resp['allow_interrupt']:
-                    resp_body = self.generate_resp_body_speak_listen(call, bot_resp['content'])
-                else:
-                    resp_body = self.generate_resp_body_speak(call, bot_resp['content'])
-                    call['resp_queue'].append(self.generate_resp_body_listen(call))
-
-            # 机器人发起挂断
-            elif call['call_status'] == 'hangup':
-                resp_body = self.generate_resp_body_speak(call, bot_resp['content'])
-                call['resp_queue'].append(self.generate_resp_body_hangup(call))
-
-            # 机器人发起呼叫转移
-            elif call['call_status'] == 'fwd':
-                if self.bot_conf["lock_before_fwd"]:
-                    resp_body = self.generate_resp_body_lock_queue(call)
-                    call['resp_queue'].append(
-                        self.generate_resp_body_speak(call, bot_resp['content']))
-                else:
-                    resp_body = self.generate_resp_body_speak(call, '正在为您转接至人工')
-                    call['resp_queue'].append(self.generate_resp_body_fwd(call))
+            resp_body = self.generate_resp_body(call, bot_resp)
 
         elif self.req_body['inaction'] == 9:
             if self.req_body['userid'] not in self.bot.calls:
@@ -183,28 +174,7 @@ class MainHandler(tornado.web.RequestHandler):
                                         asr_record_path=asr_record_path)
                 bot_resp, call['call_status'] = self.bot.response(self.req_body['userid'], user_input)
                 bot_resp['content'] = replace_space(bot_resp['content'])
-                # 正常交互
-                if call['call_status'] == 'on':
-                    if bot_resp['allow_interrupt']:
-                        resp_body = self.generate_resp_body_speak_listen(call, bot_resp['content'])
-                    else:
-                        resp_body = self.generate_resp_body_speak(call, bot_resp['content'])
-                        call['resp_queue'].append(self.generate_resp_body_listen(call))
-
-                # 机器人发起挂断
-                elif call['call_status'] == 'hangup':
-                    resp_body = self.generate_resp_body_speak(call, bot_resp['content'])
-                    call['resp_queue'].append(self.generate_resp_body_hangup(call))
-
-                # 机器人发起呼叫转移
-                elif call['call_status'] == 'fwd':
-                    if self.bot_conf["lock_before_fwd"]:
-                        resp_body = self.generate_resp_body_lock_queue(call)
-                        call['resp_queue'].append(
-                            self.generate_resp_body_speak(call, bot_resp['content']))
-                    else:
-                        resp_body = self.generate_resp_body_speak(call, '正在为您转接至人工')
-                        call['resp_queue'].append(self.generate_resp_body_fwd(call))
+                resp_body = self.generate_resp_body(call, bot_resp)
 
         # 判断呼叫转移是否成功
         elif self.req_body['inaction'] == 11:
@@ -217,12 +187,9 @@ class MainHandler(tornado.web.RequestHandler):
             call = self.bot.calls[self.req_body['userid']]
             queue_locked = self.req_body['inparams']['att_status'] == '1'
             if queue_locked:
-                call['resp_queue'].popleft()
-                resp_body = self.generate_resp_body_speak(call, '正在为您转接至人工')
-                call['resp_queue'].append(self.generate_resp_body_fwd(call))
+                resp_body = self.generate_resp_body_fwd(call)
             else:
-                resp_body = call['resp_queue'].popleft()
-                call['resp_queue'].append(self.generate_resp_body_hangup(call))
+                resp_body = self.generate_resp_body_hangup(call)
 
         self.write(json.dumps(resp_body, ensure_ascii=False, separators=(',', ':')).encode('utf-8'))
         call = self.bot.calls[resp_body['userid']]
@@ -242,7 +209,7 @@ class MainHandler(tornado.web.RequestHandler):
         logging.info('[dialog] resp_body: %s' % resp_body)
         if self.db:
             threading.Thread(target=self.db.write_msgs, name='SQL').start()
-        if resp_body['outaction'] == '10':
+        if resp_body['outaction'] in ['4', '10']:
             del self.bot.calls[resp_body['userid']]
             threading.Thread(target=self.save_results, args=(call,), name='call_post_process').start()
 
@@ -290,42 +257,85 @@ class MainHandler(tornado.web.RequestHandler):
             asr_record_path = os.path.join(self.asr_conf['record_dir'], asr_record_path)
         return user_input, asr_record_path
 
-    def generate_resp_body_speak(self, call, prompt):
+    def makeup_model_type(self, speak_switch, input_channels=None):
+        model_type = ""
+        model_type += "1" if speak_switch else "0"
+        if not input_channels:
+            model_type += "000000"
+        else:
+            model_type += "1" if input_channels["asr"]["switch"] else "0"
+            model_type += "1" if input_channels["keyboard"]["switch"] else "0"
+            model_type += "%02d" % input_channels["keyboard"]["max_length"]
+            model_type += "01"
+        return model_type
+
+    def generate_resp_body(self, call, bot_resp):
+        # 正常交互
+        if call['call_status'] == 'on':
+            if bot_resp['allow_interrupt']:
+                resp_body = self.generate_resp_body_speak_listen(call, bot_resp)
+            else:
+                resp_body = self.generate_resp_body_speak(call, bot_resp)
+                call['resp_queue'].append(self.generate_resp_body_listen(call, bot_resp))
+
+        # 机器人发起挂断
+        elif call['call_status'] == 'hangup':
+            resp_body = self.generate_resp_body_speak(call, bot_resp)
+            call['resp_queue'].append(self.generate_resp_body_hangup(call))
+
+        # 机器人发起呼叫转移
+        elif call['call_status'] == 'fwd':
+            if self.bot_conf["lock_before_fwd"]:
+                resp_body = self.generate_resp_body_speak(call, bot_resp)
+                call['resp_queue'].append(self.generate_resp_body_lock_queue(call))
+            else:
+                resp_body = self.generate_resp_body_speak(call, bot_resp)
+                call['resp_queue'].append(self.generate_resp_body_fwd(call))
+
+        elif call['call_status'] == 'ivr':
+            resp_body = self.generate_resp_body_speak(call, bot_resp)
+            call['resp_queue'].append(self.generate_resp_body_ivr(call))
+
+        else:
+            logging.error(f"invalid call_status: {call['call_status']}")
+        return resp_body
+
+    def generate_resp_body_speak(self, call, bot_resp):
         resp_body = copy.deepcopy(RESPONSE_BODY_9)
         resp_body.update({"userid": self.req_body['userid']})
         resp_body["outparams"].update({
             "call_id": call["call_info"].get('call_id', ''),
             "inter_idx": call['inter_idx'],
-            "model_type": "1000000",
+            "model_type": self.makeup_model_type(speak_switch=True, input_channels=None),
             "prompt_type": '2',
             "prompt_wav": '',
-            "prompt_text": prompt,
+            "prompt_text": bot_resp["content"],
             "timeout": '0'
         })
         return resp_body
 
-    def generate_resp_body_listen(self, call, model_type='0100000', timeout='5'):
+    def generate_resp_body_listen(self, call, bot_resp, timeout='5'):
         resp_body = copy.deepcopy(RESPONSE_BODY_9)
         resp_body.update({"userid": self.req_body['userid']})
         resp_body["outparams"].update({
             "call_id": call["call_info"].get('call_id', ''),
             "inter_idx": call['inter_idx'],
-            "model_type": model_type,
+            "model_type": self.makeup_model_type(speak_switch=False, input_channels=bot_resp["input_channels"]),
             "prompt_type": '1',
             "timeout": timeout
         })
         return resp_body
 
-    def generate_resp_body_speak_listen(self, call, prompt, model_type='1100000', timeout='5'):
+    def generate_resp_body_speak_listen(self, call, bot_resp, timeout='5'):
         resp_body = copy.deepcopy(RESPONSE_BODY_9)
         resp_body.update({"userid": self.req_body['userid']})
         resp_body["outparams"].update({
             "call_id": call["call_info"].get('call_id', ''),
             "inter_idx": call['inter_idx'],
-            "model_type": model_type,
+            "model_type": self.makeup_model_type(speak_switch=True, input_channels=bot_resp["input_channels"]),
             "prompt_type": '2',
             "prompt_wav": '',
-            "prompt_text": prompt,
+            "prompt_text": bot_resp["content"],
             "timeout": timeout
         })
 
@@ -375,6 +385,17 @@ class MainHandler(tornado.web.RequestHandler):
             "call_dst_id": call['call_info'].get('call_dst_id', ''),
             "att_status": 'true',
             "queue_id": call['call_info'].get('queue_id', '')
+        })
+        return resp_body
+
+    def generate_resp_body_ivr(self, call):
+        resp_body = copy.deepcopy(RESPONSE_BODY_4)
+        resp_body.update({"userid": self.req_body['userid']})
+        resp_body["outparams"].update({
+            "call_id": call['call_info'].get('call_id', ''),
+            "call_sor_id": call['call_info'].get('call_sor_id', ''),
+            "call_dst_id": call['call_info'].get('call_dst_id', ''),
+            "entrance_id": call['call_info'].get('entrance_id', '')
         })
         return resp_body
 

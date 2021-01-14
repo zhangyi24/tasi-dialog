@@ -17,7 +17,7 @@ bot:
     recommend:
       max_items: 10
       switch: true
-    switch: true
+    switch: false
     sync:
       mysql:
         database: callcenter

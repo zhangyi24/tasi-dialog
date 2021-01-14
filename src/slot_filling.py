@@ -10,7 +10,7 @@ import datetime
 import collections
 import logging
 
-from nlg import response_process
+from nlg import render_response
 from utils.str_process import hanzi_to_pinyin
 
 sys.path.append('..')

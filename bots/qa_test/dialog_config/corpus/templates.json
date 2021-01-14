@@ -10,5 +10,17 @@
   "重述": {
     "name": "重述",
     "templates": ["重述"]
+  },
+  "再见": {
+    "name": "再见",
+    "templates": ["再见"]
+  },
+  "转人工": {
+    "name": "转人工",
+    "templates": ["转人工"]
+  },
+  "ivr": {
+    "name": "ivr",
+    "templates": ["ivr"]
   }
 }
