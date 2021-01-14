@@ -161,7 +161,12 @@ class Bot(object):
                 resp['content'] = qa_kg_answer
                 resp['src'] = 'kg'
                 builtin_vars["cnt_no_answer_succession"] = 0
-        if resp['content'] is None:
+        resp_post, call_status = self.generate_response_flow(flow_name="post", call_id=call_id, user_utter=user_utter)
+        if resp_post['content']:
+            resp = resp_post
+        if resp['content'] is not None:
+            builtin_vars["cnt_no_answer_succession"] = 0
+        else:
             builtin_vars["cnt_no_answer_succession"] += 1
             if self.bot_config["fwd"]["switch"] and builtin_vars["cnt_no_answer_succession"] >= self.bot_config["fwd"][
                 "patient"]:
@@ -294,35 +299,7 @@ class Bot(object):
                             'funcName'] + '(user_utter, g_vars, context=call)')
 
                 # dm
-                assert 'dm' in current_node
-                for case in current_node['dm']:
-                    cond = case['cond']
-                    cond_is_true = True if cond is True else cond_judge(cond,
-                                                                        data={"global": g_vars,
-                                                                              "builtin": builtin_vars})
-                    if cond_is_true or cond == 'else':
-                        # 处理nextNode。
-                        if node_stack:
-                            node_stack[-1]['node_id'] = case['nextNode']
-                            next_node = current_flow['nodes'][case['nextNode']]
-                            if next_node['type'] == 'return':
-                                logging.info('flow_name: %s, node_id: %s, node_type: %s' % (
-                                    current_flow_name, case['nextNode'], next_node['type']))
-                                node_stack.pop()
-                            elif next_node['type'] == 'exit':
-                                logging.info('flow_name: %s, node_id: %s, node_type: %s' % (
-                                    current_flow_name, case['nextNode'], next_node['type']))
-                                if next_node['todo'] == 'hangup':
-                                    call['call_status'] = 'hangup'
-                                elif next_node['todo'] == 'fwd':
-                                    call['call_status'] = 'fwd'
-                                elif next_node['todo'] == 'ivr':
-                                    call['call_status'] = 'ivr'
-                                node_stack.clear()
-                        # 处理response
-                        if 'response' in case:
-                            self.flow_response_process(resp, case["response"], g_vars, builtin_vars)
-                        break
+                self.dm(node_stack, call, resp, g_vars, builtin_vars)
             if resp['content']:
                 resp['src'] = 'flow'
             elif qa_kb_result and qa_kb_result["score"] >= qa_kb_result["threshold2"]:
@@ -385,7 +362,9 @@ class Bot(object):
             updated = False
         return updated
 
+
     def flow_response_process(self, bot_resp, resp_config_from_flow, g_vars, builtin_vars):
+        """处理流程中的response字段"""
         resp_content = ''
         if type(resp_config_from_flow) == str:
             resp_content = resp_config_from_flow
@@ -426,3 +405,109 @@ class Bot(object):
 
     def intent_recognition(self, user_utter):
         return self.nlu_manager.intent_recognition(user_utter) if user_utter is not None else None
+
+    def generate_response_flow(self, flow_name, call_id, user_utter):
+        """机器人利用指定对话流生成回复"""
+        call = self.calls[call_id]
+        resp = self.makeup_bot_response()
+        g_vars = self.calls[call_id]['g_vars']
+        builtin_vars = self.calls[call_id]['builtin_vars']
+        node_stack = list()
+        if flow_name in self.flows:
+            node_stack.append({"flow_name": flow_name, "node_id": "0"})
+
+        # 执行流程，直到得到response
+        while not resp['content']:
+            # get current node
+            # logging.info(g_vars, node_stack)
+            current_flow_name, current_flow, current_node = self.get_current_flow_and_node(node_stack,
+                                                                                           verbose=True)
+            if current_node is None:
+                break
+            # log results
+            # todo: 每经过一个节点就把该节点的结果追加到results后，有没有更合理的记录对话结果的方法
+            call['results'].extend(current_node.get('results', []))
+
+            # process current node
+            # branch
+            if current_node['type'] == 'branch':
+                pass
+
+            # assignment
+            elif current_node['type'] == 'assignment':
+                for item in current_node['assignments']:
+                    g_vars[item['g_vars']] = item['value']
+
+            # response
+            elif current_node['type'] == 'response':
+                self.flow_response_process(resp, current_node['response'], g_vars, builtin_vars)
+
+            # flow
+            elif current_node['type'] == 'flow':
+                node_info = node_stack[-1]
+                if 'returned' not in node_info:
+                    node_info['returned'] = False
+                    node_stack.append({'flow_name': current_node['flowName'], 'node_id': '0'})
+                    continue
+                else:
+                    del node_info['returned']
+
+            # slot_filling
+            elif current_node['type'] == 'slot_filling':
+                node_info = node_stack[-1]
+                logging.info("enter slot_filling node")
+                if 'slots_status' not in node_info:
+                    node_info['slots_status'] = self.nlu_manager.slots_status_init(current_node['slots'])
+                slot_request, slots_filling_finish = self.nlu_manager.slots_filling(node_info['slots_status'],
+                                                                                    user_utter,
+                                                                                    g_vars)
+                if slot_request is not None:
+                    self.flow_response_process(resp, slot_request, g_vars, builtin_vars)
+                    continue
+                if not slots_filling_finish:
+                    continue
+
+            # function
+            elif current_node['type'] == 'function':
+                exec(
+                    'builtin_vars["func_return"] = ' + 'functions.' + current_node[
+                        'funcName'] + '(user_utter, g_vars, context=call)')
+
+            # dm
+            self.dm(node_stack, call, resp, g_vars, builtin_vars)
+
+        if resp['content']:
+            resp['src'] = 'flow'
+        return resp, call['call_status']
+
+    def dm(self, node_stack, call, resp, g_vars, builtin_vars):
+        current_flow_name, current_flow, current_node = self.get_current_flow_and_node(node_stack)
+        assert 'dm' in current_node
+        for case in current_node['dm']:
+            cond = case['cond']
+            cond_is_true = True if cond is True else cond_judge(cond,
+                                                                data={"global": g_vars,
+                                                                      "builtin": builtin_vars})
+            if cond_is_true or cond == 'else':
+                # 处理nextNode。
+                if node_stack:
+                    node_stack[-1]['node_id'] = case['nextNode']
+                    next_node = current_flow['nodes'][case['nextNode']]
+                    if next_node['type'] == 'return':
+                        logging.info('flow_name: %s, node_id: %s, node_type: %s' % (
+                            current_flow_name, case['nextNode'], next_node['type']))
+                        node_stack.pop()
+                    elif next_node['type'] == 'exit':
+                        logging.info('flow_name: %s, node_id: %s, node_type: %s' % (
+                            current_flow_name, case['nextNode'], next_node['type']))
+                        if next_node['todo'] == 'hangup':
+                            call['call_status'] = 'hangup'
+                        elif next_node['todo'] == 'fwd':
+                            call['call_status'] = 'fwd'
+                        elif next_node['todo'] == 'ivr':
+                            call['call_status'] = 'ivr'
+                        node_stack.clear()
+                # 处理response
+                if 'response' in case:
+                    self.flow_response_process(resp, case["response"], g_vars, builtin_vars)
+                break
