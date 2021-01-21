@@ -64,6 +64,7 @@ def order_time_access_by_phone_no(user_utter, global_vars, context = None):
     data = query(ENDPOINT, phone_no=global_vars['phone_no'])
     logging.info(f"order_time_access_by_phone_no: {global_vars['phone_no']}, response: {data}")
     if not data:
+        global_vars['wrong_phone_no'] = global_vars['phone_no']
         global_vars['phone_no'] = None
         return False
     else:
@@ -75,6 +76,7 @@ def order_time_access_by_cert_no(user_utter, global_vars, context = None):
     data = query(ENDPOINT, cert_no=global_vars['cert_no'])
     logging.info(f"order_time_access_by_cert_no: {global_vars['cert_no']}, response: {data}")
     if not data:
+        global_vars['wrong_cert_no'] = global_vars['cert_no']
         global_vars['cert_no'] = None
         return False
     else:
@@ -95,6 +97,7 @@ def customer_manager_info_access_by_phone_no(user_utter, global_vars, context = 
     data = query(ENDPOINT, phone_no=global_vars['phone_no'])
     logging.info(f"customer_manager_info_access_by_phone_no: {global_vars['phone_no']}, response: {data}")
     if not data:
+        global_vars['wrong_phone_no'] = global_vars['phone_no']
         global_vars['phone_no'] = None
         return False
     else:
@@ -106,6 +109,7 @@ def customer_manager_info_access_by_cert_no(user_utter, global_vars, context = N
     data = query(ENDPOINT, cert_no=global_vars['cert_no'])
     logging.info(f"customer_manager_info_access_by_cert_no: {global_vars['cert_no']}, response: {data}")
     if not data:
+        global_vars['wrong_cert_no'] = global_vars['cert_no']
         global_vars['cert_no'] = None
         return False
     else:

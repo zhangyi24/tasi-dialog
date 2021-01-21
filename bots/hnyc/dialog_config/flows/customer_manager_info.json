@@ -128,8 +128,8 @@
         },
         {
           "cond": "else",
-          "nextNode": "100",
-          "response": "抱歉，由于您提供了错误的手机号，无法为您查询。"
+          "nextNode": "10",
+          "response": "抱歉，由于您提供了错误的手机号[%global.wrong_phone_no%]，无法为您查询。能否重新提供下您的手机号？"
         }
       ]
     },
@@ -150,8 +150,8 @@
         },
         {
           "cond": "else",
-          "nextNode": "100",
-          "response": "抱歉，由于您提供了错误专卖证号，无法为您查询。"
+          "nextNode": "11",
+          "response": "抱歉，由于您提供了错误专卖证号[%global.wrong_cert_no%]，无法为您查询，能否重新提供下您的专卖证号？"
         }
       ]
     },
