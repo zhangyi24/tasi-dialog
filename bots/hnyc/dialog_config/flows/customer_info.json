@@ -9,95 +9,7 @@
           "cond": {
             "==": [
               {
-                "var": "global.phone_no"
-              },
-              null
-            ]
-          },
-          "nextNode": "3"
-        },
-        {
-          "cond": "else",
-          "nextNode": "80"
-        }
-      ]
-    },
-    "3": {
-      "type": "branch",
-      "dm": [
-        {
-          "cond": {
-            "==": [
-              {
-                "var": "global.cert_no"
-              },
-              null
-            ]
-          },
-          "nextNode": "1"
-        },
-        {
-          "cond": "else",
-          "nextNode": "81"
-        }
-      ]
-    },
-    "1": {
-      "type": "response",
-      "response": "请提供下您的订货电话或者专卖证号，我将为您查询客户信息",
-      "dm": [
-        {
-          "cond": true,
-          "nextNode": "10"
-        }
-      ]
-    },
-    "10": {
-      "type": "slot_filling",
-      "slots": [
-        {
-          "name": "order_info.phone_no",
-          "global_variable": "phone_no",
-          "max_request_num": 0, 
-          "response_before_filling": false,
-          "response": {"content": "请提供下您的订货电话或者专卖证号", "input_channel": "keyboard"}
-        }
-      ],
-      "dm": [
-        {
-          "cond": {
-            "==": [
-              {
-                "var": "global.phone_no"
-              },
-              null
-            ]
-          },
-          "nextNode": "11"
-        },
-        {
-          "cond": "else",
-          "nextNode": "80"
-        }
-      ]
-    },
-    "11": {
-      "type": "slot_filling",
-      "slots": [
-        {
-          "name": "order_info.cert_no",
-          "global_variable": "cert_no",
-          "max_request_num": 0, 
-          "response_before_filling": false,
-          "response": {"content": "专卖证号填槽失败", "input_channel": "keyboard"}
-        }
-      ],
-      "dm": [
-        {
-          "cond": {
-            "==": [
-              {
-                "var": "global.cert_no"
+                "var": "global.call_sor_id"
               },
               null
             ]
@@ -106,11 +18,11 @@
         },
         {
           "cond": "else",
-          "nextNode": "81"
+          "nextNode": "1"
         }
       ]
     },
-    "80": {
+    "1": {
       "type": "function",
       "funcName": "customer_info_access_by_phone_no",
       "dm": [
@@ -128,35 +40,13 @@
         {
           "cond": "else",
           "nextNode": "100",
-          "response": "抱歉，由于您提供了错误的手机号，无法为您查询。"
-        }
-      ]
-    },
-    "81": {
-      "type": "function",
-      "funcName": "customer_info_access_by_cert_no",
-      "dm": [
-        {
-          "cond": {
-            "==": [
-              {
-                "var": "builtin.func_return"
-              },
-              true
-            ]
-          },
-          "nextNode": "99"
-        },
-        {
-          "cond": "else",
-          "nextNode": "100",
-          "response": "抱歉，由于您提供了错误专卖证号，无法为您查询。"
+          "response": "抱歉，当前来电[%global.call_sor_id%]并非订货预留电话，请使用订货电话查询客户相关信息。"
         }
       ]
     },
     "91": {
       "type": "response",
-      "response": "抱歉，由于您提供了错误的订货电话或者专卖证号，无法为您查询。",
+      "response": "抱歉，未能查到您的来电号码，无法为您查询。",
       "dm": [
         {
           "cond": true,

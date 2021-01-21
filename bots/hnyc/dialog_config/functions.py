@@ -17,51 +17,13 @@ def init_global_vars(user_utter, global_vars, context = None):
     global_vars['entrance_id'] = int(entrance_id)
     global_vars['call_sor_id'] = str(call_sor_id)
     return True
-
-## order_time
-def order_time_access_by_phone_no(user_utter, global_vars, context = None):
-    ENDPOINT="custInfoQuery"
-    logging.debug(f"order_time_access_by_phone_no: user_utter={user_utter}, global_vars={global_vars}")
-    data = query(ENDPOINT, phone_no=global_vars['phone_no'])
-    if not data:
-        return False
-    else:
-        global_vars['order_time'] = data
-        return True
     
-def order_time_access_by_cert_no(user_utter, global_vars, context = None):
-    ENDPOINT="custInfoQuery"
-    logging.debug(f"order_time_access_by_cert_no: user_utter={user_utter}, global_vars={global_vars}")
-    data = query(ENDPOINT, cert_no=global_vars['cert_no'])
-    if not data:
-        return False
-    else:
-        global_vars['order_time'] = data
-        return True
-        
-def report_order_time(user_utter, global_vars, context = None): 
-    if ENV == "production":
-        return global_vars['order_time']
-    else: 
-        sales = global_vars['order_time']['sales']
-        sales_phone = global_vars['order_time']['sales_phone']
-        return f"您的售货员是{sales},售货员电话{sales_phone}"
-             
 ## order_info
 def order_info_access_by_phone_no(user_utter, global_vars, context = None):
     ENDPOINT="orderInfoQuery"
-    logging.debug(f"order_info_access_by_phone_no: user_utter={user_utter}, global_vars={global_vars}")
-    data = query(ENDPOINT, phone_no=global_vars['phone_no'])
-    if not data:
-        return False
-    else:
-        global_vars['order_info'] = data
-        return True
-    
-def order_info_access_by_cert_no(user_utter, global_vars, context = None):   
-    ENDPOINT="orderInfoQuery"
-    logging.debug(f"order_info_access_by_cert_no: user_utter={user_utter}, global_vars={global_vars}")
-    data = query(ENDPOINT, cert_no=global_vars['cert_no'])
+    phone_no = global_vars['call_sor_id']
+    data = query(ENDPOINT, phone_no=phone_no)
+    logging.info(f"order_info_access_by_phone_no: {phone_no}, response:{data}")
     if not data:
         return False
     else:
@@ -79,18 +41,9 @@ def report_order_info(user_utter, global_vars, context = None):
 ## customer_info
 def customer_info_access_by_phone_no(user_utter, global_vars, context = None):
     ENDPOINT='custInformation'
-    logging.debug(f"customer_info_access_by_phone_no: user_utter={user_utter}, global_vars={global_vars}")
-    data = query(ENDPOINT, phone_no=global_vars['phone_no'])
-    if not data:
-        return False
-    else:
-        global_vars['customer_info'] = data
-        return True
-
-def customer_info_access_by_cert_no(user_utter, global_vars, context = None):   
-    ENDPOINT='custInformation'
-    logging.debug(f"customer_info_access_by_cert_no: user_utter={user_utter}, global_vars={global_vars}")
-    data = query(ENDPOINT, cert_no=global_vars['cert_no'])
+    phone_no = global_vars['call_sor_id']
+    data = query(ENDPOINT, phone_no=phone_no)
+    logging.info(f"customer_info_access_by_phone_no: {phone_no}, response:{data}")
     if not data:
         return False
     else:
@@ -104,13 +57,45 @@ def report_customer_info(user_utter, global_vars, context = None):
         sales = global_vars['customer_info']['sales']
         sales_phone = global_vars['customer_info']['sales_phone']
         return f"您的售货员是{sales},售货员电话{sales_phone}"
+
+## order_time
+def order_time_access_by_phone_no(user_utter, global_vars, context = None):
+    ENDPOINT="custInfoQuery"
+    data = query(ENDPOINT, phone_no=global_vars['phone_no'])
+    logging.info(f"order_time_access_by_phone_no: {global_vars['phone_no']}, response: {data}")
+    if not data:
+        global_vars['phone_no'] = None
+        return False
+    else:
+        global_vars['order_time'] = data
+        return True
+    
+def order_time_access_by_cert_no(user_utter, global_vars, context = None):
+    ENDPOINT="custInfoQuery"
+    data = query(ENDPOINT, cert_no=global_vars['cert_no'])
+    logging.info(f"order_time_access_by_cert_no: {global_vars['cert_no']}, response: {data}")
+    if not data:
+        global_vars['cert_no'] = None
+        return False
+    else:
+        global_vars['order_time'] = data
+        return True
+        
+def report_order_time(user_utter, global_vars, context = None): 
+    if ENV == "production":
+        return global_vars['order_time']
+    else: 
+        sales = global_vars['order_time']['sales']
+        sales_phone = global_vars['order_time']['sales_phone']
+        return f"您的售货员是{sales},售货员电话{sales_phone}"
         
 ## customer_manager_info
 def customer_manager_info_access_by_phone_no(user_utter, global_vars, context = None):
     ENDPOINT="custMgrQuery"
-    logging.debug(f"customer_manager_info_access_by_phone_no: user_utter={user_utter}, global_vars={global_vars}")
     data = query(ENDPOINT, phone_no=global_vars['phone_no'])
+    logging.info(f"customer_manager_info_access_by_phone_no: {global_vars['phone_no']}, response: {data}")
     if not data:
+        global_vars['phone_no'] = None
         return False
     else:
         global_vars['customer_manager_info'] = data
@@ -118,9 +103,10 @@ def customer_manager_info_access_by_phone_no(user_utter, global_vars, context = 
     
 def customer_manager_info_access_by_cert_no(user_utter, global_vars, context = None):   
     ENDPOINT="custMgrQuery"
-    logging.debug(f"customer_manager_info_access_by_cert_no: user_utter={user_utter}, global_vars={global_vars}")
     data = query(ENDPOINT, cert_no=global_vars['cert_no'])
+    logging.info(f"customer_manager_info_access_by_cert_no: {global_vars['cert_no']}, response: {data}")
     if not data:
+        global_vars['cert_no'] = None
         return False
     else:
         global_vars['customer_manager_info'] = data
@@ -137,8 +123,8 @@ def report_customer_manager_info(user_utter, global_vars, context = None):
 ## addr_search
 def addr_search_access_by_address(user_utter, global_vars, context = None):
     ENDPOINT="addrSearch"
-    logging.debug(f"addr_search_access_by_address: user_utter={user_utter}, global_vars={global_vars}")
     data = query(ENDPOINT, phone_no=global_vars['address'])
+    logging.info(f"addr_search_access_by_address: {global_vars['address']}, response: {data}")
     if not data:
         return False
     else:

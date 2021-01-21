@@ -24,7 +24,7 @@
     },
     "1": {
       "type": "response",
-      "response": "返回ivr",
+      "response": "抱歉多次未能识别您的意图,您可以按[%global.entrance_id%]键返回ivr菜单",
       "dm": [
         {
           "cond": true,
