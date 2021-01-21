@@ -1,0 +1,24 @@
+{
+  "name": "转人工",
+  "intent": "转人工",
+  "lock": false,
+  "invasive": true,
+  "forget": false,
+  "nodes": {
+    "0": {
+      "type": "response",
+      "response": "正在为您转接人工客服，请稍候",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "1"
+        }
+      ]
+    },
+    "1": {
+      "type": "exit",
+      "todo": "fwd"
+    }
+  },
+  "version": "0.1"
+}

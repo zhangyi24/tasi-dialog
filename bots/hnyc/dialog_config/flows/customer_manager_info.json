@@ -1,6 +1,7 @@
 {
   "name": "customer_manager_info",
   "intent": "customer_manager_info",
+  "lock": true, 
   "nodes": {
     "0": {
       "type": "branch",

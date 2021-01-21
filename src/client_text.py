@@ -19,6 +19,7 @@ def get_req_body_init(call_id, call_sor_id, user_info):
         'inparams': {
             'call_id': call_id,
             'call_sor_id': call_sor_id,
+            'entrance_id': 0,
             'start_time': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S%f')[:-3],
             'extend': user_info
         }
@@ -82,7 +83,7 @@ if __name__ == '__main__':
 
     # call_info and user_info
     call_id = '123'
-    call_sor_id = '130****1234'
+    call_sor_id = '13056781234'
     user_info = 'dummy#val0#val1#val2#val3#val4#val5#val6#val7#val8#val9'
 
     # run

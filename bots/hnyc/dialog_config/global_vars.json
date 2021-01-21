@@ -1,5 +1,7 @@
 {
   "g_vars": {
+    "call_sor_id": null,
+    "entrance_id": null,
     "customer_info": null,
     "order_time": null,
     "order_info": null,

@@ -1,10 +1,22 @@
 import logging
+from types import SimpleNamespace
 ENV="production"
 
 if ENV == "production":
     from .api.soap_api import query
 else:
     from .api.json_api import query
+    
+### Call back Functions
+def init_global_vars(user_utter, global_vars, context = None):
+    logging.info(f"init_global_vars: context={context}, global_vars={global_vars}")
+    ns = SimpleNamespace(**context)
+    call_id = ns.call_info['call_id']
+    entrance_id = ns.call_info['entrance_id']
+    call_sor_id = ns.call_info['call_sor_id']
+    global_vars['entrance_id'] = int(entrance_id)
+    global_vars['call_sor_id'] = str(call_sor_id)
+    return True
 
 ## order_time
 def order_time_access_by_phone_no(user_utter, global_vars, context = None):

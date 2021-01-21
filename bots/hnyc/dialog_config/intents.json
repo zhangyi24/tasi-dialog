@@ -1,4 +1,10 @@
 {
+  "main": {
+    "name": "main",
+    "description": "湖南烟草BOT",
+    "slots": {
+    }
+  },
   "order_info": {
     "name": "order_info",
     "description": "",
@@ -16,5 +22,21 @@
         "valueSet": "user.address"
       }
     }
+  },
+  "重述": {
+    "name": "重述",
+    "slots": {}
+  },
+  "再见": {
+    "name": "再见",
+    "slots": {}
+  },
+  "转人工": {
+    "name": "转人工",
+    "slots": {}
+  },
+  "ivr": {
+    "name": "ivr",
+    "slots": {}
   }
 }
