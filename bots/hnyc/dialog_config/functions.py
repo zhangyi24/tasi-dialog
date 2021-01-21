@@ -24,7 +24,7 @@ def order_info_access_by_phone_no(user_utter, global_vars, context = None):
     phone_no = global_vars['call_sor_id']
     data = query(ENDPOINT, phone_no=phone_no)
     logging.info(f"order_info_access_by_phone_no: {phone_no}, response:{data}")
-    if not data:
+    if not data or len(data) == 1:
         return False
     else:
         global_vars['order_info'] = data
@@ -44,7 +44,7 @@ def customer_info_access_by_phone_no(user_utter, global_vars, context = None):
     phone_no = global_vars['call_sor_id']
     data = query(ENDPOINT, phone_no=phone_no)
     logging.info(f"customer_info_access_by_phone_no: {phone_no}, response:{data}")
-    if not data:
+    if not data or len(data) == 1:
         return False
     else:
         global_vars['customer_info'] = data
@@ -63,7 +63,7 @@ def order_time_access_by_phone_no(user_utter, global_vars, context = None):
     ENDPOINT="custInfoQuery"
     data = query(ENDPOINT, phone_no=global_vars['phone_no'])
     logging.info(f"order_time_access_by_phone_no: {global_vars['phone_no']}, response: {data}")
-    if not data:
+    if not data or len(data) == 1:
         global_vars['wrong_phone_no'] = global_vars['phone_no']
         global_vars['phone_no'] = None
         return False
@@ -75,7 +75,7 @@ def order_time_access_by_cert_no(user_utter, global_vars, context = None):
     ENDPOINT="custInfoQuery"
     data = query(ENDPOINT, cert_no=global_vars['cert_no'])
     logging.info(f"order_time_access_by_cert_no: {global_vars['cert_no']}, response: {data}")
-    if not data:
+    if not data or len(data) == 1:
         global_vars['wrong_cert_no'] = global_vars['cert_no']
         global_vars['cert_no'] = None
         return False
@@ -96,7 +96,7 @@ def customer_manager_info_access_by_phone_no(user_utter, global_vars, context = 
     ENDPOINT="custMgrQuery"
     data = query(ENDPOINT, phone_no=global_vars['phone_no'])
     logging.info(f"customer_manager_info_access_by_phone_no: {global_vars['phone_no']}, response: {data}")
-    if not data:
+    if not data or len(data) == 1:
         global_vars['wrong_phone_no'] = global_vars['phone_no']
         global_vars['phone_no'] = None
         return False
@@ -108,7 +108,7 @@ def customer_manager_info_access_by_cert_no(user_utter, global_vars, context = N
     ENDPOINT="custMgrQuery"
     data = query(ENDPOINT, cert_no=global_vars['cert_no'])
     logging.info(f"customer_manager_info_access_by_cert_no: {global_vars['cert_no']}, response: {data}")
-    if not data:
+    if not data or len(data) == 1:
         global_vars['wrong_cert_no'] = global_vars['cert_no']
         global_vars['cert_no'] = None
         return False
@@ -129,7 +129,7 @@ def addr_search_access_by_address(user_utter, global_vars, context = None):
     ENDPOINT="addrSearch"
     data = query(ENDPOINT, phone_no=global_vars['address'])
     logging.info(f"addr_search_access_by_address: {global_vars['address']}, response: {data}")
-    if not data:
+    if not data or len(data) == 1:
         return False
     else:
         global_vars['addr_search'] = data
