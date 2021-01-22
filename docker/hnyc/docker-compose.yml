@@ -1,0 +1,8 @@
+#docker-compose.yml
+version: '3.3'    
+services:
+      tasi-dialog-hnyc:
+        image: tasitech/tasi_dialog_hnyc:v2.0
+        build:
+          context: ../../
+          dockerfile: ./docker/hnyc/Dockerfile

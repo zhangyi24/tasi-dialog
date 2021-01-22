@@ -17,3 +17,4 @@ jsonpath-ng
 supervisor
 sqlalchemy
 expiringdict
+lxml
