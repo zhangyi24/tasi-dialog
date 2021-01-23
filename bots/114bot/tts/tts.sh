@@ -1,5 +1,13 @@
-DOMAIN=8.131.253.223
-PORT=40000
+ENV=server10
+if [ $ENV == server10 ]
+then
+  DOMAIN=101.6.68.85
+  PORT=10000
+else
+  DOMAIN=8.131.253.223
+  PORT=40000
+fi
+  
 TEXT=$1
 FILENAME=$(echo -n "$TEXT" | shasum | cut -c1-6)
 
