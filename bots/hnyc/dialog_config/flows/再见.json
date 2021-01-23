@@ -7,7 +7,7 @@
   "nodes": {
     "0": {
       "type": "response",
-      "response": "很高兴为您服务，再见",
+      "response": "很高兴为您服务，再见。",
       "dm": [
         {
           "cond": true,

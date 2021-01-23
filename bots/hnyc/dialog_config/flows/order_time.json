@@ -44,7 +44,7 @@
     },
     "1": {
       "type": "response",
-      "response": "请提供下您的订货电话或者专卖证号，我将为您查询最近的送货时间",
+      "response": "请提供下您的订货电话或者专卖证号，我将为您查询最近的送货时间。",
       "dm": [
         {
           "cond": true,
@@ -60,7 +60,7 @@
           "global_variable": "phone_no",
           "max_request_num": 0, 
           "response_before_filling": false,
-          "response": {"content": "手机号填槽失败", "input_channel": "keyboard"}
+          "response": {"content": "手机号填槽失败。", "input_channel": "keyboard"}
         }
       ],
       "dm": [
@@ -89,7 +89,7 @@
           "global_variable": "cert_no",
           "max_request_num": 0, 
           "response_before_filling": false,
-          "response": {"content": "专卖证号填槽失败", "input_channel": "keyboard"}
+          "response": {"content": "专卖证号填槽失败。", "input_channel": "keyboard"}
         }
       ],
       "dm": [

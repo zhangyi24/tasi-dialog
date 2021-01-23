@@ -7,7 +7,7 @@
   "nodes": {
     "0": {
       "type": "response",
-      "response": "正在为您转接人工客服，请稍候",
+      "response": "正在为您转接人工客服，请稍候。",
       "dm": [
         {
           "cond": true,

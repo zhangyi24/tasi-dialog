@@ -45,7 +45,7 @@
     },
     "1": {
       "type": "response",
-      "response": "请提供下您的订货电话或者专卖证号，我将为你查询客户经理的信息",
+      "response": "请提供下您的订货电话或者专卖证号，我将为你查询客户经理的信息。",
       "dm": [
         {
           "cond": true,
@@ -61,7 +61,7 @@
           "global_variable": "phone_no",
           "max_request_num": 0, 
           "response_before_filling": false,
-          "response": {"content": "请提供下您的订货电话或者专卖证号", "input_channel": "keyboard"}
+          "response": {"content": "请提供下您的订货电话或者专卖证号。", "input_channel": "keyboard"}
         }
       ],
       "dm": [
@@ -90,7 +90,7 @@
           "global_variable": "cert_no",
           "max_request_num": 0, 
           "response_before_filling": false,
-          "response": {"content": "专卖证号填槽失败", "input_channel": "keyboard"}
+          "response": {"content": "专卖证号填槽失败。", "input_channel": "keyboard"}
         }
       ],
       "dm": [
