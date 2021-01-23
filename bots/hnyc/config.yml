@@ -1,5 +1,7 @@
-kb:
-  threshold_coeff: 0.01
+bot:
+  kb:
+    threshold_coeff: 0.01
+    switch: True
 phone:
   port: 49995
   bot:
