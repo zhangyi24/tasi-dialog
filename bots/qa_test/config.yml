@@ -2,11 +2,14 @@ phone:
   port: 49995
   bot:
     interruptable: False
+    fwd:
+      queue_id_updatable: False
+      queue_id: '65'
 text:
   port: 59995
 bot:
   kb:
-    switch: True
+    switch: False
     threshold_coeff: 1.0
     recommend:
       switch: True

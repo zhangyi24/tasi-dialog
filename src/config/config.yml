@@ -50,7 +50,10 @@ phone:
     record_dir: https://tasi-callcenter-audio-record.oss-cn-beijing.aliyuncs.com/ASR/
   bot:
     interruptable: false
-    lock_before_fwd: false
+    fwd:
+      queue_id_updatable: true
+      queue_id: '0'
+      lock_before_fwd: false
     save_result:
       switch: false
       url: http://39.99.186.66:8001/api/robot/resultSave

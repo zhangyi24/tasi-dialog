@@ -12,50 +12,75 @@ import readline
 from utils.config import merge_config
 
 
-def get_req_body_init(call_id, call_sor_id, user_info):
-    req_body = {
-        'userid': call_id,
-        'inaction': 8,
-        'inparams': {
-            'call_id': call_id,
-            'call_sor_id': call_sor_id,
-            'entrance_id': 0,
-            'start_time': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S%f')[:-3],
-            'extend': user_info
+class Client(object):
+    def __init__(self, call_id='123', call_sor_id='13056781234', user_info=None, entrance_id='0'):
+        self.call_id = call_id
+        self.call_sor_id = call_sor_id
+        self.user_info = '#'.join(f'val{i}' for i in range(10)) if user_info is None else user_info
+        self.entrance_id = entrance_id
+
+    def get_req_body_init(self):
+        req_body = {
+            'userid': self.call_id,
+            'inaction': 8,
+            'inparams': {
+                'call_id': self.call_id,
+                'call_sor_id': self.call_sor_id,
+                'entrance_id': self.entrance_id,
+                'start_time': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S%f')[:-3],
+                'extend': self.user_info
+            }
         }
-    }
-    return req_body
+        return req_body
 
-
-def get_req_body_speak_hangup(call_id, inter_idx):
-    req_body = {
-        'userid': call_id,
-        'inaction': 9,
-        'inparams': {
-            'call_id': call_id,
-            'inter_idx': inter_idx,
-            'flow_result_type': '3',
-            'input': '',
-            'inter_no': '',
+    def get_req_body_speak_hangup(self, inter_idx):
+        req_body = {
+            'userid': self.call_id,
+            'inaction': 9,
+            'inparams': {
+                'call_id': self.call_id,
+                'inter_idx': inter_idx,
+                'flow_result_type': '3',
+                'input': '',
+                'inter_no': '',
+            }
         }
-    }
-    return req_body
+        return req_body
 
-
-def get_req_body_speak_listen(call_id, inter_idx, input, inter_no=''):
-    req_body = {
-        'userid': call_id,
-        'inaction': 9,
-        'inparams': {
-            'call_id': call_id,
-            'inter_idx': inter_idx,
-            'flow_result_type': '1',
-            'input': input,
-            'inter_no': inter_no
+    def get_req_body_speak_listen(self, inter_idx, input):
+        req_body = {
+            'userid': self.call_id,
+            'inaction': 9,
+            'inparams': {
+                'call_id': self.call_id,
+                'inter_idx': inter_idx,
+                'flow_result_type': '1',
+                'input': input,
+                'inter_no': ''
+            }
         }
-    }
-    return req_body
+        return req_body
 
+    def generate_req_body(self, resp_body=None):
+        req_body = None
+        if resp_body is None:
+            req_body = self.get_req_body_init()
+            self.hungup = False
+        elif resp_body['outaction'] == '9':
+            assert resp_body['outparams']['model_type'] in ['11', '10']
+            print('bot:\t%s' % resp_body['outparams']['prompt_text'])
+            if resp_body['outparams']['model_type'] == '11':
+                req_body = self.get_req_body_speak_listen(resp_body['outparams']['inter_idx'],
+                                                            input('user:\t'))
+            if resp_body['outparams']['model_type'] == '10':
+                req_body = self.get_req_body_speak_hangup(resp_body['outparams']['inter_idx'])
+        elif resp_body['outaction'] == '10':
+            self.hungup = True
+        return req_body
+
+
+    def is_hungup(self):
+        return bool(self.hungup)
 
 if __name__ == '__main__':
     # parse sys.argv
@@ -81,26 +106,16 @@ if __name__ == '__main__':
     # url
     server_url = 'http://%s:%s' % (args.ip, conf_text['port'])
 
-    # call_info and user_info
-    call_id = '123'
-    call_sor_id = '13056781234'
-    user_info = 'dummy#val0#val1#val2#val3#val4#val5#val6#val7#val8#val9'
-
     # run
     while True:
-        req_body = get_req_body_init(call_id, call_sor_id, user_info)
+        client = Client()
+        req_body = client.generate_req_body()
         resp = requests.post(url=server_url, json=req_body)
         resp_body = resp.json() if resp.content else {}
-        while resp_body['outaction'] != '10':
-            assert resp_body['outaction'] == '9'
-            assert resp_body['outparams']['model_type'] in ['11', '10']
-            print('bot:\t%s' % resp_body['outparams']['prompt_text'])
-            if resp_body['outparams']['model_type'] == '11':
-                req_body = get_req_body_speak_listen(call_id,
-                                                resp_body['outparams']['inter_idx'],
-                                                input('user:\t'))
-            if resp_body['outparams']['model_type'] == '10':
-                req_body = get_req_body_speak_hangup(call_id, resp_body['outparams']['inter_idx'])
+        while not client.hungup:
+            req_body = client.generate_req_body(resp_body)
+            if client.hungup:
+                break
             resp = requests.post(url=server_url, json=req_body)
             resp_body = resp.json() if resp.content else {}
         if input('continue? (Y?n)').lower() == 'n':

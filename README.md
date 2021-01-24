@@ -644,6 +644,9 @@ phone: # 电话版对话系统相关配置
   port: 49999 # 端口号
   bot: # 机器人
     interruptable: False # 电话交互过程中机器人是否可被用户打断
+    fwd: # 转人工设置
+      queue_id_updatable: True # 转人工队列号queue_id是否可以被对话初始化请求中的参数queue_id覆盖。默认为True。True代表可以，False代表不可以。
+      queue_id: '0' # 转人工队列号
 text: # 文本版对话系统相关配置
   port: 59999 # 端口号
 ```

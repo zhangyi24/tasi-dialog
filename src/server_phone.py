@@ -126,9 +126,13 @@ class MainHandler(tornado.web.RequestHandler):
         if self.req_body['inaction'] == 8:
             # 处理扩展字段
             user_info = self.req_body['inparams']['extend'].split('#')[1:]
+            # 处理通话参数
+            call_info = copy.deepcopy(self.req_body['inparams'])
+            if not self.bot_conf["fwd"]["queue_id_updatable"]:
+                call_info["queue_id"] = self.bot_conf["fwd"]["queue_id"]
             # 初始化一个机器人，返回开场白
             self.bot.init(call_id=self.req_body['userid'], user_info=user_info,
-                          call_info=self.req_body['inparams'],
+                          call_info=call_info,
                           task_id=self.req_body['inparams']['strategy_params'].split('#')[0])
             call = self.bot.calls[self.req_body['userid']]
             call['inter_idx'] = '1'
@@ -285,7 +289,7 @@ class MainHandler(tornado.web.RequestHandler):
 
         # 机器人发起呼叫转移
         elif call['call_status'] == 'fwd':
-            if self.bot_conf["lock_before_fwd"]:
+            if self.bot_conf["fwd"]["lock_before_fwd"]:
                 resp_body = self.generate_resp_body_speak(call, bot_resp)
                 call['resp_queue'].append(self.generate_resp_body_lock_queue(call))
             else:
