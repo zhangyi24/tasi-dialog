@@ -3,8 +3,8 @@ bot:
     threshold_coeff: 0.01
     switch: True
 phone:
-  port: 49995
+  port: 49993
   bot:
     interruptable: False
 text:
-  port: 59995
+  port: 59993
