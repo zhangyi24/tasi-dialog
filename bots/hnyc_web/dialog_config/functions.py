@@ -21,10 +21,12 @@ def init_global_vars(user_utter, global_vars, context = None):
 ## order_info
 def order_info_access_by_phone_no(user_utter, global_vars, context = None):
     ENDPOINT="orderInfoQuery"
-    phone_no = global_vars['call_sor_id']
+    phone_no = global_vars['phone_no']
     data = query(ENDPOINT, phone_no=phone_no)
     logging.info(f"order_info_access_by_phone_no: {phone_no}, response:{data}")
     if not data or len(data) == 1:
+        global_vars['wrong_phone_no'] = global_vars['phone_no']
+        global_vars['phone_no'] = None
         return False
     else:
         global_vars['order_info'] = data
@@ -41,10 +43,12 @@ def report_order_info(user_utter, global_vars, context = None):
 ## customer_info
 def customer_info_access_by_phone_no(user_utter, global_vars, context = None):
     ENDPOINT='custInformation'
-    phone_no = global_vars['call_sor_id']
+    phone_no = global_vars['phone_no']
     data = query(ENDPOINT, phone_no=phone_no)
     logging.info(f"customer_info_access_by_phone_no: {phone_no}, response:{data}")
     if not data or len(data) == 1:
+        global_vars['wrong_phone_no'] = global_vars['phone_no']
+        global_vars['phone_no'] = None
         return False
     else:
         global_vars['customer_info'] = data
