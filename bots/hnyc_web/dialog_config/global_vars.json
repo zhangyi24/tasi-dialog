@@ -1,0 +1,18 @@
+{
+  "g_vars": {
+    "call_sor_id": null,
+    "entrance_id": null,
+    "customer_info": null,
+    "order_time": null,
+    "order_info": null,
+    "customer_manager_info": null,
+    "addr_search": null,
+    "phone_no": null,
+    "wrong_phone_no": null,
+    "cert_no": null,
+    "wrong_cert_no": null,
+    "address": null,
+    "retry_count": null
+  },
+  "g_vars_need_init": []
+}
