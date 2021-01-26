@@ -1,0 +1,28 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "phone": 13588880000,
+      "cert_no": 12345678,
+      "next_order_time" : "2020-11-20 19:00",
+      "sales": "王永明",
+      "sales_phone": 15012345678
+    }, 
+    {
+      "id": 2,
+      "phone": 13566660000,
+      "cert_no": 22345678,
+      "next_order_time" : "2020-11-20 19:00",
+      "sales": "李小二",
+      "sales_phone": 13312345678  
+    },
+    {
+      "id": 3,
+      "phone": 13056781234,
+      "cert_no": 32345678,
+      "next_order_time" : "2020-11-20 19:00",
+      "sales": "测试来电",
+      "sales_phone": 13312345678  
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "name": "main",
+  "lock": false,
+  "nodes": {
+    "0": {
+      "type": "function",
+      "funcName": "init_global_vars",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "2"
+        }
+      ]
+    },
+    "1": {
+     "type": "flow",
+     "flowName": "order_info",
+     "dm": [
+       {
+         "cond": true,
+         "nextNode": "1"
+       }
+     ]
+    },
+    "2": {
+      "type": "return"
+    }
+  },
+  "version": "0.1"
+}

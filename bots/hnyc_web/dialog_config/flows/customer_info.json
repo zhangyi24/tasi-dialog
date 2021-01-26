@@ -1,0 +1,72 @@
+{
+  "name": "customer_info",
+  "intent": "customer_info",
+  "nodes": {
+    "0": {
+      "type": "branch",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "global.call_sor_id"
+              },
+              null
+            ]
+          },
+          "nextNode": "91"
+        },
+        {
+          "cond": "else",
+          "nextNode": "1"
+        }
+      ]
+    },
+    "1": {
+      "type": "function",
+      "funcName": "customer_info_access_by_phone_no",
+      "dm": [
+        {
+          "cond": {
+            "==": [
+              {
+                "var": "builtin.func_return"
+              },
+              true
+            ]
+          },
+          "nextNode": "99"
+        },
+        {
+          "cond": "else",
+          "nextNode": "100",
+          "response": "抱歉，当前来电[%global.call_sor_id%]并非订货预留电话，请使用订货电话查询客户相关信息。"
+        }
+      ]
+    },
+    "91": {
+      "type": "response",
+      "response": "抱歉，未能查到您的来电号码，无法为您查询。",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "100"
+        }
+      ]
+    },
+    "99": {
+      "type": "function",
+      "funcName": "report_customer_info",
+      "dm": [
+        {
+          "cond": true, 
+          "nextNode": "100",
+          "response": "[%builtin.func_return%]"
+        } 
+      ]
+    },
+    "100": {
+      "type": "return"
+    }
+  }
+}
