@@ -69,6 +69,10 @@ phone:
     user: postgres
 text:
   port: 59999
+  bot:
+    fwd:
+      queue_id_updatable: true
+      queue_id: '0'
 text-sgcc:
   keyboard_access: true
   port: 19999

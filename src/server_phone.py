@@ -48,6 +48,7 @@ RESPONSE_BODY_9 = {
         "prompt_type": "",
         "prompt_wav": "",
         "prompt_text": "",
+        "prompt_src": "",
         "timeout": "",
         "org": "",
         "grammar": "",
@@ -314,6 +315,7 @@ class MainHandler(tornado.web.RequestHandler):
             "prompt_type": '2',
             "prompt_wav": '',
             "prompt_text": bot_resp["content"],
+            "prompt_src": bot_resp['src'],
             "timeout": '0'
         })
         return resp_body
@@ -340,6 +342,7 @@ class MainHandler(tornado.web.RequestHandler):
             "prompt_type": '2',
             "prompt_wav": '',
             "prompt_text": bot_resp["content"],
+            "prompt_src": bot_resp['src'],
             "timeout": timeout
         })
 
