@@ -41,7 +41,7 @@ class Question(object):
         return "[问答题]"
             
     def render_options(self):
-        return ",".join(self.options)
+        return "，".join(self.options)
         
     def render(self):
         return f"{self.render_type()} {self.question} {self.render_options()}"
