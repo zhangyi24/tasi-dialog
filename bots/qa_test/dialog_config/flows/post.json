@@ -3,6 +3,16 @@
   "lock": false,
   "nodes": {
     "0": {
+      "type": "function",
+      "funcName": "qa_kb_stat",
+      "dm": [
+        {
+          "cond": true,
+          "nextNode": "1"
+        }
+      ]
+    },
+    "1": {
       "type": "branch",
       "dm": [
         {
@@ -18,11 +28,11 @@
         },
         {
           "cond": "else",
-          "nextNode": "1"
+          "nextNode": "2"
         }
       ]
     },
-    "1": {
+    "2": {
       "type": "response",
       "response": "返回ivr",
       "dm": [

@@ -147,6 +147,7 @@ class NLUManager(object):
         if not hit["qa"]:
             return {}
         standard_question = hit["qa"]["standard_question"]
+        standard_question_id = hit["qa"]["id"]
         answer = hit["qa"]["answer"]
         recommend = ""
         if self.kb_config["recommend"]["switch"]:
@@ -154,7 +155,7 @@ class NLUManager(object):
             if len(related_questions):
                 recommend = "\n您是不是还想问：\n" + "\n".join(related_questions)
         response = f"{answer}{recommend}"
-        return {"response": response, "hit_question": hit_question, "standard_question": standard_question, "score": score, "threshold": threshold, "threshold2": threshold2}
+        return {"response": response, "hit_question": hit_question, "standard_question": standard_question, "standard_question_id": standard_question_id, "score": score, "threshold": threshold, "threshold2": threshold2}
 
     def qa_kg(self, user_utter):
         if self.kg_module is None:

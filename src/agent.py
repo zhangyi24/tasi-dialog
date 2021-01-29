@@ -69,7 +69,8 @@ class Bot(object):
             with open(custom_value_sets_config_path, 'r', encoding='utf-8') as f:
                 self.value_sets['user'] = json.load(f)
         # builtin_vars 4个内建变量
-        self.builtin_vars = {'intent': None, 'func_return': None, 'last_response': None, 'cnt_no_answer_succession': 0}
+        self.builtin_vars = {'intent': None, 'func_return': None, 'last_response': None, 'cnt_no_answer_succession': 0, 'qa_kb_result': None,
+                             'response_src': None}
         # global_vars 全局变量
         self.g_vars = {}
         self.g_vars_need_init = []
@@ -146,6 +147,7 @@ class Bot(object):
                                               self.calls[call_id]['builtin_vars'])
             resp['src'] = 'greeting'
         self.calls[call_id]['builtin_vars']['last_response'] = resp['content']
+        self.calls[call_id]["builtin_vars"]["response_src"] = resp['src']
         return resp, call['call_status']
 
     def response(self, call_id, user_utter):
@@ -161,6 +163,7 @@ class Bot(object):
                 resp['content'] = qa_kg_answer
                 resp['src'] = 'kg'
                 builtin_vars["cnt_no_answer_succession"] = 0
+        builtin_vars["response_src"] = resp['src']
         resp_post, call_status = self.generate_response_flow(flow_name="post", call_id=call_id, user_utter=user_utter)
         if resp_post['content']:
             resp = resp_post
@@ -189,6 +192,7 @@ class Bot(object):
         node_stack = self.calls[call_id]['node_stack']
 
         qa_kb_result = self.nlu_manager.qa_kb(user_utter)
+        builtin_vars["qa_kb_result"] = qa_kb_result
         intent_recognition_result = self.intent_recognition(user_utter)
 
         intent_recognition_done = False
