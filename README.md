@@ -279,7 +279,7 @@ cond字段的三种情况：
 
 ###### `response`
 
-response在对话流中可能在三个地方出现：回复节点、填槽节点和dm。response有两种数据结类型：str或dict。当response的数据类型是dict时，配置方式如下，例子中的值为默认值。
+response在对话流中可能在三个地方出现：回复节点、填槽节点和dm。response有两种数据结类型：str或dict。当response的数据类型是dict时，配置方式如下，例子中的值为默认值。可以通过input_channels配置这句response之后用户的输入方式是“ASR”或/和“键盘输入”，比如response可以是“请您输入您的用户编号，以#号键结束”。
 
 ```
 "response": {   
